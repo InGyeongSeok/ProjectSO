@@ -9,6 +9,6 @@ public class ProjectSO : ModuleRules
 		PrivateDependencyModuleNames.AddRange(new string[] { "ALSV4_CPP" });
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" , "ALSV4_CPP"});
 	}
 }

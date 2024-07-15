@@ -1,23 +1,21 @@
-// Copyright:       Copyright (C) 2022 Doğa Can Yanıkoğlu
-// Source Code:     https://github.com/dyanikoglu/ALS-Community
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/ALSPlayerController.h"
+#include "SOPlayerController.h"
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
+#include "SOPlayerCameraManager.h"
 #include "Engine/LocalPlayer.h"
-#include "AI/ALSAIController.h"
-#include "Character/ALSCharacter.h"
+#include "ProjectSO/Character/SOCharacterBase.h"
 #include "Character/ALSPlayerCameraManager.h"
 #include "Components/ALSDebugComponent.h"
-#include "Kismet/GameplayStatics.h"
 
-void AALSPlayerController::OnPossess(APawn* NewPawn)
+void ASOPlayerController::OnPossess(APawn* NewPawn)
 {
 	Super::OnPossess(NewPawn);
-	PossessedCharacter = Cast<AALSBaseCharacter>(NewPawn);
+	PossessedCharacter = Cast<ASOCharacterBase>(NewPawn);
 	if (!IsRunningDedicatedServer())
 	{
 		// Servers want to setup camera only in listen servers.
@@ -35,10 +33,10 @@ void AALSPlayerController::OnPossess(APawn* NewPawn)
 	}
 }
 
-void AALSPlayerController::OnRep_Pawn()
+void ASOPlayerController::OnRep_Pawn()
 {
 	Super::OnRep_Pawn();
-	PossessedCharacter = Cast<AALSBaseCharacter>(GetPawn());
+	PossessedCharacter = Cast<ASOCharacterBase>(GetPawn());
 	SetupCamera();
 	SetupInputs();
 	
@@ -51,7 +49,7 @@ void AALSPlayerController::OnRep_Pawn()
 	}
 }
 
-void AALSPlayerController::SetupInputComponent()
+void ASOPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
@@ -62,8 +60,8 @@ void AALSPlayerController::SetupInputComponent()
 		EnhancedInputComponent->ClearActionValueBindings();
 		EnhancedInputComponent->ClearDebugKeyBindings();
 
-		BindActions(DefaultInputMappingContext);
 		BindActions(DebugInputMappingContext);
+		BindActions(DefaultInputMappingContext);
 	}
 	else
 	{
@@ -71,7 +69,7 @@ void AALSPlayerController::SetupInputComponent()
 	}
 }
 
-void AALSPlayerController::BindActions(UInputMappingContext* Context)
+void ASOPlayerController::BindActions(UInputMappingContext* Context)
 {
 	if (Context)
 	{
@@ -93,7 +91,7 @@ void AALSPlayerController::BindActions(UInputMappingContext* Context)
 	}
 }
 
-void AALSPlayerController::SetupInputs()
+void ASOPlayerController::SetupInputs()
 {
 	if (PossessedCharacter)
 	{
@@ -112,17 +110,17 @@ void AALSPlayerController::SetupInputs()
 	}
 }
 
-void AALSPlayerController::SetupCamera()
+void ASOPlayerController::SetupCamera()
 {
 	// Call "OnPossess" in Player Camera Manager when possessing a pawn
-	AALSPlayerCameraManager* CastedMgr = Cast<AALSPlayerCameraManager>(PlayerCameraManager);
+	ASOPlayerCameraManager* CastedMgr = Cast<ASOPlayerCameraManager>(PlayerCameraManager);
 	if (PossessedCharacter && CastedMgr)
 	{
 		CastedMgr->OnPossess(PossessedCharacter);
 	}
 }
 
-void AALSPlayerController::ForwardMovementAction(const FInputActionValue& Value)
+void ASOPlayerController::ForwardMovementAction(const FInputActionValue& Value)
 {
 	if (PossessedCharacter)
 	{
@@ -130,7 +128,7 @@ void AALSPlayerController::ForwardMovementAction(const FInputActionValue& Value)
 	}
 }
 
-void AALSPlayerController::RightMovementAction(const FInputActionValue& Value)
+void ASOPlayerController::RightMovementAction(const FInputActionValue& Value)
 {
 	if (PossessedCharacter)
 	{
@@ -138,7 +136,7 @@ void AALSPlayerController::RightMovementAction(const FInputActionValue& Value)
 	}
 }
 
-void AALSPlayerController::CameraUpAction(const FInputActionValue& Value)
+void ASOPlayerController::CameraUpAction(const FInputActionValue& Value)
 {
 	if (PossessedCharacter)
 	{
@@ -146,7 +144,7 @@ void AALSPlayerController::CameraUpAction(const FInputActionValue& Value)
 	}
 }
 
-void AALSPlayerController::CameraRightAction(const FInputActionValue& Value)
+void ASOPlayerController::CameraRightAction(const FInputActionValue& Value)
 {
 	if (PossessedCharacter)
 	{
@@ -154,7 +152,7 @@ void AALSPlayerController::CameraRightAction(const FInputActionValue& Value)
 	}
 }
 
-void AALSPlayerController::JumpAction(const FInputActionValue& Value)
+void ASOPlayerController::JumpAction(const FInputActionValue& Value)
 {
 	if (PossessedCharacter)
 	{
@@ -162,7 +160,7 @@ void AALSPlayerController::JumpAction(const FInputActionValue& Value)
 	}
 }
 
-void AALSPlayerController::SprintAction(const FInputActionValue& Value)
+void ASOPlayerController::SprintAction(const FInputActionValue& Value)
 {
 	if (PossessedCharacter)
 	{
@@ -170,7 +168,7 @@ void AALSPlayerController::SprintAction(const FInputActionValue& Value)
 	}
 }
 
-void AALSPlayerController::AimAction(const FInputActionValue& Value)
+void ASOPlayerController::AimAction(const FInputActionValue& Value)
 {
 	if (PossessedCharacter)
 	{
@@ -178,7 +176,7 @@ void AALSPlayerController::AimAction(const FInputActionValue& Value)
 	}
 }
 
-void AALSPlayerController::CameraTapAction(const FInputActionValue& Value)
+void ASOPlayerController::CameraTapAction(const FInputActionValue& Value)
 {
 	if (PossessedCharacter)
 	{
@@ -186,7 +184,7 @@ void AALSPlayerController::CameraTapAction(const FInputActionValue& Value)
 	}
 }
 
-void AALSPlayerController::CameraHeldAction(const FInputActionValue& Value)
+void ASOPlayerController::CameraHeldAction(const FInputActionValue& Value)
 {
 	if (PossessedCharacter)
 	{
@@ -194,7 +192,7 @@ void AALSPlayerController::CameraHeldAction(const FInputActionValue& Value)
 	}
 }
 
-void AALSPlayerController::StanceAction(const FInputActionValue& Value)
+void ASOPlayerController::StanceAction(const FInputActionValue& Value)
 {
 	if (PossessedCharacter && Value.Get<bool>())
 	{
@@ -202,7 +200,7 @@ void AALSPlayerController::StanceAction(const FInputActionValue& Value)
 	}
 }
 
-void AALSPlayerController::WalkAction(const FInputActionValue& Value)
+void ASOPlayerController::WalkAction(const FInputActionValue& Value)
 {
 	if (PossessedCharacter && Value.Get<bool>())
 	{
@@ -210,7 +208,7 @@ void AALSPlayerController::WalkAction(const FInputActionValue& Value)
 	}
 }
 
-void AALSPlayerController::RagdollAction(const FInputActionValue& Value)
+void ASOPlayerController::RagdollAction(const FInputActionValue& Value)
 {
 	if (PossessedCharacter && Value.Get<bool>())
 	{
@@ -218,7 +216,7 @@ void AALSPlayerController::RagdollAction(const FInputActionValue& Value)
 	}
 }
 
-void AALSPlayerController::VelocityDirectionAction(const FInputActionValue& Value)
+void ASOPlayerController::VelocityDirectionAction(const FInputActionValue& Value)
 {
 	if (PossessedCharacter && Value.Get<bool>())
 	{
@@ -226,7 +224,7 @@ void AALSPlayerController::VelocityDirectionAction(const FInputActionValue& Valu
 	}
 }
 
-void AALSPlayerController::LookingDirectionAction(const FInputActionValue& Value)
+void ASOPlayerController::LookingDirectionAction(const FInputActionValue& Value)
 {
 	if (PossessedCharacter && Value.Get<bool>())
 	{
@@ -234,7 +232,7 @@ void AALSPlayerController::LookingDirectionAction(const FInputActionValue& Value
 	}
 }
 
-void AALSPlayerController::DebugToggleHudAction(const FInputActionValue& Value)
+void ASOPlayerController::DebugToggleHudAction(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Warning, TEXT("DebugToggleHudAction 0"))
 	if (PossessedCharacter && Value.Get<bool>())
@@ -244,11 +242,12 @@ void AALSPlayerController::DebugToggleHudAction(const FInputActionValue& Value)
 		if (DebugComp)
 		{
 			DebugComp->ToggleHud();
+			UE_LOG(LogTemp, Warning, TEXT("DebugToggleHudAction 2"))
 		}
 	}
 }
 
-void AALSPlayerController::DebugToggleDebugViewAction(const FInputActionValue& Value)
+void ASOPlayerController::DebugToggleDebugViewAction(const FInputActionValue& Value)
 {
 	if (PossessedCharacter && Value.Get<bool>())
 	{
@@ -260,7 +259,7 @@ void AALSPlayerController::DebugToggleDebugViewAction(const FInputActionValue& V
 	}
 }
 
-void AALSPlayerController::DebugToggleTracesAction(const FInputActionValue& Value)
+void ASOPlayerController::DebugToggleTracesAction(const FInputActionValue& Value)
 {
 	if (PossessedCharacter && Value.Get<bool>())
 	{
@@ -272,7 +271,7 @@ void AALSPlayerController::DebugToggleTracesAction(const FInputActionValue& Valu
 	}
 }
 
-void AALSPlayerController::DebugToggleShapesAction(const FInputActionValue& Value)
+void ASOPlayerController::DebugToggleShapesAction(const FInputActionValue& Value)
 {
 	if (PossessedCharacter && Value.Get<bool>())
 	{
@@ -284,7 +283,7 @@ void AALSPlayerController::DebugToggleShapesAction(const FInputActionValue& Valu
 	}
 }
 
-void AALSPlayerController::DebugToggleLayerColorsAction(const FInputActionValue& Value)
+void ASOPlayerController::DebugToggleLayerColorsAction(const FInputActionValue& Value)
 {
 	if (PossessedCharacter && Value.Get<bool>())
 	{
@@ -296,7 +295,7 @@ void AALSPlayerController::DebugToggleLayerColorsAction(const FInputActionValue&
 	}
 }
 
-void AALSPlayerController::DebugToggleCharacterInfoAction(const FInputActionValue& Value)
+void ASOPlayerController::DebugToggleCharacterInfoAction(const FInputActionValue& Value)
 {
 	if (PossessedCharacter && Value.Get<bool>())
 	{
@@ -308,7 +307,7 @@ void AALSPlayerController::DebugToggleCharacterInfoAction(const FInputActionValu
 	}
 }
 
-void AALSPlayerController::DebugToggleSlomoAction(const FInputActionValue& Value)
+void ASOPlayerController::DebugToggleSlowMotionAction(const FInputActionValue& Value)
 {
 	if (PossessedCharacter && Value.Get<bool>())
 	{
@@ -320,7 +319,7 @@ void AALSPlayerController::DebugToggleSlomoAction(const FInputActionValue& Value
 	}
 }
 
-void AALSPlayerController::DebugFocusedCharacterCycleAction(const FInputActionValue& Value)
+void ASOPlayerController::DebugFocusedCharacterCycleAction(const FInputActionValue& Value)
 {
 	if (PossessedCharacter)
 	{
@@ -332,7 +331,7 @@ void AALSPlayerController::DebugFocusedCharacterCycleAction(const FInputActionVa
 	}
 }
 
-void AALSPlayerController::DebugToggleMeshAction(const FInputActionValue& Value)
+void ASOPlayerController::DebugToggleMeshAction(const FInputActionValue& Value)
 {
 	if (PossessedCharacter && Value.Get<bool>())
 	{
@@ -344,7 +343,7 @@ void AALSPlayerController::DebugToggleMeshAction(const FInputActionValue& Value)
 	}
 }
 
-void AALSPlayerController::DebugOpenOverlayMenuAction(const FInputActionValue& Value)
+void ASOPlayerController::DebugOpenOverlayMenuAction(const FInputActionValue& Value)
 {
 	if (PossessedCharacter)
 	{
@@ -356,7 +355,7 @@ void AALSPlayerController::DebugOpenOverlayMenuAction(const FInputActionValue& V
 	}
 }
 
-void AALSPlayerController::DebugOverlayMenuCycleAction(const FInputActionValue& Value)
+void ASOPlayerController::DebugOverlayMenuCycleAction(const FInputActionValue& Value)
 {
 	if (PossessedCharacter)
 	{
