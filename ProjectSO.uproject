@@ -7,7 +7,11 @@
 		{
 			"Name": "ProjectSO",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"ALSV4_CPP",
+				"Engine"
+			]
 		}
 	],
 	"Plugins": [
