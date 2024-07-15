@@ -4,11 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
-#include "Character/ALSBaseCharacter.h"
 #include "GameFramework/PlayerController.h"
 #include "SOPlayerController.generated.h"
 
 class ASOCharacterBase;
+class AALSBaseCharacter;
 class UInputMappingContext;
 /**
  * 
@@ -17,7 +17,6 @@ UCLASS(Blueprintable, BlueprintType)
 class PROJECTSO_API ASOPlayerController : public APlayerController
 {
 	GENERATED_BODY()
-
 	
 public:
 	virtual void OnPossess(APawn* NewPawn) override;

@@ -9,13 +9,15 @@
 #include "SOPlayerCameraManager.h"
 #include "Engine/LocalPlayer.h"
 #include "ProjectSO/Character/SOCharacterBase.h"
+#include "Character/ALSBaseCharacter.h"
+#include "Character/ALSCharacter.h"
 #include "Character/ALSPlayerCameraManager.h"
 #include "Components/ALSDebugComponent.h"
 
 void ASOPlayerController::OnPossess(APawn* NewPawn)
 {
 	Super::OnPossess(NewPawn);
-	PossessedCharacter = Cast<ASOCharacterBase>(NewPawn);
+	PossessedCharacter = Cast<AALSBaseCharacter>(NewPawn);
 	if (!IsRunningDedicatedServer())
 	{
 		// Servers want to setup camera only in listen servers.
@@ -36,7 +38,7 @@ void ASOPlayerController::OnPossess(APawn* NewPawn)
 void ASOPlayerController::OnRep_Pawn()
 {
 	Super::OnRep_Pawn();
-	PossessedCharacter = Cast<ASOCharacterBase>(GetPawn());
+	PossessedCharacter = Cast<AALSBaseCharacter>(GetPawn());
 	SetupCamera();
 	SetupInputs();
 	

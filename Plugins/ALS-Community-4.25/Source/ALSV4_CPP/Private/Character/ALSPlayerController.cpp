@@ -240,7 +240,7 @@ void AALSPlayerController::DebugToggleHudAction(const FInputActionValue& Value)
 	if (PossessedCharacter && Value.Get<bool>())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("DebugToggleHudAction 1"))
-		UALSDebugComponent* DebugComp = Cast<UALSDebugComponent>(PossessedCharacter->GetComponentByClass(UALSDebugComponent::StaticClass()));
+w		UALSDebugComponent* DebugComp = Cast<UALSDebugComponent>(PossessedCharacter->GetComponentByClass(UALSDebugComponent::StaticClass()));
 		if (DebugComp)
 		{
 			DebugComp->ToggleHud();
