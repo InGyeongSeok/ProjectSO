@@ -61,3 +61,27 @@ FSOWeaponStat* USOGameSubsystem::GetWeaponStatData(const uint8 InID)
 	}
 	return WeaponStatDataRow;
 }
+
+FSOWeaponData* USOGameSubsystem::GetWeaponData(const uint8 InID)
+{
+	if (!WeaponDataTable)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("WeaponStatTable is not assigned."));
+		return nullptr;
+	}
+
+	FString RowName = FString::Printf(TEXT("%d"), InID);
+	
+	FSOWeaponData* WeaponDataRow = WeaponDataTable->FindRow<FSOWeaponData>(FName(*RowName), "");
+	if (WeaponDataRow)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Found WeaponStatData for ID: %d"), InID);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No WeaponStatData found for ID: %d"), InID);
+	}
+	return WeaponDataRow;
+}
+
+

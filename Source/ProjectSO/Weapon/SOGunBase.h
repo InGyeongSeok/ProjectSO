@@ -74,7 +74,7 @@ protected:
 	uint8 FireMode;
 	
 	UPROPERTY(EditAnywhere, Category = "Properties|Fire")
-	int WeaponID;
+	uint8 WeaponID;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Properties|Weapon")
 	ESOWeaponType WeaponType;
@@ -167,11 +167,19 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void SetCurrentFireMode(ESOFireMode NewCurrentFireMode) { CurrentFireMode = NewCurrentFireMode; }
-	
+
+	//  Data
+protected:
+	UPROPERTY()
+	FSOWeaponStat WeaponStat;
+
+	UPROPERTY()
+	FSOWeaponData WeaponData; 
+
 	/** IDamageable **/
 public:
 	virtual void PressLMB() override;
-	
+
 	// Fire Logic
 protected:
 	virtual void OnFire();
@@ -191,9 +199,11 @@ protected:
 	virtual void Reload();
 	virtual void Aim();
 
+	//Data Settings
 protected:
-	void SetGunData();
-	
+	void SetGunData(const uint8 InID);
+
+
 	// multi
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;

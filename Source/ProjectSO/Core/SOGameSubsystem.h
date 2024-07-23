@@ -22,7 +22,10 @@ public:
 
 	//GetFuntions
 	USOGameSubsystem* GetSOGameSubsystem(const UObject* WorldContextObject);
-	FSOWeaponStat* GetWeaponStatData(uint8 InWeaponID);
+	
+	FSOWeaponStat* GetWeaponStatData(const uint8 InID);
+	FSOWeaponData* GetWeaponData(const uint8 InID);
+
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Data")

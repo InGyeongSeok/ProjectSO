@@ -23,6 +23,32 @@ public:
 					 LargeClipSize(0)
 	{
 	}
+
+	FSOWeaponStat& operator=(const FSOWeaponStat& InOhterStat)
+	{
+		if(this!= &InOhterStat)
+		{
+			ID = InOhterStat.ID;
+			WeaponName = InOhterStat.WeaponName;
+			WeaponType = InOhterStat.WeaponType;
+			FireMode = InOhterStat.FireMode;
+			AmmoType = InOhterStat.AmmoType;
+			FireInterval = InOhterStat.FireInterval;
+			ReloadInterval = InOhterStat.ReloadInterval;
+			QuickReloadInterval = InOhterStat.QuickReloadInterval;
+			Speed = InOhterStat.Speed;
+			MaxRange = InOhterStat.MaxRange;
+			Damage = InOhterStat.Damage;
+			HeadShotDamage = InOhterStat.HeadShotDamage;
+			RecoilYaw = InOhterStat.RecoilYaw;
+			RecoilPitch = InOhterStat.RecoilPitch;
+			AimedRecoilYaw = InOhterStat.AimedRecoilYaw;
+			AimedRecoilPitch = InOhterStat.AimedRecoilPitch;
+			ClipSize = InOhterStat.ClipSize;
+			LargeClipSize = InOhterStat.LargeClipSize;
+		}
+		return *this;
+	}
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
 	uint8 ID;
 	
@@ -83,6 +109,21 @@ USTRUCT(BlueprintType)
 struct FSOWeaponData : public FTableRowBase
 {
 	GENERATED_BODY()
+
+public:
+	FSOWeaponData& operator=(const FSOWeaponData& InOhterStat)
+	{
+		if(this!= &InOhterStat)
+		{
+			ID = InOhterStat.ID;
+			SkeletalMesh = InOhterStat.SkeletalMesh;
+			AnimMontage =  InOhterStat.AnimMontage;
+			MuzzleFlashEffect = InOhterStat.MuzzleFlashEffect;
+			SocketLocation = InOhterStat.SocketLocation;
+			SocketRotation = InOhterStat.SocketRotation;
+		}
+		return *this;
+	}
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)

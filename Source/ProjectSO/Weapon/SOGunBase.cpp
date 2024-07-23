@@ -31,7 +31,7 @@ void ASOGunBase::SetGunData(const uint8 InID)
 		return;
 	}
 
-	// 게임 인스턴스를 가져옵니다.
+	// 게임 인스턴스 가져오기.
 	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(World);
 	if (!GameInstance)
 	{
@@ -39,7 +39,7 @@ void ASOGunBase::SetGunData(const uint8 InID)
 		return;
 	}
 
-	// 게임 인스턴스에서 서브시스템을 가져옵니다.
+	// 게임 인스턴스에서 서브시스템을 가져오기.
 	USOGameSubsystem* SOGameSubsystem = GameInstance->GetSubsystem<USOGameSubsystem>();
 	if (!SOGameSubsystem)
 	{
@@ -47,24 +47,26 @@ void ASOGunBase::SetGunData(const uint8 InID)
 		return;
 	}
 
-	// 서브시스템에서 WeaponStatData를 가져옵니다.
-	FSOWeaponStat* WeaponStat = SOGameSubsystem->GetWeaponStatData(InID);
-	if(WeaponStat)
+	// 서브시스템에서 원하는 ID의 WeaponStatData를 가져오기.
+	FSOWeaponStat* SelectedWeaponStat  = SOGameSubsystem->GetWeaponStatData(InID);
+	if(SelectedWeaponStat)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("WeaponStat is available."));
+		WeaponStat = *SelectedWeaponStat;
 	}
-	else
+
+	FSOWeaponData* SelectedWeaponData  = SOGameSubsystem->GetWeaponData(InID);
+	if(SelectedWeaponData)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("WeaponStat is not available."));
+		WeaponData = *SelectedWeaponData;
 	}
 }
+
 
 // Called when the game starts or when spawned
 void ASOGunBase::BeginPlay()
 {
 	Super::BeginPlay();
 	SetGunData(0);
-	
 }
 
 // Called every frame
@@ -94,7 +96,7 @@ void ASOGunBase::OnFire()
 		break;
 	default:
 		break;
-	}	
+	}
 }
 
 void ASOGunBase::AutoFire()
@@ -139,11 +141,6 @@ void ASOGunBase::Aim()
 {
 	
 }
-
-void ASOGunBase::SetGunData()
-{
-}
-
 
 void ASOGunBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {

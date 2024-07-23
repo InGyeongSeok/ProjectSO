@@ -28,8 +28,6 @@ public:
 	
 	/** IDamageable **/
 public:
-	ASOPistol();
-	virtual void BeginPlay() override;
 	virtual void PressLMB() override;
 
 	
