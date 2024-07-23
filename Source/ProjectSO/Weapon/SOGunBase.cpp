@@ -11,6 +11,24 @@ ASOGunBase::ASOGunBase()
 
 }
 
+void ASOGunBase::PressLMB()
+{
+	Fire();
+}
+
+void ASOGunBase::Fire()
+{
+	
+}
+
+void ASOGunBase::Reload()
+{
+}
+
+void ASOGunBase::Aim()
+{
+}
+
 // Called when the game starts or when spawned
 void ASOGunBase::BeginPlay()
 {

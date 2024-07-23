@@ -13,5 +13,14 @@ UCLASS()
 class PROJECTSO_API ASOShotGun : public ASOGunBase
 {
 	GENERATED_BODY()
+
+	/** IDamageable **/
+public:
+	virtual void PressLMB() override;
+
+protected:
+	virtual void Fire() override;
+	virtual void Reload() override;
+	virtual void Aim() override;
 	
 };

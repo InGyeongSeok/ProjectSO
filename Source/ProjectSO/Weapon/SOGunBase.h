@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "ProjectSO/Interface/SODamageableInterface.h"
 #include "SOGunBase.generated.h"
 
 UCLASS()
-class PROJECTSO_API ASOGunBase : public AActor
+class PROJECTSO_API ASOGunBase : public AActor, public ISODamageableInterface
 {
 	GENERATED_BODY()
 	
@@ -15,6 +16,16 @@ public:
 	// Sets default values for this actor's properties
 	ASOGunBase();
 
+/** IDamageable **/
+public:
+	virtual void PressLMB() override;
+
+protected:
+	virtual void Fire();
+	virtual void Reload();
+	virtual void Aim();
+	
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
