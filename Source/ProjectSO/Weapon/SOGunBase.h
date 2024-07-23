@@ -24,6 +24,9 @@ protected:
 	virtual void Fire();
 	virtual void Reload();
 	virtual void Aim();
+
+	void SetGunData(const uint8 InID);
+
 	
 	
 protected:

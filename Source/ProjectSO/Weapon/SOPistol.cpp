@@ -3,6 +3,15 @@
 
 #include "SOPistol.h"
 
+ASOPistol::ASOPistol()
+{
+}
+
+void ASOPistol::BeginPlay()
+{
+	Super::BeginPlay();
+}
+
 void ASOPistol::PressLMB()
 {
 	Super::PressLMB();

@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
 #include "NiagaraSystem.h"
+#include "SOWeaponEnumLibrary.h"
 #include "SOWeaponStructLibrary.generated.h"
 
 
@@ -17,12 +18,17 @@ public:
 					 MaxRange(0),
 					 Damage(0),
 					 HeadShotDamage(0),
-					 RecoilYaw(0), RecoilPitch(0),
+					 AimedRecoilYaw(0), AimedRecoilPitch(0),
 					 ClipSize(0),
 					 LargeClipSize(0)
 	{
 	}
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
+	uint8 ID;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
+	FName WeaponName;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
 	EWeaponType WeaponType;
 
@@ -52,12 +58,18 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
 	float HeadShotDamage;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
 	float RecoilYaw;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
 	float RecoilPitch;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
+	float AimedRecoilYaw;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
+	float AimedRecoilPitch;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
 	int ClipSize;
@@ -73,9 +85,8 @@ struct FSOWeaponData : public FTableRowBase
 	GENERATED_BODY()
 
 public:
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ID)
-	EWeaponType WeaponType;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
+	uint8 ID;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh)
 	TObjectPtr<USkeletalMesh> SkeletalMesh;

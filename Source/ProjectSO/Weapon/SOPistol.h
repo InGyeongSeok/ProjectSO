@@ -16,7 +16,10 @@ class PROJECTSO_API ASOPistol : public ASOGunBase
 	
 	/** IDamageable **/
 public:
+	ASOPistol();
+	virtual void BeginPlay() override;
 	virtual void PressLMB() override;
+
 	
 protected:
 	virtual void Fire() override;
