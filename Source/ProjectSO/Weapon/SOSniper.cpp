@@ -3,14 +3,68 @@
 
 #include "SOSniper.h"
 
+ASOSniper::ASOSniper()
+{
+}
+
+void ASOSniper::BeginPlay()
+{
+	Super::BeginPlay();
+}
+
+void ASOSniper::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
+void ASOSniper::AutoFire()
+{
+	Super::AutoFire();
+}
+
+void ASOSniper::BurstFire()
+{
+	Super::BurstFire();
+}
+
+void ASOSniper::SingleFire()
+{
+	Super::SingleFire();
+}
+
+void ASOSniper::FireProjectile()
+{
+	Super::FireProjectile();
+}
+
+void ASOSniper::CreateProjectile(FVector StartPosition, FRotator StartRotation)
+{
+	Super::CreateProjectile(StartPosition, StartRotation);
+}
+
+void ASOSniper::ShowEffect(FVector StartPosition, FRotator StartRotation)
+{
+	Super::ShowEffect(StartPosition, StartRotation);
+}
+
+void ASOSniper::PlaySound()
+{
+	Super::PlaySound();
+}
+
+void ASOSniper::Recoil()
+{
+	Super::Recoil();
+}
+
 void ASOSniper::PressLMB()
 {
 	Super::PressLMB();
 }
 
-void ASOSniper::Fire()
+void ASOSniper::OnFire()
 {
-	Super::Fire();
+	Super::OnFire();
 }
 
 void ASOSniper::Reload()
