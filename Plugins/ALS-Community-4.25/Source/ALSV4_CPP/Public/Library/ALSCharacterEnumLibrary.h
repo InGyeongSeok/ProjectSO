@@ -14,7 +14,7 @@ static FORCEINLINE int32 GetEnumerationIndex(const Enumeration InValue)
 	return StaticEnum<Enumeration>()->GetIndexByValue(static_cast<int64>(InValue));
 }
 
-/* Returns the enumeration value as string. */
+ /* Returns the enumeration value as string. */
 template <typename Enumeration>
 static FORCEINLINE FString GetEnumerationToString(const Enumeration InValue)
 {
