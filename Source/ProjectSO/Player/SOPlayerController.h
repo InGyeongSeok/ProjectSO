@@ -54,6 +54,9 @@ protected:
 	void AimAction(const FInputActionValue& Value);
 
 	UFUNCTION()
+	void AttackAction(const FInputActionValue& Value);
+
+	UFUNCTION()
 	void CameraTapAction(const FInputActionValue& Value);
 
 	UFUNCTION()
@@ -111,7 +114,7 @@ protected:
 public:
 	/** Main character reference */
 	UPROPERTY(BlueprintReadOnly, Category = "ProjectSO")
-	TObjectPtr<AALSBaseCharacter> PossessedCharacter = nullptr;
+	TObjectPtr<ASOCharacterBase> PossessedCharacter = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "ProjectSO|Input")
 	TObjectPtr<UInputMappingContext> DefaultInputMappingContext = nullptr;
