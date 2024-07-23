@@ -1,18 +1,10 @@
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
-#include "SOWeaponStat.generated.h"
+#include "NiagaraSystem.h"
+#include "SOWeaponStructLibrary.generated.h"
 
-UENUM(BlueprintType)
-enum class EWeaponType
-{
-	Pistol,
-	AR,
-	SR,
-	ShotGun
-};
 
 USTRUCT(BlueprintType)
 struct FSOWeaponStat : public FTableRowBase
@@ -21,13 +13,13 @@ struct FSOWeaponStat : public FTableRowBase
 
 public:
 	FSOWeaponStat(): WeaponType(EWeaponType::Pistol), FireMode(0), AmmoType(0), FireInterval(0), ReloadInterval(0), QuickReloadInterval(0),
-	                 Speed(0),
-	                 MaxRange(0),
-	                 Damage(0),
-	                 HeadShotDamage(0),
-	                 RecoilYaw(0), RecoilPitch(0),
-	                 ClipSize(0),
-	                 LargeClipSize(0)
+					 Speed(0),
+					 MaxRange(0),
+					 Damage(0),
+					 HeadShotDamage(0),
+					 RecoilYaw(0), RecoilPitch(0),
+					 ClipSize(0),
+					 LargeClipSize(0)
 	{
 	}
 
@@ -72,5 +64,32 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
 	int LargeClipSize;
+};
+
+
+USTRUCT(BlueprintType)
+struct FSOWeaponData : public FTableRowBase
+{
+	GENERATED_BODY()
+
+public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ID)
+	EWeaponType WeaponType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh)
+	TObjectPtr<USkeletalMesh> SkeletalMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	TObjectPtr<UAnimMontage> AnimMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Effect)
+	TObjectPtr<UNiagaraSystem> MuzzleFlashEffect;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Socket)
+	FVector SocketLocation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Socket)
+	FVector SocketRotation;
 	
 };
