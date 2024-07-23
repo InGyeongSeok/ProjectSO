@@ -17,7 +17,7 @@
 void ASOPlayerController::OnPossess(APawn* NewPawn)
 {
 	Super::OnPossess(NewPawn);
-	PossessedCharacter = Cast<AALSBaseCharacter>(NewPawn);
+	PossessedCharacter = Cast<ASOCharacterBase>(NewPawn);
 	if (!IsRunningDedicatedServer())
 	{
 		// Servers want to setup camera only in listen servers.
@@ -38,7 +38,7 @@ void ASOPlayerController::OnPossess(APawn* NewPawn)
 void ASOPlayerController::OnRep_Pawn()
 {
 	Super::OnRep_Pawn();
-	PossessedCharacter = Cast<AALSBaseCharacter>(GetPawn());
+	PossessedCharacter = Cast<ASOCharacterBase>(GetPawn());
 	SetupCamera();
 	SetupInputs();
 	
@@ -178,6 +178,14 @@ void ASOPlayerController::AimAction(const FInputActionValue& Value)
 	}
 }
 
+void ASOPlayerController::AttackAction(const FInputActionValue& Value)
+{
+	if (PossessedCharacter)
+	{
+		PossessedCharacter->AttackAction(Value.Get<bool>());
+	}
+}
+
 void ASOPlayerController::CameraTapAction(const FInputActionValue& Value)
 {
 	if (PossessedCharacter)
@@ -236,15 +244,12 @@ void ASOPlayerController::LookingDirectionAction(const FInputActionValue& Value)
 
 void ASOPlayerController::DebugToggleHudAction(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("DebugToggleHudAction 0"))
 	if (PossessedCharacter && Value.Get<bool>())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("DebugToggleHudAction 1"))
 		UALSDebugComponent* DebugComp = Cast<UALSDebugComponent>(PossessedCharacter->GetComponentByClass(UALSDebugComponent::StaticClass()));
 		if (DebugComp)
 		{
 			DebugComp->ToggleHud();
-			UE_LOG(LogTemp, Warning, TEXT("DebugToggleHudAction 2"))
 		}
 	}
 }

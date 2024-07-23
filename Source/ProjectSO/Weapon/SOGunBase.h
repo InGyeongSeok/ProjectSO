@@ -18,6 +18,7 @@ class PROJECTSO_API ASOGunBase : public AActor, public ISODamageableInterface
 public:	
 	// Sets default values for this actor's properties
 	ASOGunBase();
+	void SetGunData(uint8 InID);
 
 protected:
 	// Called when the game starts or when spawned
@@ -27,6 +28,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION()
+	virtual void OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	
 	// Owner
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated)
@@ -36,6 +40,9 @@ protected:
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	TObjectPtr<class USkeletalMeshComponent> WeaponMesh;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	TObjectPtr<class UCapsuleComponent> CollisionComp;
 	
 	// Montage
 protected:
@@ -150,6 +157,9 @@ public:
 public:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Replicated,Category = "Properties|State")
 	ESOFireMode CurrentFireMode;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Replicated, Category = "Properties|State")
+	uint8 bIsEquipped : 1;
 	
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Replicated, Category = "Properties|State")
 	uint8 bReloading : 1;
@@ -190,9 +200,9 @@ protected:
 protected:
 	virtual void Reload();
 	virtual void Aim();
+public:
+	virtual void Equip();
 
-protected:
-	void SetGunData();
 	
 	// multi
 protected:
