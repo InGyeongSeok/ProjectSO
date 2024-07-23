@@ -14,12 +14,38 @@ class PROJECTSO_API ASORifle : public ASOGunBase
 {
 	GENERATED_BODY()
 
+public:
+	ASORifle();
+	
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+public:	
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
 	/** IDamageable **/
 public:
 	virtual void PressLMB() override;
+
+	// Fire Logic
+protected:
+	virtual void OnFire() override;
+	virtual void AutoFire();
+	virtual void BurstFire();
+	virtual void SingleFire();
+	virtual void FireProjectile();
+	virtual void CreateProjectile(FVector StartPosition, FRotator StartRotation);
+
+	// Effect
+protected:
+	virtual void ShowEffect(FVector StartPosition, FRotator StartRotation);
+	virtual void PlaySound();
+	virtual void Recoil();
 	
 protected:
-	virtual void Fire() override;
 	virtual void Reload() override;
 	virtual void Aim() override;
+	
 };

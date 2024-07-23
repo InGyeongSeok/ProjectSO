@@ -236,10 +236,8 @@ void AALSPlayerController::LookingDirectionAction(const FInputActionValue& Value
 
 void AALSPlayerController::DebugToggleHudAction(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("DebugToggleHudAction 0"))
 	if (PossessedCharacter && Value.Get<bool>())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("DebugToggleHudAction 1"))
 		UALSDebugComponent* DebugComp = Cast<UALSDebugComponent>(PossessedCharacter->GetComponentByClass(UALSDebugComponent::StaticClass()));
 		if (DebugComp)
 		{
