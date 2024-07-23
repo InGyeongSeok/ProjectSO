@@ -13,7 +13,7 @@ struct FSOWeaponStat : public FTableRowBase
 	GENERATED_BODY()
 
 public:
-	FSOWeaponStat(): WeaponType(EWeaponType::Pistol), FireMode(0), AmmoType(0), FireInterval(0), ReloadInterval(0), QuickReloadInterval(0),
+	FSOWeaponStat(): WeaponType(ESOWeaponType::Pistol), FireMode(0), AmmoType(0), FireInterval(0), ReloadInterval(0), QuickReloadInterval(0),
 					 Speed(0),
 					 MaxRange(0),
 					 Damage(0),
@@ -30,7 +30,7 @@ public:
 	FName WeaponName;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
-	EWeaponType WeaponType;
+	ESOWeaponType WeaponType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
 	int FireMode;
