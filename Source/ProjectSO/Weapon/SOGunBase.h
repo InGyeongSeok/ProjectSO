@@ -8,20 +8,18 @@
 #include "ProjectSO/Library/SOWeaponStructLibrary.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "ProjectSO/Interface/SODamageableInterface.h"
+#include "ProjectSO/Interface/SOEquippableInterface.h"
 #include "SOGunBase.generated.h"
 
 UCLASS()
-class PROJECTSO_API ASOGunBase : public AActor, public ISODamageableInterface
+class PROJECTSO_API ASOGunBase : public AActor, public ISODamageableInterface, public ISOEquippableInterface
 {
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	ASOGunBase();
-	void SetGunData(uint8 InID);
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:	
@@ -190,6 +188,10 @@ protected:
 public:
 	virtual void PressLMB() override;
 
+	/** IEquippableInterface **/
+public:
+	virtual EALSOverlayState GetOverlayState() const override;
+
 	// Fire Logic
 protected:
 	virtual void OnFire();
@@ -225,4 +227,6 @@ protected:
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastRPCShowEffect(FVector StartPosition, FRotator StartRotation);
+
+
 };

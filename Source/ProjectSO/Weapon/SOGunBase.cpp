@@ -68,6 +68,8 @@ void ASOGunBase::SetGunData(const uint8 InID)
 	if(SelectedWeaponData)
 	{
 		WeaponData = *SelectedWeaponData;
+		WeaponMesh ->SetSkeletalMesh(WeaponData.SkeletalMesh);
+		AttachPoint  =  WeaponData.SocketName;
 	}
 }
 
@@ -95,10 +97,10 @@ void ASOGunBase::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, 
 	{
 		ASOCharacterBase* CharacterBase = Cast<ASOCharacterBase>(OtherActor);
 		OwningCharacter = CharacterBase;
-		if(CharacterBase)
+		if(OwningCharacter)
 		{
 			bIsEquipped = true;
-			CharacterBase->EquipGun(this);
+			OwningCharacter->EquipItem(this);
 			CollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		}
@@ -109,6 +111,11 @@ void ASOGunBase::PressLMB()
 {
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(__FUNCTION__))
 	OnFire();
+}
+
+EALSOverlayState ASOGunBase::GetOverlayState() const
+{
+	return WeaponData.OverlayState;
 }
 
 void ASOGunBase::OnFire()
@@ -153,13 +160,14 @@ void ASOGunBase::FireProjectile()
 		UE_LOG(LogTemp, Warning, TEXT("OwnerController"));
 		return;
 	}
-
+	
 	FVector2D ViewportSize;
 	if (GEngine && GEngine->GameViewport)
 	{
 		GEngine->GameViewport->GetViewportSize(ViewportSize);
 	}
 
+	//조준선 위치는 뷰포트 중앙 
 	FVector2D CrosshairLocation(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
 	FVector CrosshairWorldPosition;
 	FVector CrosshairWorldDirection;
@@ -169,11 +177,11 @@ void ASOGunBase::FireProjectile()
 		CrosshairWorldPosition,
 		CrosshairWorldDirection
 	);
-	
 }
 
 void ASOGunBase::CreateProjectile(FVector StartPosition, FRotator StartRotation)
 {
+	
 }
 
 void ASOGunBase::ShowEffect(FVector StartPosition, FRotator StartRotation)
@@ -208,6 +216,7 @@ void ASOGunBase::Equip()
 		HandSocket->AttachActor(this,OwningCharacter->GetMesh());		
 	}
 	WeaponMesh->AttachToComponent(OwningCharacter->GetMesh(), AttachmentRules, AttachPoint);
+	//	HeldObjectRoot->SetRelativeLocation(Offset);
 }
 
 void ASOGunBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

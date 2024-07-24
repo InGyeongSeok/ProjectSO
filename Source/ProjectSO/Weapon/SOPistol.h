@@ -29,7 +29,6 @@ public:
 	/** IDamageable **/
 public:
 	virtual void PressLMB() override;
-
 	
 	// Fire Logic
 protected:

@@ -116,18 +116,29 @@ public:
 		if(this!= &InOhterStat)
 		{
 			ID = InOhterStat.ID;
+			WeaponType = InOhterStat.WeaponType;
+			OverlayState = InOhterStat.OverlayState;
 			SkeletalMesh = InOhterStat.SkeletalMesh;
 			AnimMontage =  InOhterStat.AnimMontage;
 			MuzzleFlashEffect = InOhterStat.MuzzleFlashEffect;
 			SocketLocation = InOhterStat.SocketLocation;
 			SocketRotation = InOhterStat.SocketRotation;
+			SocketName= InOhterStat.SocketName;
 		}
 		return *this;
 	}
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ID)
 	uint8 ID;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponType)
+	ESOWeaponType WeaponType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AnimationState)
+	EALSOverlayState OverlayState;
+
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh)
 	TObjectPtr<USkeletalMesh> SkeletalMesh;
@@ -143,5 +154,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Socket)
 	FVector SocketRotation;
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Socket)
+	FName SocketName;
 };
