@@ -88,6 +88,7 @@ void ASOPlayerController::BindActions(UInputMappingContext* Context)
 			for (const UInputAction* UniqueAction : UniqueActions)
 			{
 				EnhancedInputComponent->BindAction(UniqueAction, ETriggerEvent::Triggered, Cast<UObject>(this), UniqueAction->GetFName());
+				UE_LOG(LogTemp, Warning, TEXT("%s %s"), *FString(__FUNCTION__), *UniqueAction->GetName())
 			}
 		}
 	}
