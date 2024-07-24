@@ -79,7 +79,7 @@ void ASOGunBase::SetGunData(const uint8 InID)
 void ASOGunBase::BeginPlay()
 {
 	Super::BeginPlay();
-	SetGunData(5);
+	SetGunData(WeaponID);
 
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ASOGunBase::OnSphereBeginOverlap);
 }
@@ -187,7 +187,7 @@ void ASOGunBase::FireProjectile()
 		GEngine->GameViewport->GetViewportSize(ViewportSize);
 	}
 
-	//조준선 위치는 뷰포트 중앙 
+	// 조준선 위치는 뷰포트 중앙 
 	FVector2D CrosshairLocation(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
 	FVector CrosshairWorldPosition;
 	FVector CrosshairWorldDirection;
@@ -196,7 +196,11 @@ void ASOGunBase::FireProjectile()
 		CrosshairLocation,
 		CrosshairWorldPosition,
 		CrosshairWorldDirection
-	);	
+	);
+
+	// ServerRPCOnFire(Start)
+
+	
 }
 
 void ASOGunBase::CreateProjectile(FVector StartPosition, FRotator StartRotation)
