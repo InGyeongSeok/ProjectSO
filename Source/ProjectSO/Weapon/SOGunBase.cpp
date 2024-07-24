@@ -79,7 +79,7 @@ void ASOGunBase::SetGunData(const uint8 InID)
 void ASOGunBase::BeginPlay()
 {
 	Super::BeginPlay();
-	SetGunData(0);
+	SetGunData(5);
 
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ASOGunBase::OnSphereBeginOverlap);
 }

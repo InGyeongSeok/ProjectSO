@@ -77,6 +77,8 @@ enum class EALSOverlayState : uint8
 	Binoculars,
 	Box,
 	Barrel,
+	Sniper,
+	Shotgun,
 	Minigun
 };
 
