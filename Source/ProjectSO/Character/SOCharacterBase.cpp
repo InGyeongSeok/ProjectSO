@@ -31,8 +31,11 @@ void ASOCharacterBase::AttackAction_Implementation(bool bValue)
 				// 들고 있는 무기에 따른 공격 로직
 				CurrentWeapon->PressLMB();				
 			}
-
-			
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("%s Punch!"), *FString(__FUNCTION__))
+			}
 		}
+		
 	}
 }

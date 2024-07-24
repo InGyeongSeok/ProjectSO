@@ -95,10 +95,10 @@ void ASOGunBase::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, 
 	{
 		ASOCharacterBase* CharacterBase = Cast<ASOCharacterBase>(OtherActor);
 		OwningCharacter = CharacterBase;
-		if(CharacterBase)
+		if(OwningCharacter)
 		{
 			bIsEquipped = true;
-			CharacterBase->EquipGun(this);
+			OwningCharacter->EquipGun(this);
 			CollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		}
