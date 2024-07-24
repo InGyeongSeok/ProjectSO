@@ -18,7 +18,6 @@ class PROJECTSO_API ASOGunBase : public AActor, public ISODamageableInterface
 public:	
 	// Sets default values for this actor's properties
 	ASOGunBase();
-	void SetGunData(uint8 InID);
 
 protected:
 	// Called when the game starts or when spawned
