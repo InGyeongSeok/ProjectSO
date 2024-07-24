@@ -238,5 +238,10 @@ protected:
 	void ServerRPCOnFire(const FTransform& MuzzleTransform, const FVector& HitLocation);
 
 	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastRPCShowEffect(const FTransform& MuzzleTransform, const FVector& HitLocation);
+	void MulticastRPCShowEffect(FVector StartPosition, FRotator StartRotation);
+
+	//simulatePhysics
+protected:
+	void DisablePhysics();
+
 };

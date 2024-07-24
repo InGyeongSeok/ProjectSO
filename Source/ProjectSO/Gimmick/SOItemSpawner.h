@@ -35,6 +35,4 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ammo)
 	TSubclassOf<AActor> AmmoClass; // 여기에 블루프린트 클래스를 담습니다.
-
-
 };

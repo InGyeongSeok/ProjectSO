@@ -15,20 +15,26 @@
 // Sets default values
 ASOGunBase::ASOGunBase()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	CollisionComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Root"));
-	CollisionComp->InitCapsuleSize(40.0f, 50.0f);
-	CollisionComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	CollisionComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
-	RootComponent = CollisionComp;
-	
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(FName("WeaponMesh"));
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	WeaponMesh->CastShadow = true;
 	WeaponMesh->SetVisibility(true, false);	
-	WeaponMesh->SetupAttachment(CollisionComp);
+	//WeaponMesh->SetMobility(EComponentMobility::Movable);
+	WeaponMesh->SetSimulatePhysics(true);
+	//WeaponMesh->SetupAttachment(CollisionComp);
+	RootComponent = WeaponMesh;
+	
+	CollisionComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Root"));
+	CollisionComp->InitCapsuleSize(40.0f, 50.0f);
+	CollisionComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	CollisionComp->SetMobility(EComponentMobility::Movable);
+	CollisionComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	CollisionComp->SetupAttachment(RootComponent);
+
+	//RootComponent = CollisionComp;
 	
 	CurrentFireMode = ESOFireMode::Single;
 	CurrentAmmoInClip = 30;
@@ -64,18 +70,18 @@ void ASOGunBase::SetGunData(const uint8 InID)
 	}
 
 	// 서브시스템에서 원하는 ID의 WeaponStatData를 가져오기.
-	FSOWeaponStat* SelectedWeaponStat  = SOGameSubsystem->GetWeaponStatData(InID);
-	if(SelectedWeaponStat)
+	FSOWeaponStat* SelectedWeaponStat = SOGameSubsystem->GetWeaponStatData(InID);
+	if (SelectedWeaponStat)
 	{
 		WeaponStat = *SelectedWeaponStat;
 	}
 
-	FSOWeaponData* SelectedWeaponData  = SOGameSubsystem->GetWeaponData(InID);
-	if(SelectedWeaponData)
+	FSOWeaponData* SelectedWeaponData = SOGameSubsystem->GetWeaponData(InID);
+	if (SelectedWeaponData)
 	{
 		WeaponData = *SelectedWeaponData;
-		WeaponMesh ->SetSkeletalMesh(WeaponData.SkeletalMesh);
-		AttachPoint  =  WeaponData.SocketName;
+		WeaponMesh->SetSkeletalMesh(WeaponData.SkeletalMesh);
+		AttachPoint = WeaponData.SocketName;
 	}
 }
 
@@ -85,25 +91,30 @@ void ASOGunBase::BeginPlay()
 {
 	Super::BeginPlay();
 	SetGunData(WeaponID);
-
+	
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ASOGunBase::OnSphereBeginOverlap);
+	
+	//여기서 타이머
+	FTimerHandle TimerHandle;
+	GetWorldTimerManager().SetTimer(TimerHandle, this, &ASOGunBase::DisablePhysics, 2.0f, false);
+
 }
 
 // Called every frame
 void ASOGunBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void ASOGunBase::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+                                      UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+                                      const FHitResult& SweepResult)
 {
-	if(HasAuthority())
+	if (HasAuthority())
 	{
 		ASOCharacterBase* CharacterBase = Cast<ASOCharacterBase>(OtherActor);
 		OwningCharacter = CharacterBase;
-		if(OwningCharacter)
+		if (OwningCharacter && !bIsEquipped)
 		{
 			bIsEquipped = true;
 			OwningCharacter->EquipItem(this);
@@ -121,7 +132,7 @@ void ASOGunBase::PressLMB()
 
 void ASOGunBase::ReleaseLMB()
 {
-    UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(__FUNCTION__))
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(__FUNCTION__))
 	StopFire();
 }
 
@@ -133,8 +144,8 @@ EALSOverlayState ASOGunBase::GetOverlayState() const
 void ASOGunBase::OnFire()
 {
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(__FUNCTION__))
-	if(!bIsEquipped) return;
-	if(bReloading || CurrentAmmoInClip <= 0) return;
+	if (!bIsEquipped) return;
+	if (bReloading || CurrentAmmoInClip <= 0) return;
 	switch (CurrentFireMode)
 	{
 	case ESOFireMode::Auto:
@@ -167,7 +178,8 @@ void ASOGunBase::BurstFire()
 
 	FireProjectile();
 	GetWorld()->GetTimerManager().SetTimer(BurstTimerHandle1, this, &ASOGunBase::FireProjectile, FireInterval, false);
-	GetWorld()->GetTimerManager().SetTimer(BurstTimerHandle2, this, &ASOGunBase::FireProjectile, FireInterval * 2.0f, false);
+	GetWorld()->GetTimerManager().SetTimer(BurstTimerHandle2, this, &ASOGunBase::FireProjectile, FireInterval * 2.0f,
+	                                       false);
 }
 
 void ASOGunBase::SingleFire()
@@ -297,20 +309,19 @@ void ASOGunBase::Reload()
 
 void ASOGunBase::Aim()
 {
-	
 }
 
 void ASOGunBase::Equip()
 {
-	if(!bIsEquipped) return;
+	if (!bIsEquipped) return;
 
 	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
 	const USkeletalMeshSocket* HandSocket = OwningCharacter->GetMesh()->GetSocketByName(AttachPoint);
-	if(HandSocket)
+	if (HandSocket)
 	{
-		HandSocket->AttachActor(this,OwningCharacter->GetMesh());		
+		HandSocket->AttachActor(this, OwningCharacter->GetMesh());
 	}
-	WeaponMesh->AttachToComponent(OwningCharacter->GetMesh(), AttachmentRules, AttachPoint);
+	this->AttachToComponent(OwningCharacter->GetMesh(), AttachmentRules, AttachPoint);
 	//	HeldObjectRoot->SetRelativeLocation(Offset);
 }
 
@@ -333,6 +344,15 @@ void ASOGunBase::ServerRPCOnFire_Implementation(const FTransform& MuzzleTransfor
 {
 	CreateProjectile(MuzzleTransform, HitLocation);
 	MulticastRPCShowEffect(MuzzleTransform, HitLocation);	
+}
+void ASOGunBase::DisablePhysics()
+{
+	UE_LOG(LogTemp, Log, TEXT("DisablePhysics"));
+	WeaponMesh->SetSimulatePhysics(false);
+}
+
+void ASOGunBase::MulticastRPCShowEffect_Implementation(FVector StartPosition, FRotator StartRotation)
+{
 }
 
 void ASOGunBase::MulticastRPCShowEffect_Implementation(const FTransform& MuzzleTransform, const FVector& HitLocation)
