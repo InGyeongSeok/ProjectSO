@@ -13,11 +13,12 @@ void ASOCharacterBase::BeginPlay()
 	Super::BeginPlay();
 }
 
-void ASOCharacterBase::EquipGun(ASOGunBase* Equipment)
+void ASOCharacterBase::EquipItem(ISOEquippableInterface* InEquipment)
 {
-	OverlayState = EALSOverlayState::Rifle;
-	CurrentWeapon = Equipment;
-	CurrentWeapon->Equip();
+	OverlayState = InEquipment->GetOverlayState();
+	ASOGunBase* Weapon = Cast<ASOGunBase>(InEquipment);
+	 CurrentWeapon = Weapon;
+	 CurrentWeapon->Equip();
 }
 
 void ASOCharacterBase::AttackAction_Implementation(bool bValue)
@@ -28,7 +29,6 @@ void ASOCharacterBase::AttackAction_Implementation(bool bValue)
 		{
 			if(CurrentWeapon)
 			{
-				// 들고 있는 무기에 따른 공격 로직
 				CurrentWeapon->PressLMB();				
 			}
 			else

@@ -26,8 +26,7 @@ public:
 	
 public:
 	// 나중에 장착 가능한 것들만 모아서 하기
-	UFUNCTION(BlueprintCallable, Category = "SO|Equip")
-	void EquipGun(ASOGunBase* Equipment);
+	void EquipItem(ISOEquippableInterface* InEquipment);
 
 	/** Input */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "SO|Input")
