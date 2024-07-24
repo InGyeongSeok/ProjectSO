@@ -37,14 +37,14 @@ void ASOMinigun::FireProjectile()
 	Super::FireProjectile();
 }
 
-void ASOMinigun::CreateProjectile(FVector StartPosition, FRotator StartRotation)
+void ASOMinigun::CreateProjectile(const FTransform& MuzzleTransform, const FVector& HitLocation)
 {
-	Super::CreateProjectile(StartPosition, StartRotation);
+	Super::CreateProjectile(MuzzleTransform, HitLocation);
 }
 
-void ASOMinigun::ShowEffect(FVector StartPosition, FRotator StartRotation)
+void ASOMinigun::ShowEffect(const FVector& MuzzleLocation, FRotator& MuzzleRotation)
 {
-	Super::ShowEffect(StartPosition, StartRotation);
+	Super::ShowEffect(MuzzleLocation, MuzzleRotation);
 }
 
 void ASOMinigun::PlaySound()

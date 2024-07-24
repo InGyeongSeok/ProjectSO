@@ -37,14 +37,14 @@ void ASOSniper::FireProjectile()
 	Super::FireProjectile();
 }
 
-void ASOSniper::CreateProjectile(FVector StartPosition, FRotator StartRotation)
+void ASOSniper::CreateProjectile(const FTransform& MuzzleTransform, const FVector& HitLocation)
 {
-	Super::CreateProjectile(StartPosition, StartRotation);
+	Super::CreateProjectile(MuzzleTransform, HitLocation);
 }
 
-void ASOSniper::ShowEffect(FVector StartPosition, FRotator StartRotation)
+void ASOSniper::ShowEffect(const FVector& MuzzleLocation, FRotator& MuzzleRotation)
 {
-	Super::ShowEffect(StartPosition, StartRotation);
+	Super::ShowEffect(MuzzleLocation, MuzzleRotation);
 }
 
 void ASOSniper::PlaySound()

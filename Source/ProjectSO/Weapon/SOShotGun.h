@@ -37,11 +37,11 @@ protected:
 	virtual void BurstFire() override;
 	virtual void SingleFire() override;
 	virtual void FireProjectile() override;
-	virtual void CreateProjectile(FVector StartPosition, FRotator StartRotation) override;
+	virtual void CreateProjectile(const FTransform& MuzzleTransform, const FVector& HitLocation) override;
 
 	// Effect
 protected:
-	virtual void ShowEffect(FVector StartPosition, FRotator StartRotation) override;
+	virtual void ShowEffect(const FVector& MuzzleLocation, FRotator& MuzzleRotation) override;
 	virtual void PlaySound() override;
 	virtual void Recoil() override;
 
