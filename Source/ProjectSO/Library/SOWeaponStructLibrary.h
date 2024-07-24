@@ -127,7 +127,7 @@ public:
 		}
 		return *this;
 	}
-
+	
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ID)
 	uint8 ID;
@@ -138,8 +138,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AnimationState)
 	EALSOverlayState OverlayState;
 
-
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh)
 	TObjectPtr<USkeletalMesh> SkeletalMesh;
 
@@ -157,4 +156,5 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Socket)
 	FName SocketName;
+	
 };

@@ -37,15 +37,16 @@ void ASOPistol::FireProjectile()
 	Super::FireProjectile();
 }
 
-void ASOPistol::CreateProjectile(FVector StartPosition, FRotator StartRotation)
+void ASOPistol::CreateProjectile(const FTransform& MuzzleTransform, const FVector& HitLocation)
 {
-	Super::CreateProjectile(StartPosition, StartRotation);
+	Super::CreateProjectile(MuzzleTransform, HitLocation);
 }
 
-void ASOPistol::ShowEffect(FVector StartPosition, FRotator StartRotation)
+void ASOPistol::ShowEffect(const FVector& MuzzleLocation, FRotator& MuzzleRotation)
 {
-	Super::ShowEffect(StartPosition, StartRotation);
+	Super::ShowEffect(MuzzleLocation, MuzzleRotation);
 }
+
 
 void ASOPistol::PlaySound()
 {

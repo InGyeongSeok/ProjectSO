@@ -3,6 +3,7 @@
 
 #include "SOGunBase.h"
 
+#include "SOProjectileBase.h"
 #include "Components/CapsuleComponent.h"
 #include "KisMet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
@@ -31,6 +32,8 @@ ASOGunBase::ASOGunBase()
 	
 	CurrentFireMode = ESOFireMode::Single;
 	CurrentAmmoInClip = 30;
+
+	
 }
 
 void ASOGunBase::SetGunData(const uint8 InID)
@@ -79,7 +82,7 @@ void ASOGunBase::SetGunData(const uint8 InID)
 void ASOGunBase::BeginPlay()
 {
 	Super::BeginPlay();
-	SetGunData(5);
+	SetGunData(WeaponID);
 
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ASOGunBase::OnSphereBeginOverlap);
 }
@@ -173,35 +176,94 @@ void ASOGunBase::SingleFire()
 
 void ASOGunBase::FireProjectile()
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(__FUNCTION__))
+	// UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(__FUNCTION__))
 	AController* OwnerController = OwningCharacter->GetController();
 	if (OwnerController == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("OwnerController"));
 		return;
 	}
-	
-	FVector2D ViewportSize;
-	if (GEngine && GEngine->GameViewport)
-	{
-		GEngine->GameViewport->GetViewportSize(ViewportSize);
-	}
 
-	//조준선 위치는 뷰포트 중앙 
-	FVector2D CrosshairLocation(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
-	FVector CrosshairWorldPosition;
-	FVector CrosshairWorldDirection;
-	bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(
-		UGameplayStatics::GetPlayerController(this, 0),
-		CrosshairLocation,
-		CrosshairWorldPosition,
-		CrosshairWorldDirection
-	);	
+	// Viewport LineTrace
+	FHitResult ScreenLaserHit;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+	Params.AddIgnoredActor(GetOwner());
+
+	// 화면 중앙 LineTrace
+	FVector TraceStartLocation;
+	FRotator TraceStartRotation;
+	OwnerController->GetPlayerViewPoint(TraceStartLocation, TraceStartRotation);
+
+	// DrawDebugCamera(GetWorld(), TraceStartLocation, TraceStartRotation, 90, 2, FColor::Red, true);
+	
+	FVector TraceEnd = TraceStartLocation + TraceStartRotation.Vector() * MaxRange;
+	bool bScreenLaserSuccess = GetWorld()->LineTraceSingleByChannel(ScreenLaserHit, TraceStartLocation, TraceEnd, ECollisionChannel::ECC_GameTraceChannel3, Params);
+
+
+	
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(__FUNCTION__))
+	
+	// 허공이면 TraceEnd, 아니면 Hit.Location
+	FVector HitLocation = bScreenLaserSuccess ? ScreenLaserHit.Location : TraceEnd;
+	UE_LOG(LogTemp, Log, TEXT("HitLocation : %s "), *HitLocation.ToString());
+
+	// 소켓 위치
+	FTransform MuzzleSocketTransform;
+	const USkeletalMeshSocket* AmmoEjectSocket = WeaponMesh->GetSocketByName(MuzzleSocketName);
+	MuzzleSocketTransform = AmmoEjectSocket->GetSocketTransform(WeaponMesh);
+
+	DrawDebugLine(GetWorld(), MuzzleSocketTransform.GetLocation(), TraceEnd, FColor::Red,false, 5, 0, 2);
+	DrawDebugPoint(GetWorld(), ScreenLaserHit.Location, 3, FColor::Red, false, 5,0);
+	
+	// 스폰 위치, 도착지점
+	// MuzzleLocation, HitLocation
+	ServerRPCOnFire(MuzzleSocketTransform, HitLocation);
 }
 
-void ASOGunBase::CreateProjectile(FVector StartPosition, FRotator StartRotation)
+void ASOGunBase::CreateProjectile(const FTransform& MuzzleTransform, const FVector& HitLocation)
 {
+	if (OwningCharacter == nullptr || OwningCharacter->GetController() == nullptr)
+	{
+		return;
+	}
+
+	/*APawn* OwnerPawn = Cast<APawn>(GetOwner());
+	if (OwnerPawn == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("OwnerPawn"));
+		return;
+	}
 	
+	AController* OwnerController = OwnerPawn->GetController();
+	if (OwnerController == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("OwnerController"));
+	}*/
+	
+	APawn* InstigatorPawn = Cast<APawn>(GetOwner());
+	
+	// Try and fire a projectile
+	if (ProjectileClass  == nullptr)
+	{
+		UE_LOG(LogTemp, Log, TEXT("ProjectileClass is null"));
+		return;
+	}
+	
+	FVector SpawnLocation = MuzzleTransform.GetLocation(); 
+	FVector ToTarget = HitLocation - SpawnLocation;	
+	FRotator SpawnRotation = ToTarget.Rotation();
+	
+	// Set Spawn Collision Handling Override
+	FActorSpawnParameters ActorSpawnParams;
+	ActorSpawnParams.Owner = GetOwner();
+	ActorSpawnParams.Instigator = InstigatorPawn;
+	ASOProjectileBase* Projectile = nullptr;
+	
+	// 서버에서 생성하면 자동 리플리
+	Projectile = GetWorld()->SpawnActor<ASOProjectileBase>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+	if(Projectile) Projectile->SetOwner(OwningCharacter);		
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(__FUNCTION__))
 }
 
 void ASOGunBase::StopFire()
@@ -209,20 +271,26 @@ void ASOGunBase::StopFire()
 	GetWorld()->GetTimerManager().ClearTimer(FireTimerHandle);
 }
 
-void ASOGunBase::ShowEffect(FVector StartPosition, FRotator StartRotation)
+void ASOGunBase::ShowEffect(const FVector& MuzzleLocation, FRotator& MuzzleRotation)
 {
 }
 
 void ASOGunBase::PlaySound()
 {
+	if (FireSound != nullptr)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, FireSound, OwningCharacter->GetActorLocation());
+	}
 }
 
 void ASOGunBase::Recoil()
 {
+	
 }
 
 void ASOGunBase::Reload()
 {
+	
 }
 
 void ASOGunBase::Aim()
@@ -259,13 +327,18 @@ void ASOGunBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 	DOREPLIFETIME(ASOGunBase, CurrentAmmoInClip);
 }
 
-void ASOGunBase::MulticastRPCShowEffect_Implementation(FVector StartPosition, FRotator StartRotation)
+void ASOGunBase::ServerRPCOnFire_Implementation(const FTransform& MuzzleTransform, const FVector& HitLocation)
 {
-	
+	CreateProjectile(MuzzleTransform, HitLocation);
+	MulticastRPCShowEffect(MuzzleTransform, HitLocation);	
 }
 
-void ASOGunBase::ServerRPCOnFire_Implementation(FVector StartPosition, FRotator StartRotation)
+void ASOGunBase::MulticastRPCShowEffect_Implementation(const FTransform& MuzzleTransform, const FVector& HitLocation)
 {
-	
-}
+	// FQuat을 FRotator로 변환
+	FRotator MuzzleRotation = MuzzleTransform.GetRotation().Rotator();
 
+	// ShowEffect 함수 호출 시 변환된 FRotator 사용
+	ShowEffect(MuzzleTransform.GetLocation(), MuzzleRotation);
+	PlaySound();
+}

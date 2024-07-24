@@ -34,6 +34,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated)
 	TObjectPtr<class ASOCharacterBase> OwningCharacter;
 
+	/** Projectile class to spawn */
+	UPROPERTY(EditAnywhere, Category = "CHGunBase|Properties")
+	TSubclassOf<class ASOProjectileBase> ProjectileClass;
+	
 	// Component
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
@@ -117,6 +121,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Properties|Weapon")
 	FName AttachPoint;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Properties|Weapon")
+	FName MuzzleSocketName;
+	
 	// Ammo
 protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Replicated, Category = "Properties|Ammo")
@@ -204,12 +211,12 @@ protected:
 	virtual void BurstFire();
 	virtual void SingleFire();
 	virtual void FireProjectile();
-	virtual void CreateProjectile(FVector StartPosition, FRotator StartRotation);
+	virtual void CreateProjectile(const FTransform& MuzzleTransform, const FVector& HitLocation);
 	virtual void StopFire();
 
 	// Effect
 protected:
-	virtual void ShowEffect(FVector StartPosition, FRotator StartRotation);
+	virtual void ShowEffect(const FVector& MuzzleLocation, FRotator& MuzzleRotation);
 	virtual void PlaySound();
 	virtual void Recoil();
 
@@ -228,10 +235,8 @@ protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	UFUNCTION(Server, Unreliable)
-	void ServerRPCOnFire(FVector StartPosition, FRotator StartRotation);
+	void ServerRPCOnFire(const FTransform& MuzzleTransform, const FVector& HitLocation);
 
 	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastRPCShowEffect(FVector StartPosition, FRotator StartRotation);
-
-
+	void MulticastRPCShowEffect(const FTransform& MuzzleTransform, const FVector& HitLocation);
 };

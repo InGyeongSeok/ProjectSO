@@ -49,14 +49,14 @@ void ASORifle::FireProjectile()
 	Super::FireProjectile();
 }
 
-void ASORifle::CreateProjectile(FVector StartPosition, FRotator StartRotation)
+void ASORifle::CreateProjectile(const FTransform& MuzzleTransform, const FVector& HitLocation)
 {
-	Super::CreateProjectile(StartPosition, StartRotation);
+	Super::CreateProjectile(MuzzleTransform, HitLocation);
 }
 
-void ASORifle::ShowEffect(FVector StartPosition, FRotator StartRotation)
+void ASORifle::ShowEffect(const FVector& MuzzleLocation, FRotator& MuzzleRotation)
 {
-	Super::ShowEffect(StartPosition, StartRotation);
+	Super::ShowEffect(MuzzleLocation, MuzzleRotation);
 }
 
 void ASORifle::PlaySound()

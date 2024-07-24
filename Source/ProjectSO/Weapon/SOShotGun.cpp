@@ -37,14 +37,14 @@ void ASOShotGun::FireProjectile()
 	Super::FireProjectile();
 }
 
-void ASOShotGun::CreateProjectile(FVector StartPosition, FRotator StartRotation)
+void ASOShotGun::CreateProjectile(const FTransform& MuzzleTransform, const FVector& HitLocation)
 {
-	Super::CreateProjectile(StartPosition, StartRotation);
+	Super::CreateProjectile(MuzzleTransform, HitLocation);
 }
 
-void ASOShotGun::ShowEffect(FVector StartPosition, FRotator StartRotation)
+void ASOShotGun::ShowEffect(const FVector& MuzzleLocation, FRotator& MuzzleRotation)
 {
-	Super::ShowEffect(StartPosition, StartRotation);
+	Super::ShowEffect(MuzzleLocation, MuzzleRotation);
 }
 
 void ASOShotGun::PlaySound()
