@@ -7,3 +7,7 @@
 void ISODamageableInterface::PressLMB()
 {
 }
+
+void ISODamageableInterface::ReleaseLMB()
+{
+}

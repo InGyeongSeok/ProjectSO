@@ -30,6 +30,7 @@ ASOGunBase::ASOGunBase()
 	WeaponMesh->SetupAttachment(CollisionComp);
 	
 	CurrentFireMode = ESOFireMode::Single;
+	CurrentAmmoInClip = 30;
 }
 
 void ASOGunBase::SetGunData(const uint8 InID)
@@ -111,8 +112,14 @@ void ASOGunBase::PressLMB()
 	OnFire();
 }
 
+void ASOGunBase::ReleaseLMB()
+{
+	StopFire();
+}
+
 void ASOGunBase::OnFire()
 {
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(__FUNCTION__))
 	if(!bIsEquipped) return;
 	if(bReloading || CurrentAmmoInClip <= 0) return;
 	switch (CurrentFireMode)
@@ -133,20 +140,32 @@ void ASOGunBase::OnFire()
 
 void ASOGunBase::AutoFire()
 {
-	
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(__FUNCTION__))
+	GetWorld()->GetTimerManager().ClearTimer(FireTimerHandle);
+	GetWorld()->GetTimerManager().SetTimer(FireTimerHandle, this, &ASOGunBase::FireProjectile, FireInterval, true);
 }
 
 void ASOGunBase::BurstFire()
 {
-	
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(__FUNCTION__))
+	// 기존 타이머 정리
+	GetWorld()->GetTimerManager().ClearTimer(BurstTimerHandle1);
+	GetWorld()->GetTimerManager().ClearTimer(BurstTimerHandle2);
+
+	FireProjectile();
+	GetWorld()->GetTimerManager().SetTimer(BurstTimerHandle1, this, &ASOGunBase::FireProjectile, FireInterval, false);
+	GetWorld()->GetTimerManager().SetTimer(BurstTimerHandle2, this, &ASOGunBase::FireProjectile, FireInterval * 2.0f, false);
 }
 
 void ASOGunBase::SingleFire()
 {
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(__FUNCTION__))
+	FireProjectile();
 }
 
 void ASOGunBase::FireProjectile()
 {
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(__FUNCTION__))
 	AController* OwnerController = OwningCharacter->GetController();
 	if (OwnerController == nullptr)
 	{
@@ -168,12 +187,16 @@ void ASOGunBase::FireProjectile()
 		CrosshairLocation,
 		CrosshairWorldPosition,
 		CrosshairWorldDirection
-	);
-	
+	);	
 }
 
 void ASOGunBase::CreateProjectile(FVector StartPosition, FRotator StartRotation)
 {
+}
+
+void ASOGunBase::StopFire()
+{
+	GetWorld()->GetTimerManager().ClearTimer(FireTimerHandle);
 }
 
 void ASOGunBase::ShowEffect(FVector StartPosition, FRotator StartRotation)

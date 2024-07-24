@@ -154,7 +154,7 @@ public:
 
 	// State
 public:
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Replicated,Category = "Properties|State")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Replicated,Category = "Properties|State")
 	ESOFireMode CurrentFireMode;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Replicated, Category = "Properties|State")
@@ -177,6 +177,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetCurrentFireMode(ESOFireMode NewCurrentFireMode) { CurrentFireMode = NewCurrentFireMode; }
 
+	FTimerHandle FireTimerHandle;
+	FTimerHandle BurstTimerHandle1;
+	FTimerHandle BurstTimerHandle2;
+	
 	//  Data
 protected:
 	UPROPERTY()
@@ -188,6 +192,7 @@ protected:
 	/** IDamageable **/
 public:
 	virtual void PressLMB() override;
+	virtual void ReleaseLMB() override;
 
 	// Fire Logic
 protected:
@@ -197,6 +202,7 @@ protected:
 	virtual void SingleFire();
 	virtual void FireProjectile();
 	virtual void CreateProjectile(FVector StartPosition, FRotator StartRotation);
+	virtual void StopFire();
 
 	// Effect
 protected:
