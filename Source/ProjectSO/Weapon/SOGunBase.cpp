@@ -33,6 +33,8 @@ ASOGunBase::ASOGunBase()
 	CurrentFireMode = ESOFireMode::Single;
 	CurrentAmmoInClip = 30;
 
+	MaxRange = 1000;
+	MuzzleSocketName = "MuzzleSocket";
 	
 }
 
