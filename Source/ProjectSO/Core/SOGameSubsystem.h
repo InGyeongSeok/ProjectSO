@@ -7,6 +7,7 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "SOGameSubsystem.generated.h"
 
+struct FSOSpawnableItemClasses;
 /**
  * 
  */
@@ -20,21 +21,28 @@ public:
 	USOGameSubsystem();
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
-	//GetFuntions
-	USOGameSubsystem* GetSOGameSubsystem(const UObject* WorldContextObject);
-	
+	//Getters
+	USOGameSubsystem* GetSOGameSubsystem();
 	FSOWeaponStat* GetWeaponStatData(const uint8 InID);
 	FSOWeaponData* GetWeaponData(const uint8 InID);
+	FSOSpawnableItemClasses* GetSpawnableItemData(const int32 InIndex);
+	uint32 GetSpawnableItemCount() const {return TotalSpawnableItem; };
 
 
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "Data")
+	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<UDataTable> WeaponDataTable;
 
 
-	UPROPERTY(EditDefaultsOnly, Category = "Data")
+	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<UDataTable> WeaponStatTable;
 
-	
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<UDataTable> SpawnableItemDataTable;
+
+	UPROPERTY()
+	uint32 TotalSpawnableItem;
+
+
 	
 };

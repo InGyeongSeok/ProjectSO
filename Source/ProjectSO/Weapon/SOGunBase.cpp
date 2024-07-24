@@ -31,6 +31,8 @@ ASOGunBase::ASOGunBase()
 	
 	CurrentFireMode = ESOFireMode::Single;
 	CurrentAmmoInClip = 30;
+
+	
 }
 
 void ASOGunBase::SetGunData(const uint8 InID)

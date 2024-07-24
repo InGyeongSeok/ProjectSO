@@ -7,34 +7,43 @@
 
 USOGameSubsystem::USOGameSubsystem()
 {
-	ConstructorHelpers::FObjectFinder<UDataTable> WeaponDataRef(TEXT("/Script/Engine.DataTable'/Game/StellarObsidian/GameData/DT_SOWeaponDataTable.DT_SOWeaponDataTable'"));
+	ConstructorHelpers::FObjectFinder<UDataTable> WeaponDataRef(
+		TEXT("/Script/Engine.DataTable'/Game/StellarObsidian/GameData/DT_SOWeaponDataTable.DT_SOWeaponDataTable'"));
 	if (WeaponDataRef.Succeeded())
 	{
 		WeaponDataTable = WeaponDataRef.Object;
 	}
 
-	ConstructorHelpers::FObjectFinder<UDataTable> WeaponStatRef(TEXT("/Script/Engine.DataTable'/Game/StellarObsidian/GameData/DT_SOWeaponStatTable.DT_SOWeaponStatTable'"));
+	ConstructorHelpers::FObjectFinder<UDataTable> WeaponStatRef(
+		TEXT("/Script/Engine.DataTable'/Game/StellarObsidian/GameData/DT_SOWeaponStatTable.DT_SOWeaponStatTable'"));
 	if (WeaponStatRef.Succeeded())
 	{
 		WeaponStatTable = WeaponStatRef.Object;
+	}
+
+	ConstructorHelpers::FObjectFinder<UDataTable> SpanwableDataRef(
+		TEXT("/Script/Engine.DataTable'/Game/StellarObsidian/GameData/DT_SOSpanwnableItemClasses.DT_SOSpanwnableItemClasses'"));
+	if (SpanwableDataRef.Succeeded())
+	{
+		SpawnableItemDataTable = SpanwableDataRef.Object;
+		TArray<FName> RowNames = SpawnableItemDataTable->GetRowNames();
+		TotalSpawnableItem = RowNames.Num();
 	}
 }
 
 void USOGameSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
+
 }
 
-USOGameSubsystem* USOGameSubsystem::GetSOGameSubsystem(const UObject* WorldContextObject)
+USOGameSubsystem* USOGameSubsystem::GetSOGameSubsystem()
 {
-	if (WorldContextObject)
+	if (GetWorld())
 	{
-		if (const UWorld* World = WorldContextObject->GetWorld())
+		if (UGameInstance* GameInstance = GetWorld()->GetGameInstance())
 		{
-			if (UGameInstance* GameInstance = World->GetGameInstance())
-			{
-				return GameInstance->GetSubsystem<USOGameSubsystem>();
-			}
+			return GameInstance->GetSubsystem<USOGameSubsystem>();
 		}
 	}
 	return nullptr;
@@ -49,7 +58,7 @@ FSOWeaponStat* USOGameSubsystem::GetWeaponStatData(const uint8 InID)
 	}
 
 	FString RowName = FString::Printf(TEXT("%d"), InID);
-	
+
 	FSOWeaponStat* WeaponStatDataRow = WeaponStatTable->FindRow<FSOWeaponStat>(FName(*RowName), "");
 	if (WeaponStatDataRow)
 	{
@@ -71,7 +80,7 @@ FSOWeaponData* USOGameSubsystem::GetWeaponData(const uint8 InID)
 	}
 
 	FString RowName = FString::Printf(TEXT("%d"), InID);
-	
+
 	FSOWeaponData* WeaponDataRow = WeaponDataTable->FindRow<FSOWeaponData>(FName(*RowName), "");
 	if (WeaponDataRow)
 	{
@@ -84,4 +93,25 @@ FSOWeaponData* USOGameSubsystem::GetWeaponData(const uint8 InID)
 	return WeaponDataRow;
 }
 
+FSOSpawnableItemClasses* USOGameSubsystem::GetSpawnableItemData(const int32 InIndex)
+{
+	if (!SpawnableItemDataTable)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("WeaponDataTable is not assigned."));
+		return nullptr;
+	}
 
+	FString RowName = FString::Printf(TEXT("%d"), InIndex);
+
+	FSOSpawnableItemClasses* SpawnableDataRow = SpawnableItemDataTable->FindRow<FSOSpawnableItemClasses>(
+		FName(*RowName), "");
+	if (SpawnableDataRow)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Found WeaponDataTable for ID: %d"), InIndex);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No WeaponDataTable found for ID: %d"), InIndex);
+	}
+	return SpawnableDataRow;
+}
