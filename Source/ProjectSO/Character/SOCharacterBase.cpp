@@ -31,6 +31,11 @@ void ASOCharacterBase::AttackAction_Implementation(bool bValue)
 			{
 				CurrentWeapon->PressLMB();				
 			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("%s Punch!"), *FString(__FUNCTION__))
+			}
 		}
+		
 	}
 }

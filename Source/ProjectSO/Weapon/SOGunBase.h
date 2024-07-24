@@ -217,7 +217,6 @@ public:
 protected:
 	void SetGunData(const uint8 InID);
 
-
 	// multi
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
