@@ -25,7 +25,7 @@ void ASOCharacterBase::AttackAction_Implementation(bool bValue)
 {
 	if (bValue)
 	{
-		if(ViewMode == EALSViewMode::ThirdPerson && RotationMode == EALSRotationMode::Aiming)
+		if(RotationMode == EALSRotationMode::Aiming)
 		{
 			if(CurrentWeapon)
 			{
@@ -35,7 +35,18 @@ void ASOCharacterBase::AttackAction_Implementation(bool bValue)
 			{
 				UE_LOG(LogTemp, Warning, TEXT("%s Punch!"), *FString(__FUNCTION__))
 			}
-		}		
+		}
+		else
+		{
+			if(CurrentWeapon)
+			{
+				// CurrentWeapon->PressLMB();				
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("%s Punch!"), *FString(__FUNCTION__))
+			}
+		}
 	}
 	else
 	{
