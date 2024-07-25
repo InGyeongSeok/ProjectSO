@@ -24,7 +24,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	// Component
-public:	
+public:
+
+	
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<class USceneComponent> SceneComponent;
 
@@ -71,6 +73,14 @@ protected:
 	
 	UPROPERTY(EditAnywhere)
 	float DestroyTime = 4.f;
+
+public:
+	//pool
+	UPROPERTY()
+	TObjectPtr<class USOProjectilePoolComponent> ProjectilePool;
+	
+	UPROPERTY()
+	float LifeSpanTime;
 	
 public:
 	UBoxComponent* GetCollisionComp() const { return CollisionComp; }
@@ -85,4 +95,15 @@ protected:
 	
 	void StartDestroyTimer();
 	void DestroyTimerFinished();
+
+public:	
+	UFUNCTION()
+	void SetProjectileActive(bool IsActive);
+	
+	UFUNCTION()
+	void SetLifeSpanToPool();
+
+	UFUNCTION()
+	void PushPoolSelf();
+
 };

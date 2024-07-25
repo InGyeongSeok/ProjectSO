@@ -11,6 +11,7 @@
 #include "ProjectSO/Interface/SOEquippableInterface.h"
 #include "SOGunBase.generated.h"
 
+
 UCLASS()
 class PROJECTSO_API ASOGunBase : public AActor, public ISODamageableInterface, public ISOEquippableInterface
 {
@@ -193,7 +194,15 @@ protected:
 	FSOWeaponStat WeaponStat;
 
 	UPROPERTY()
-	FSOWeaponData WeaponData; 
+	FSOWeaponData WeaponData;
+
+
+	//Ammo
+protected:
+	UPROPERTY()
+	TObjectPtr<class USOProjectilePoolComponent> ProjectilePoolComponent; 
+	
+	TSubclassOf<ASOProjectileBase> AmmoClass; 
 
 	/** IDamageable **/
 public:
@@ -238,10 +247,12 @@ protected:
 	void ServerRPCOnFire(const FTransform& MuzzleTransform, const FVector& HitLocation);
 
 	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastRPCShowEffect(FVector StartPosition, FRotator StartRotation);
+	void MulticastRPCShowEffect(const FTransform& MuzzleTransform, const FVector& HitLocation);
 
 	//simulatePhysics
 protected:
 	void DisablePhysics();
+
+
 
 };

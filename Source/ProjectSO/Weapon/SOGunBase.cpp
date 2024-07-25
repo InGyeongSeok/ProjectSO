@@ -10,6 +10,7 @@
 #include "ProjectSO/Character/SOCharacterBase.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Kismet/GameplayStatics.h"
+#include "Projectile/SOProjectilePoolComponent.h"
 #include "ProjectSO/Core/SOGameSubsystem.h"
 
 // Sets default values
@@ -35,6 +36,8 @@ ASOGunBase::ASOGunBase()
 	CollisionComp->SetupAttachment(RootComponent);
 
 	//RootComponent = CollisionComp;
+
+	ProjectilePoolComponent = CreateDefaultSubobject<USOProjectilePoolComponent>(TEXT("ProjectilePool"));
 	
 	CurrentFireMode = ESOFireMode::Single;
 	CurrentAmmoInClip = 30;
@@ -82,6 +85,12 @@ void ASOGunBase::SetGunData(const uint8 InID)
 		WeaponData = *SelectedWeaponData;
 		WeaponMesh->SetSkeletalMesh(WeaponData.SkeletalMesh);
 		AttachPoint = WeaponData.SocketName;
+		AmmoClass =  WeaponData.AmmoClass;
+	}
+
+	if(AmmoClass)
+	{
+		ProjectilePoolComponent->SetAmmoClass(AmmoClass);
 	}
 }
 
@@ -90,7 +99,12 @@ void ASOGunBase::SetGunData(const uint8 InID)
 void ASOGunBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	//Gun Data Setting
 	SetGunData(WeaponID);
+
+	//Object Pool
+	ProjectilePoolComponent->Initialize();
 	
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ASOGunBase::OnSphereBeginOverlap);
 	
@@ -272,12 +286,28 @@ void ASOGunBase::CreateProjectile(const FTransform& MuzzleTransform, const FVect
 	FActorSpawnParameters ActorSpawnParams;
 	ActorSpawnParams.Owner = GetOwner();
 	ActorSpawnParams.Instigator = InstigatorPawn;
-	ASOProjectileBase* Projectile = nullptr;
+	//ASOProjectileBase* Projectile = nullptr;
 	
-	// 서버에서 생성하면 자동 리플리
-	Projectile = GetWorld()->SpawnActor<ASOProjectileBase>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
-	if(Projectile) Projectile->SetOwner(OwningCharacter);		
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(__FUNCTION__))
+	// 서버에서 생성하면 자동 리플리케이션
+	//Projectile = GetWorld()->SpawnActor<ASOProjectileBase>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+	//if(Projectile) Projectile->SetOwner(OwningCharacter);		
+	//UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(__FUNCTION__))
+
+	//검사 로직 추가 
+	ASOProjectileBase* Bullet = ProjectilePoolComponent->PullProjectile();
+	// 데미지 강화 Bullet->CurrentDamage = Bullet->BaseDamage + DamageIncrease;
+	if(Bullet)
+	{
+		Bullet->SetActorLocation(SpawnLocation);
+		Bullet->SetActorRotation(SpawnRotation);
+		Bullet->ProjectileMesh->SetVisibility(true);
+		Bullet->SetProjectileActive(true);
+		Bullet->SetLifeSpanToPool();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No Bullet"));
+	}
 }
 
 void ASOGunBase::StopFire()
@@ -351,9 +381,6 @@ void ASOGunBase::DisablePhysics()
 	WeaponMesh->SetSimulatePhysics(false);
 }
 
-void ASOGunBase::MulticastRPCShowEffect_Implementation(FVector StartPosition, FRotator StartRotation)
-{
-}
 
 void ASOGunBase::MulticastRPCShowEffect_Implementation(const FTransform& MuzzleTransform, const FVector& HitLocation)
 {

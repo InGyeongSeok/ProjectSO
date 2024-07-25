@@ -7,6 +7,8 @@
 #include "SOWeaponStructLibrary.generated.h"
 
 
+class ASOProjectileBase;
+
 USTRUCT(BlueprintType)
 struct FSOWeaponStat : public FTableRowBase
 {
@@ -116,6 +118,7 @@ public:
 		if(this!= &InOhterStat)
 		{
 			ID = InOhterStat.ID;
+			AmmoClass=InOhterStat.AmmoClass;
 			WeaponType = InOhterStat.WeaponType;
 			OverlayState = InOhterStat.OverlayState;
 			SkeletalMesh = InOhterStat.SkeletalMesh;
@@ -131,6 +134,9 @@ public:
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ID)
 	uint8 ID;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ammo)
+	TSubclassOf<ASOProjectileBase> AmmoClass; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponType)
 	ESOWeaponType WeaponType;

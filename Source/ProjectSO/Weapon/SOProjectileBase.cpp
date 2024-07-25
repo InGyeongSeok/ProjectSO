@@ -12,6 +12,7 @@
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystemInstanceController.h"
 #include "Components/AudioComponent.h"
+#include "Projectile/SOProjectilePoolComponent.h"
 
 // Sets default values
 ASOProjectileBase::ASOProjectileBase()
@@ -33,7 +34,10 @@ ASOProjectileBase::ASOProjectileBase()
 	ProjectileMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
-	ProjectileMovementComponent->bRotationFollowsVelocity = true;	
+	ProjectileMovementComponent->bRotationFollowsVelocity = true;
+
+	//Todo 숫자
+	LifeSpanTime = 3.0f;
 }
 
 // Called when the game starts or when spawned
@@ -57,7 +61,7 @@ void ASOProjectileBase::BeginPlay()
 	if (HasAuthority())
 	{
 		CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ASOProjectileBase::OnHit);
-		StartDestroyTimer();
+		//StartDestroyTimer();
 	}	
 }
 
@@ -71,9 +75,8 @@ void ASOProjectileBase::Tick(float DeltaTime)
 void ASOProjectileBase::OnHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	Destroyed();
+	//Destroyed();
 
-	// 이하는 자식에서 구현
 	APawn* FiringPawn = GetInstigator();
 	if (FiringPawn && HasAuthority())
 	{
@@ -90,7 +93,6 @@ void ASOProjectileBase::OnHit(UPrimitiveComponent* OverlappedComponent, AActor* 
 			UE_LOG(LogTemp, Log, TEXT("HitActor : %s"), *GetNameSafe(HitActor))
 		}
 	}
-
 	if (ImpactParticles)
 	{
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticles, GetActorTransform());
@@ -101,7 +103,7 @@ void ASOProjectileBase::OnHit(UPrimitiveComponent* OverlappedComponent, AActor* 
 	}
 	if (ProjectileMesh)
 	{
-		ProjectileMesh->SetVisibility(false);
+		SetActorHiddenInGame(true);
 	}
 	if (CollisionComp)
 	{
@@ -145,5 +147,44 @@ void ASOProjectileBase::StartDestroyTimer()
 void ASOProjectileBase::DestroyTimerFinished()
 {
 	Destroy();
+}
+
+void ASOProjectileBase::SetProjectileActive(bool IsActive)
+{
+	SetActorHiddenInGame(!IsActive);
+	SetActorEnableCollision(IsActive);
+	SetActorTickEnabled(IsActive);
+	
+
+	if (!IsActive)
+	{
+		ProjectileMovementComponent->Velocity = FVector::ZeroVector;
+	}
+	else
+	{
+		ProjectileMovementComponent->SetUpdatedComponent(RootComponent);
+		ProjectileMovementComponent->Velocity = GetActorForwardVector() * 7000.0f;
+	}
+}
+
+void ASOProjectileBase::SetLifeSpanToPool()
+{
+	FTimerHandle TimerHandle_LifeSpanToPoolExpired;
+	if (GetWorld())
+	{
+		GetWorldTimerManager().SetTimer(TimerHandle_LifeSpanToPoolExpired, this, &ASOProjectileBase::PushPoolSelf, LifeSpanTime);
+	}
+}
+
+void ASOProjectileBase::PushPoolSelf()
+{
+
+	if (ProjectilePool == nullptr)
+	{
+		return;
+	}
+	ProjectilePool->PushProjectileInPool(this);
+	SetProjectileActive(false);
+	UE_LOG(LogTemp, Warning, TEXT("Pool Self : %d"), ProjectilePool->Pool.Num());
 }
 
