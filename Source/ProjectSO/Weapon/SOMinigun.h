@@ -33,7 +33,7 @@ public:
 protected:
 	virtual void OnFire(ESOFireMode InFireMode) override;
 	virtual void FireAuto() override;
-	virtual void FireBurst() override;
+	virtual void FireBurst(uint32 InMaxRepeatCount) override;
 	virtual void FireSingle() override;
 	virtual void FireProjectile() override;
 	virtual void CreateProjectile(const FTransform& MuzzleTransform, const FVector& HitLocation) override;

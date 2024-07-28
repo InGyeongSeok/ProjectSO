@@ -50,7 +50,8 @@ public:
 protected:
 	virtual void OnFire(ESOFireMode InFireMode);
 	virtual void FireAuto();
-	virtual void FireBurst();
+	virtual void FireBurst(uint32 InMaxRepeatCount);
+	virtual void FireContinuously(int32 InCurRepeatCount, int32 InMaxRepeatCount);
 	virtual void FireSingle();
 	virtual void FireProjectile();
 	virtual void CreateProjectile(const FTransform& MuzzleTransform, const FVector& HitLocation);
@@ -139,6 +140,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category = "Properties|Weapon")
 	ESOWeaponType WeaponType;
+
+	UPROPERTY(EditAnywhere, Category = "Properties|Fire")
+	int32 MaxRepeatCount;
 	
 	UPROPERTY(EditAnywhere, Category = "Properties|Fire")
 	float FireInterval;
@@ -236,8 +240,7 @@ public:
 	void SetCurrentFireMode(ESOFireMode NewCurrentFireMode) { CurrentFireMode = NewCurrentFireMode; }
 
 	FTimerHandle FireTimerHandle;
-	FTimerHandle BurstTimerHandle1;
-	FTimerHandle BurstTimerHandle2;
+	FTimerHandle BurstTimerHandle;
 	
 	// Data
 protected:

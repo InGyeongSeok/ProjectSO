@@ -22,9 +22,9 @@ void ASOPistol::FireAuto()
 	Super::FireAuto();
 }
 
-void ASOPistol::FireBurst()
+void ASOPistol::FireBurst(uint32 InMaxRepeatCount)
 {
-	Super::FireBurst();
+	Super::FireBurst(InMaxRepeatCount);
 }
 
 void ASOPistol::FireSingle()

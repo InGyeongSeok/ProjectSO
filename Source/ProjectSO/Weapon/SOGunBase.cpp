@@ -45,7 +45,7 @@ ASOGunBase::ASOGunBase()
 
 	MaxRange = 1000;
 	MuzzleSocketName = "MuzzleSocket";
-	
+	MaxRepeatCount = 3;
 }
 
 void ASOGunBase::SetGunData(const uint8 InID)
@@ -182,7 +182,7 @@ void ASOGunBase::OnFire(ESOFireMode InFireMode)
 		FireAuto();
 		break;
 	case ESOFireMode::Burst:
-		FireBurst();
+		FireBurst(MaxRepeatCount);
 		break;
 	case ESOFireMode::Single:
 		FireSingle();
@@ -201,17 +201,33 @@ void ASOGunBase::FireAuto()
 	GetWorld()->GetTimerManager().SetTimer(FireTimerHandle, this, &ASOGunBase::FireProjectile, FireInterval, true);
 }
 
-void ASOGunBase::FireBurst()
+void ASOGunBase::FireBurst(uint32 InMaxRepeatCount)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(__FUNCTION__))
-	// 기존 타이머 정리
-	GetWorld()->GetTimerManager().ClearTimer(BurstTimerHandle1);
-	GetWorld()->GetTimerManager().ClearTimer(BurstTimerHandle2);
+	SO_LOG(LogSOTemp, Warning, TEXT("Begin"))
+	const int InitialRepeatCount = 0;
+	// 점사 횟수, 필요에 따라 변경
 
+	FireContinuously(InitialRepeatCount, InMaxRepeatCount);
+}
+
+void ASOGunBase::FireContinuously(int32 InCurRepeatCount, int32 InMaxRepeatCount)
+{
+	// SO_LOG(LogSOTemp, Warning, TEXT("%d %d"), InCurRepeatCount, InMaxRepeatCount)
+	if(InCurRepeatCount >= InMaxRepeatCount)
+	{
+		// SO_LOG(LogSOTemp, Warning, TEXT("%d"), InCurRepeatCount >= InMaxRepeatCount)
+		GetWorld()->GetTimerManager().ClearTimer(BurstTimerHandle);
+		return;
+	}
 	FireProjectile();
-	GetWorld()->GetTimerManager().SetTimer(BurstTimerHandle1, this, &ASOGunBase::FireProjectile, FireInterval, false);
-	GetWorld()->GetTimerManager().SetTimer(BurstTimerHandle2, this, &ASOGunBase::FireProjectile, FireInterval * 2.0f,
-	                                       false);
+	
+	GetWorld()->GetTimerManager().SetTimer(
+		BurstTimerHandle,
+		[this, InCurRepeatCount, InMaxRepeatCount]()
+		{
+			FireContinuously(InCurRepeatCount + 1, InMaxRepeatCount);
+		},
+		FireInterval, false);
 }
 
 void ASOGunBase::FireSingle()

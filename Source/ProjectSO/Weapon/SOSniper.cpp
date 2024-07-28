@@ -22,9 +22,9 @@ void ASOSniper::FireAuto()
 	Super::FireAuto();
 }
 
-void ASOSniper::FireBurst()
+void ASOSniper::FireBurst(uint32 InMaxRepeatCount)
 {
-	Super::FireBurst();
+	Super::FireBurst(InMaxRepeatCount);
 }
 
 void ASOSniper::FireSingle()

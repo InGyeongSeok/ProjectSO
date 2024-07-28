@@ -34,9 +34,9 @@ void ASORifle::FireAuto()
 	Super::FireAuto();
 }
 
-void ASORifle::FireBurst()
+void ASORifle::FireBurst(uint32 InMaxRepeatCount)
 {
-	Super::FireBurst();
+	Super::FireBurst(InMaxRepeatCount);
 }
 
 void ASORifle::FireSingle()

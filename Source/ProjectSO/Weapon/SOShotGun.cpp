@@ -22,9 +22,9 @@ void ASOShotGun::FireAuto()
 	Super::FireAuto();
 }
 
-void ASOShotGun::FireBurst()
+void ASOShotGun::FireBurst(uint32 InMaxRepeatCount)
 {
-	Super::FireBurst();
+	Super::FireBurst(InMaxRepeatCount);
 }
 
 void ASOShotGun::FireSingle()

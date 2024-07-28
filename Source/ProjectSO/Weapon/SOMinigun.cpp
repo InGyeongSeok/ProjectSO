@@ -22,9 +22,9 @@ void ASOMinigun::FireAuto()
 	Super::FireAuto();
 }
 
-void ASOMinigun::FireBurst()
+void ASOMinigun::FireBurst(uint32 InMaxRepeatCount)
 {
-	Super::FireBurst();
+	Super::FireBurst(InMaxRepeatCount);
 }
 
 void ASOMinigun::FireSingle()
