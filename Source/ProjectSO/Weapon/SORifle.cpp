@@ -22,26 +22,26 @@ void ASORifle::PressLMB()
 	Super::PressLMB();
 }
 
-void ASORifle::OnFire()
+void ASORifle::OnFire(ESOFireMode InFireMode)
 {
-	Super::OnFire();
+	Super::OnFire(InFireMode);
 
 	
 }
 
-void ASORifle::AutoFire()
+void ASORifle::FireAuto()
 {
-	Super::AutoFire();
+	Super::FireAuto();
 }
 
-void ASORifle::BurstFire()
+void ASORifle::FireBurst()
 {
-	Super::BurstFire();
+	Super::FireBurst();
 }
 
-void ASORifle::SingleFire()
+void ASORifle::FireSingle()
 {
-	Super::SingleFire();
+	Super::FireSingle();
 }
 
 void ASORifle::FireProjectile()

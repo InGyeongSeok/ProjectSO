@@ -17,19 +17,19 @@ void ASOMinigun::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void ASOMinigun::AutoFire()
+void ASOMinigun::FireAuto()
 {
-	Super::AutoFire();
+	Super::FireAuto();
 }
 
-void ASOMinigun::BurstFire()
+void ASOMinigun::FireBurst()
 {
-	Super::BurstFire();
+	Super::FireBurst();
 }
 
-void ASOMinigun::SingleFire()
+void ASOMinigun::FireSingle()
 {
-	Super::SingleFire();
+	Super::FireSingle();
 }
 
 void ASOMinigun::FireProjectile()
@@ -62,9 +62,9 @@ void ASOMinigun::PressLMB()
 	Super::PressLMB();
 }
 
-void ASOMinigun::OnFire()
+void ASOMinigun::OnFire(ESOFireMode InFireMode)
 {
-	Super::OnFire();
+	Super::OnFire(InFireMode);
 }
 
 void ASOMinigun::Reload()

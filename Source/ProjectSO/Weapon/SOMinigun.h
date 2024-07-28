@@ -31,10 +31,10 @@ public:
 	
 	// Fire Logic
 protected:
-	virtual void OnFire() override;
-	virtual void AutoFire() override;
-	virtual void BurstFire() override;
-	virtual void SingleFire() override;
+	virtual void OnFire(ESOFireMode InFireMode) override;
+	virtual void FireAuto() override;
+	virtual void FireBurst() override;
+	virtual void FireSingle() override;
 	virtual void FireProjectile() override;
 	virtual void CreateProjectile(const FTransform& MuzzleTransform, const FVector& HitLocation) override;
 

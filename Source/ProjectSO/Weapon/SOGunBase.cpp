@@ -3,14 +3,15 @@
 
 #include "SOGunBase.h"
 
-#include "SOProjectileBase.h"
-#include "Components/CapsuleComponent.h"
 #include "KisMet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
-#include "ProjectSO/Character/SOCharacterBase.h"
 #include "Engine/SkeletalMeshSocket.h"
-#include "Kismet/GameplayStatics.h"
+#include "Components/CapsuleComponent.h"
+
+#include "SOProjectileBase.h"
+#include "ProjectSO/Character/SOCharacterBase.h"
 #include "Projectile/SOProjectilePoolComponent.h"
+#include "ProjectSO/ProjectSO.h"
 #include "ProjectSO/Core/SOGameSubsystem.h"
 
 // Sets default values
@@ -120,6 +121,21 @@ void ASOGunBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void ASOGunBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ASOGunBase, OwningCharacter);
+	DOREPLIFETIME(ASOGunBase, ClipSize);
+	DOREPLIFETIME(ASOGunBase, MaxAmmoCapacity);
+	DOREPLIFETIME(ASOGunBase, bInfiniteAmmo);
+	DOREPLIFETIME(ASOGunBase, CurrentFireMode);
+	DOREPLIFETIME(ASOGunBase, bIsEquipped);
+	DOREPLIFETIME(ASOGunBase, bReloading);
+	DOREPLIFETIME(ASOGunBase, bTrigger);
+	DOREPLIFETIME(ASOGunBase, CurrentAmmo);
+	DOREPLIFETIME(ASOGunBase, CurrentAmmoInClip);
+}
+
 void ASOGunBase::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                                       UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
                                       const FHitResult& SweepResult)
@@ -141,7 +157,7 @@ void ASOGunBase::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, 
 void ASOGunBase::PressLMB()
 {
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(__FUNCTION__))
-	OnFire();
+	OnFire(CurrentFireMode);
 }
 
 void ASOGunBase::ReleaseLMB()
@@ -155,35 +171,37 @@ EALSOverlayState ASOGunBase::GetOverlayState() const
 	return WeaponData.OverlayState;
 }
 
-void ASOGunBase::OnFire()
+void ASOGunBase::OnFire(ESOFireMode InFireMode)
 {
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(__FUNCTION__))
 	if (!bIsEquipped) return;
 	if (bReloading || CurrentAmmoInClip <= 0) return;
-	switch (CurrentFireMode)
+	switch (InFireMode)
 	{
 	case ESOFireMode::Auto:
-		AutoFire();
+		FireAuto();
 		break;
 	case ESOFireMode::Burst:
-		BurstFire();
+		FireBurst();
 		break;
 	case ESOFireMode::Single:
-		SingleFire();
+		FireSingle();
 		break;
 	default:
 		break;
 	}
 }
 
-void ASOGunBase::AutoFire()
+void ASOGunBase::FireAuto()
 {
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(__FUNCTION__))
 	GetWorld()->GetTimerManager().ClearTimer(FireTimerHandle);
+
+	FireProjectile();
 	GetWorld()->GetTimerManager().SetTimer(FireTimerHandle, this, &ASOGunBase::FireProjectile, FireInterval, true);
 }
 
-void ASOGunBase::BurstFire()
+void ASOGunBase::FireBurst()
 {
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(__FUNCTION__))
 	// 기존 타이머 정리
@@ -196,15 +214,15 @@ void ASOGunBase::BurstFire()
 	                                       false);
 }
 
-void ASOGunBase::SingleFire()
+void ASOGunBase::FireSingle()
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(__FUNCTION__))
+	SO_LOG(LogSOTemp, Warning, TEXT("Begin"))
 	FireProjectile();
 }
 
 void ASOGunBase::FireProjectile()
 {
-	// UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(__FUNCTION__))
+	SO_LOG(LogSOTemp, Warning, TEXT("Begin"))
 	AController* OwnerController = OwningCharacter->GetController();
 	if (OwnerController == nullptr)
 	{
@@ -226,20 +244,20 @@ void ASOGunBase::FireProjectile()
 	// DrawDebugCamera(GetWorld(), TraceStartLocation, TraceStartRotation, 90, 2, FColor::Red, true);
 	
 	FVector TraceEnd = TraceStartLocation + TraceStartRotation.Vector() * MaxRange;
-	bool bScreenLaserSuccess = GetWorld()->LineTraceSingleByChannel(ScreenLaserHit, TraceStartLocation, TraceEnd, ECollisionChannel::ECC_GameTraceChannel3, Params);
-
-
-	
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(__FUNCTION__))
+	bool bScreenLaserSuccess = GetWorld()->LineTraceSingleByChannel(ScreenLaserHit, TraceStartLocation, TraceEnd, ECC_Projectile, Params);
 	
 	// 허공이면 TraceEnd, 아니면 Hit.Location
 	FVector HitLocation = bScreenLaserSuccess ? ScreenLaserHit.Location : TraceEnd;
-	UE_LOG(LogTemp, Log, TEXT("HitLocation : %s "), *HitLocation.ToString());
+	// UE_LOG(LogTemp, Log, TEXT("ScreenLaserHit : %s "), *HitLocation.ToString());
 
 	// 소켓 위치
 	FTransform MuzzleSocketTransform;
 	const USkeletalMeshSocket* AmmoEjectSocket = WeaponMesh->GetSocketByName(MuzzleSocketName);
-	MuzzleSocketTransform = AmmoEjectSocket->GetSocketTransform(WeaponMesh);
+	// ensure(AmmoEjectSocket);
+	if(IsValid(AmmoEjectSocket))
+	{
+		MuzzleSocketTransform = AmmoEjectSocket->GetSocketTransform(WeaponMesh);		
+	}
 
 	DrawDebugLine(GetWorld(), MuzzleSocketTransform.GetLocation(), TraceEnd, FColor::Red,false, 5, 0, 2);
 	DrawDebugPoint(GetWorld(), ScreenLaserHit.Location, 3, FColor::Red, false, 5,0);
@@ -355,20 +373,7 @@ void ASOGunBase::Equip()
 	//	HeldObjectRoot->SetRelativeLocation(Offset);
 }
 
-void ASOGunBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(ASOGunBase, OwningCharacter);
-	DOREPLIFETIME(ASOGunBase, ClipSize);
-	DOREPLIFETIME(ASOGunBase, MaxAmmoCapacity);
-	DOREPLIFETIME(ASOGunBase, bInfiniteAmmo);
-	DOREPLIFETIME(ASOGunBase, CurrentFireMode);
-	DOREPLIFETIME(ASOGunBase, bIsEquipped);
-	DOREPLIFETIME(ASOGunBase, bReloading);
-	DOREPLIFETIME(ASOGunBase, bTrigger);
-	DOREPLIFETIME(ASOGunBase, CurrentAmmo);
-	DOREPLIFETIME(ASOGunBase, CurrentAmmoInClip);
-}
+
 
 void ASOGunBase::ServerRPCOnFire_Implementation(const FTransform& MuzzleTransform, const FVector& HitLocation)
 {

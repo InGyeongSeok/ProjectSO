@@ -17,19 +17,19 @@ void ASOPistol::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void ASOPistol::AutoFire()
+void ASOPistol::FireAuto()
 {
-	Super::AutoFire();
+	Super::FireAuto();
 }
 
-void ASOPistol::BurstFire()
+void ASOPistol::FireBurst()
 {
-	Super::BurstFire();
+	Super::FireBurst();
 }
 
-void ASOPistol::SingleFire()
+void ASOPistol::FireSingle()
 {
-	Super::SingleFire();
+	Super::FireSingle();
 }
 
 void ASOPistol::FireProjectile()
@@ -63,9 +63,9 @@ void ASOPistol::PressLMB()
 	Super::PressLMB();
 }
 
-void ASOPistol::OnFire()
+void ASOPistol::OnFire(ESOFireMode InFireMode)
 {
-	Super::OnFire();
+	Super::OnFire(InFireMode);
 }
 
 void ASOPistol::Reload()

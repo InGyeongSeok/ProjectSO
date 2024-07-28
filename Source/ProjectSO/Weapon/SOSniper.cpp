@@ -17,19 +17,19 @@ void ASOSniper::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void ASOSniper::AutoFire()
+void ASOSniper::FireAuto()
 {
-	Super::AutoFire();
+	Super::FireAuto();
 }
 
-void ASOSniper::BurstFire()
+void ASOSniper::FireBurst()
 {
-	Super::BurstFire();
+	Super::FireBurst();
 }
 
-void ASOSniper::SingleFire()
+void ASOSniper::FireSingle()
 {
-	Super::SingleFire();
+	Super::FireSingle();
 }
 
 void ASOSniper::FireProjectile()
@@ -62,9 +62,9 @@ void ASOSniper::PressLMB()
 	Super::PressLMB();
 }
 
-void ASOSniper::OnFire()
+void ASOSniper::OnFire(ESOFireMode InFireMode)
 {
-	Super::OnFire();
+	Super::OnFire(InFireMode);
 }
 
 void ASOSniper::Reload()

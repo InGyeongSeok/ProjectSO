@@ -4,13 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Library/ALSCharacterEnumLibrary.h"
+
 #include "ProjectSO/Library/SOWeaponEnumLibrary.h"
 #include "ProjectSO/Library/SOWeaponStructLibrary.h"
-#include "Components/SkeletalMeshComponent.h"
 #include "ProjectSO/Interface/SODamageableInterface.h"
 #include "ProjectSO/Interface/SOEquippableInterface.h"
 #include "SOGunBase.generated.h"
 
+class USkeletalMeshComponent;
 
 UCLASS()
 class PROJECTSO_API ASOGunBase : public AActor, public ISODamageableInterface, public ISOEquippableInterface
@@ -26,10 +28,59 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UFUNCTION()
 	virtual void OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	/** IDamageable **/
+public:
+	virtual void PressLMB() override;
+	virtual void ReleaseLMB() override;
+
+	/** IEquippableInterface **/
+public:
+	virtual EALSOverlayState GetOverlayState() const override;
+
+	/* Member Function */
+public:
+	virtual void Equip();
 	
+	// Fire Logic
+protected:
+	virtual void OnFire(ESOFireMode InFireMode);
+	virtual void FireAuto();
+	virtual void FireBurst();
+	virtual void FireSingle();
+	virtual void FireProjectile();
+	virtual void CreateProjectile(const FTransform& MuzzleTransform, const FVector& HitLocation);
+	virtual void StopFire();
+
+	// Effect
+protected:
+	virtual void ShowEffect(const FVector& MuzzleLocation, FRotator& MuzzleRotation);
+	virtual void PlaySound();
+	virtual void Recoil();
+
+	virtual void Reload();
+	virtual void Aim();
+
+	// Data Settings
+protected:
+	void SetGunData(const uint8 InID);
+
+	// simulatePhysics
+protected:
+	void DisablePhysics();
+
+	// Multi
+protected:	
+	UFUNCTION(Server, Unreliable)
+	void ServerRPCOnFire(const FTransform& MuzzleTransform, const FVector& HitLocation);
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastRPCShowEffect(const FTransform& MuzzleTransform, const FVector& HitLocation);
+
 	// Owner
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated)
@@ -49,27 +100,27 @@ protected:
 	
 	// Montage
 protected:
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
 	TObjectPtr<class UAnimMontage> EquipMontage;
 	
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
 	TObjectPtr<class UAnimMontage> FireMontage;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
 	TObjectPtr<class UAnimMontage> ReloadMontage;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
 	TObjectPtr<class UAnimMontage> ReloadWeaponMontage;
 	
 	// Effect
 protected:
-	UPROPERTY(EditAnywhere, Category = "Properties|Effect")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties|Effect")
 	TObjectPtr<class UParticleSystem> MuzzleFlash;
 
-	UPROPERTY(EditAnywhere, Category = "Properties|Effect")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties|Effect")
 	TObjectPtr<class UParticleSystem> TraceParticles;
 
-	UPROPERTY(EditAnywhere, Category = "Properties|Effect")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties|Effect")
 	TObjectPtr<class UParticleSystem> ImpactEffect;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Properties|Audio")
@@ -80,13 +131,13 @@ protected:
 
 	// Properties
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Properties|Fire")
-	uint8 FireMode;
+	UPROPERTY(EditAnywhere, Category = "Properties|Fire")
+	uint8 AvailableFireMode;
 	
 	UPROPERTY(EditAnywhere, Category = "Properties|Fire")
 	uint8 WeaponID;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Properties|Weapon")
+	UPROPERTY(EditAnywhere, Category = "Properties|Weapon")
 	ESOWeaponType WeaponType;
 	
 	UPROPERTY(EditAnywhere, Category = "Properties|Fire")
@@ -119,44 +170,44 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Properties|Recoil")
 	float AimedRecoilPitch;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Properties|Weapon")
+	UPROPERTY(EditAnywhere, Category = "Properties|Weapon")
 	FName AttachPoint;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Properties|Weapon")
+	UPROPERTY(EditAnywhere, Category = "Properties|Weapon")
 	FName MuzzleSocketName;
 	
 	// Ammo
 protected:
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Replicated, Category = "Properties|Ammo")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated, Category = "Properties|Ammo")
 	int32 ClipSize;
 	
 	// maximum bullet capacity
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Replicated, Category = "Properties|Ammo")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated, Category = "Properties|Ammo")
 	int32 MaxAmmoCapacity;
 	
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Replicated, Category = "Properties|Ammo")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated, Category = "Properties|Ammo")
 	uint8 bInfiniteAmmo : 1;
 	
 	// Input
-public:
+protected:
 	/** MappingContext */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	TObjectPtr<class UInputMappingContext> FireMappingContext;
 
 	/** Fire Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	TObjectPtr<class UInputAction> FireAction;
 
 	/** Aim Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	TObjectPtr<class UInputAction> AimAction;
 
 	/** Precision Aim Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	TObjectPtr<class UInputAction> PrecisionAimAction;
 
 	/** Reload Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	TObjectPtr<class UInputAction> ReloadAction;
 
 	// State
@@ -188,71 +239,18 @@ public:
 	FTimerHandle BurstTimerHandle1;
 	FTimerHandle BurstTimerHandle2;
 	
-	//  Data
+	// Data
 protected:
 	UPROPERTY()
 	FSOWeaponStat WeaponStat;
 
 	UPROPERTY()
 	FSOWeaponData WeaponData;
-
-
-	//Ammo
+	
+	// Ammo
 protected:
 	UPROPERTY()
 	TObjectPtr<class USOProjectilePoolComponent> ProjectilePoolComponent; 
 	
 	TSubclassOf<ASOProjectileBase> AmmoClass; 
-
-	/** IDamageable **/
-public:
-	virtual void PressLMB() override;
-	virtual void ReleaseLMB() override;
-
-	/** IEquippableInterface **/
-public:
-	virtual EALSOverlayState GetOverlayState() const override;
-
-	// Fire Logic
-protected:
-	virtual void OnFire();
-	virtual void AutoFire();
-	virtual void BurstFire();
-	virtual void SingleFire();
-	virtual void FireProjectile();
-	virtual void CreateProjectile(const FTransform& MuzzleTransform, const FVector& HitLocation);
-	virtual void StopFire();
-
-	// Effect
-protected:
-	virtual void ShowEffect(const FVector& MuzzleLocation, FRotator& MuzzleRotation);
-	virtual void PlaySound();
-	virtual void Recoil();
-
-protected:
-	virtual void Reload();
-	virtual void Aim();
-public:
-	virtual void Equip();
-
-	//Data Settings
-protected:
-	void SetGunData(const uint8 InID);
-
-	// multi
-protected:
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	
-	UFUNCTION(Server, Unreliable)
-	void ServerRPCOnFire(const FTransform& MuzzleTransform, const FVector& HitLocation);
-
-	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastRPCShowEffect(const FTransform& MuzzleTransform, const FVector& HitLocation);
-
-	//simulatePhysics
-protected:
-	void DisablePhysics();
-
-
-
 };

@@ -17,19 +17,19 @@ void ASOShotGun::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void ASOShotGun::AutoFire()
+void ASOShotGun::FireAuto()
 {
-	Super::AutoFire();
+	Super::FireAuto();
 }
 
-void ASOShotGun::BurstFire()
+void ASOShotGun::FireBurst()
 {
-	Super::BurstFire();
+	Super::FireBurst();
 }
 
-void ASOShotGun::SingleFire()
+void ASOShotGun::FireSingle()
 {
-	Super::SingleFire();
+	Super::FireSingle();
 }
 
 void ASOShotGun::FireProjectile()
@@ -62,9 +62,9 @@ void ASOShotGun::PressLMB()
 	Super::PressLMB();
 }
 
-void ASOShotGun::OnFire()
+void ASOShotGun::OnFire(ESOFireMode InFireMode)
 {
-	Super::OnFire();
+	Super::OnFire(InFireMode);
 }
 
 void ASOShotGun::Reload()
