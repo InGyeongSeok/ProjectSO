@@ -3,6 +3,7 @@
 
 #include "SOCharacterBase.h"
 
+#include "Net/UnrealNetwork.h"
 #include "ProjectSO/ProjectSO.h"
 
 ASOCharacterBase::ASOCharacterBase(const FObjectInitializer& ObjectInitializer)
@@ -15,12 +16,20 @@ void ASOCharacterBase::BeginPlay()
 	Super::BeginPlay();
 }
 
+void ASOCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ASOCharacterBase, CurrentWeapon);
+}
+
 void ASOCharacterBase::EquipItem(ISOEquippableInterface* InEquipment)
 {
 	OverlayState = InEquipment->GetOverlayState();
 	ASOGunBase* Weapon = Cast<ASOGunBase>(InEquipment);
-	 CurrentWeapon = Weapon;
-	 CurrentWeapon->Equip();
+	CurrentWeapon = Weapon;
+	CurrentWeapon->SetOwner(this);
+	CurrentWeapon->Equip();
 }
 
 void ASOCharacterBase::ChangeFireModeAction_Implementation(bool bValue)

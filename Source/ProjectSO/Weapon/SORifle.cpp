@@ -54,9 +54,9 @@ void ASORifle::CreateProjectile(const FTransform& MuzzleTransform, const FVector
 	Super::CreateProjectile(MuzzleTransform, HitLocation);
 }
 
-void ASORifle::ShowEffect(const FVector& MuzzleLocation, FRotator& MuzzleRotation)
+void ASORifle::PlayMuzzleEffect(const FVector& MuzzleLocation, FRotator& MuzzleRotation)
 {
-	Super::ShowEffect(MuzzleLocation, MuzzleRotation);
+	Super::PlayMuzzleEffect(MuzzleLocation, MuzzleRotation);
 }
 
 void ASORifle::PlaySound()

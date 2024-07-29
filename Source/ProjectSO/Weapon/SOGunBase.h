@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SOGunFireEffect.h"
 #include "GameFramework/Actor.h"
 #include "Library/ALSCharacterEnumLibrary.h"
 
@@ -59,7 +60,9 @@ protected:
 
 	// Effect
 protected:
-	virtual void ShowEffect(const FVector& MuzzleLocation, FRotator& MuzzleRotation);
+	virtual void CreateFireEffectActor(const FTransform& MuzzleTransform, const FTransform& EjectTransform);
+	virtual void PlayMuzzleEffect(const FVector& MuzzleLocation, FRotator& MuzzleRotation);
+	virtual void PlayEjectAmmoEffect(const FVector& EjectLocation, FRotator& EjectRotation);
 	virtual void PlaySound();
 	virtual void Recoil();
 
@@ -77,7 +80,7 @@ protected:
 	// Multi
 protected:	
 	UFUNCTION(Server, Unreliable)
-	void ServerRPCOnFire(const FTransform& MuzzleTransform, const FVector& HitLocation);
+	void ServerRPCOnFire(const FTransform& MuzzleTransform, const FTransform& EjectTransform, const FVector& HitLocation);
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastRPCShowEffect(const FTransform& MuzzleTransform, const FVector& HitLocation);
@@ -101,8 +104,12 @@ protected:
 	TObjectPtr<class ASOCharacterBase> OwningCharacter;
 
 	/** Projectile class to spawn */
-	UPROPERTY(EditAnywhere, Category = "CHGunBase|Properties")
+	UPROPERTY(EditAnywhere, Category = "Properties")
 	TSubclassOf<class ASOProjectileBase> ProjectileClass;
+
+	/** Projectile class to spawn */
+	UPROPERTY(EditAnywhere, Category = "Properties")
+	TSubclassOf<class ASOGunFireEffect> FireEffectActor;
 	
 	// Component
 protected:
@@ -128,14 +135,14 @@ protected:
 	
 	// Effect
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated, Category = "Properties|Effect")
+	TObjectPtr<ASOGunFireEffect> FireEffect;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties|Effect")
 	TObjectPtr<class UParticleSystem> MuzzleFlash;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties|Effect")
-	TObjectPtr<class UParticleSystem> TraceParticles;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties|Effect")
-	TObjectPtr<class UParticleSystem> ImpactEffect;
+	TObjectPtr<class UNiagaraSystem> EjectShellParticles;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Properties|Audio")
 	TObjectPtr<class USoundBase> FireSound;
@@ -192,6 +199,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Properties|Weapon")
 	FName MuzzleSocketName;
+
+	UPROPERTY(EditAnywhere, Category = "Properties|Weapon")
+	FName AmmoEjectSocketName;
 	
 	// Ammo
 protected:

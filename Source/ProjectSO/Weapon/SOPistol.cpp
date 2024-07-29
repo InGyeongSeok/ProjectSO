@@ -42,9 +42,9 @@ void ASOPistol::CreateProjectile(const FTransform& MuzzleTransform, const FVecto
 	Super::CreateProjectile(MuzzleTransform, HitLocation);
 }
 
-void ASOPistol::ShowEffect(const FVector& MuzzleLocation, FRotator& MuzzleRotation)
+void ASOPistol::PlayMuzzleEffect(const FVector& MuzzleLocation, FRotator& MuzzleRotation)
 {
-	Super::ShowEffect(MuzzleLocation, MuzzleRotation);
+	Super::PlayMuzzleEffect(MuzzleLocation, MuzzleRotation);
 }
 
 

@@ -3,6 +3,7 @@
 
 #include "SOGunBase.h"
 
+#include "NiagaraFunctionLibrary.h"
 #include "KisMet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "Engine/SkeletalMeshSocket.h"
@@ -19,7 +20,8 @@ ASOGunBase::ASOGunBase()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
+	bReplicates = true;
+	
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(FName("WeaponMesh"));
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	WeaponMesh->CastShadow = true;
@@ -93,6 +95,7 @@ void ASOGunBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 	DOREPLIFETIME(ASOGunBase, bTrigger);
 	DOREPLIFETIME(ASOGunBase, CurrentAmmo);
 	DOREPLIFETIME(ASOGunBase, CurrentAmmoInClip);
+	DOREPLIFETIME(ASOGunBase, FireEffect);
 }
 
 void ASOGunBase::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -103,12 +106,10 @@ void ASOGunBase::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, 
 	{
 		ASOCharacterBase* CharacterBase = Cast<ASOCharacterBase>(OtherActor);
 		OwningCharacter = CharacterBase;
-		if (OwningCharacter && !bIsEquipped)
+		if (OwningCharacter) // && !bIsEquipped)
 		{
 			bIsEquipped = true;
 			OwningCharacter->EquipItem(this);
-			CollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		}
 	}
 }
@@ -227,19 +228,25 @@ void ASOGunBase::FireProjectile()
 
 	// 소켓 위치
 	FTransform MuzzleSocketTransform;
-	const USkeletalMeshSocket* AmmoEjectSocket = WeaponMesh->GetSocketByName(MuzzleSocketName);
+	FTransform AmmoEjectSocketTransform;
+	const USkeletalMeshSocket* AmmoEjectSocket = WeaponMesh->GetSocketByName(AmmoEjectSocketName);
+	const USkeletalMeshSocket* MuzzleSocket = WeaponMesh->GetSocketByName(MuzzleSocketName);
+	
 	// ensure(AmmoEjectSocket);
 	if(IsValid(AmmoEjectSocket))
 	{
-		MuzzleSocketTransform = AmmoEjectSocket->GetSocketTransform(WeaponMesh);		
+		AmmoEjectSocketTransform = AmmoEjectSocket->GetSocketTransform(WeaponMesh);	
+	}
+
+	if(IsValid(MuzzleSocket))
+	{
+		MuzzleSocketTransform = MuzzleSocket->GetSocketTransform(WeaponMesh);	
 	}
 
 	DrawDebugLine(GetWorld(), MuzzleSocketTransform.GetLocation(), TraceEnd, FColor::Red,false, 5, 0, 2);
 	DrawDebugPoint(GetWorld(), ScreenLaserHit.Location, 3, FColor::Red, false, 5,0);
 	
-	// 스폰 위치, 도착지점
-	// MuzzleLocation, HitLocation
-	ServerRPCOnFire(MuzzleSocketTransform, HitLocation);
+	ServerRPCOnFire(MuzzleSocketTransform, AmmoEjectSocketTransform, HitLocation);
 }
 
 void ASOGunBase::CreateProjectile(const FTransform& MuzzleTransform, const FVector& HitLocation)
@@ -308,15 +315,62 @@ void ASOGunBase::StopFire()
 	GetWorld()->GetTimerManager().ClearTimer(FireTimerHandle);
 }
 
-void ASOGunBase::ShowEffect(const FVector& MuzzleLocation, FRotator& MuzzleRotation)
+void ASOGunBase::CreateFireEffectActor(const FTransform& MuzzleTransform, const FTransform& EjectTransform)
 {
+	if(IsValid(FireEffect))
+	{
+		SO_LOG(LogSOTemp, Warning, TEXT("호출"))
+		FireEffect->PlayEffect(MuzzleTransform, EjectTransform);
+	}
+	else
+	{
+		// 처음 FireEffect 생성
+		SO_LOG(LogSOTemp, Warning, TEXT("생성"))
+		FActorSpawnParameters ActorSpawnParams;
+		ActorSpawnParams.Owner = GetOwner();
+		
+		FireEffect = GetWorld()->SpawnActor<ASOGunFireEffect>(FireEffectActor, MuzzleTransform, ActorSpawnParams);
+		//TODO 매개변수가 this일 수 있다. 
+		if(FireEffect) FireEffect->SetOwner(OwningCharacter);
+		
+		FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
+		FireEffect->AttachToComponent(WeaponMesh,AttachmentRules);
+		FireEffect->PlayEffect(MuzzleTransform, EjectTransform);
+	}
+}
+
+void ASOGunBase::PlayMuzzleEffect(const FVector& MuzzleLocation, FRotator& MuzzleRotation)
+{
+	if (MuzzleFlash)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(
+			GetWorld(),
+			MuzzleFlash,
+			MuzzleLocation,
+			MuzzleRotation
+		);
+	}	
+}
+
+void ASOGunBase::PlayEjectAmmoEffect(const FVector& EjectLocation, FRotator& EjectRotation)
+{
+	if (EjectShellParticles)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			GetWorld(), EjectShellParticles,
+			EjectLocation, EjectRotation);		
+	}
 }
 
 void ASOGunBase::PlaySound()
-{
-	if (FireSound != nullptr)
+{		
+	if (FireSound)
 	{
-		UGameplayStatics::PlaySoundAtLocation(this, FireSound, OwningCharacter->GetActorLocation());
+		UGameplayStatics::PlaySoundAtLocation(
+			this,
+			FireSound,
+			GetActorLocation()
+		);
 	}
 }
 
@@ -337,7 +391,7 @@ void ASOGunBase::Aim()
 void ASOGunBase::Equip()
 {	
 	if (!bIsEquipped) return;
-
+	// SetOwner(OwningCharacter);		// 이거 해줘야 ServerRPC 가능
 	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
 	const USkeletalMeshSocket* HandSocket = OwningCharacter->GetMesh()->GetSocketByName(AttachPoint);
 	if (HandSocket)
@@ -345,6 +399,9 @@ void ASOGunBase::Equip()
 		HandSocket->AttachActor(this, OwningCharacter->GetMesh());
 	}
 	this->AttachToComponent(OwningCharacter->GetMesh(), AttachmentRules, AttachPoint);
+
+	CollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	//	HeldObjectRoot->SetRelativeLocation(Offset);
 }
 
@@ -401,10 +458,12 @@ void ASOGunBase::DisablePhysics()
 	WeaponMesh->SetSimulatePhysics(false);
 }
 
-void ASOGunBase::ServerRPCOnFire_Implementation(const FTransform& MuzzleTransform, const FVector& HitLocation)
+void ASOGunBase::ServerRPCOnFire_Implementation(const FTransform& MuzzleTransform, const FTransform& EjectTransform, const FVector& HitLocation)
 {
 	CreateProjectile(MuzzleTransform, HitLocation);
-	MulticastRPCShowEffect(MuzzleTransform, HitLocation);	
+	CreateFireEffectActor(MuzzleTransform, EjectTransform);
+	PlaySound();
+	// MulticastRPCShowEffect(MuzzleTransform, HitLocation);	
 }
 
 void ASOGunBase::MulticastRPCShowEffect_Implementation(const FTransform& MuzzleTransform, const FVector& HitLocation)
@@ -413,7 +472,8 @@ void ASOGunBase::MulticastRPCShowEffect_Implementation(const FTransform& MuzzleT
 	FRotator MuzzleRotation = MuzzleTransform.GetRotation().Rotator();
 
 	// ShowEffect 함수 호출 시 변환된 FRotator 사용
-	ShowEffect(MuzzleTransform.GetLocation(), MuzzleRotation);
+	PlayMuzzleEffect(MuzzleTransform.GetLocation(), MuzzleRotation);
+	PlayEjectAmmoEffect(MuzzleTransform.GetLocation(), MuzzleRotation);
 	PlaySound();
 }
 

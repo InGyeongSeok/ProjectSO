@@ -42,9 +42,9 @@ void ASOMinigun::CreateProjectile(const FTransform& MuzzleTransform, const FVect
 	Super::CreateProjectile(MuzzleTransform, HitLocation);
 }
 
-void ASOMinigun::ShowEffect(const FVector& MuzzleLocation, FRotator& MuzzleRotation)
+void ASOMinigun::PlayMuzzleEffect(const FVector& MuzzleLocation, FRotator& MuzzleRotation)
 {
-	Super::ShowEffect(MuzzleLocation, MuzzleRotation);
+	Super::PlayMuzzleEffect(MuzzleLocation, MuzzleRotation);
 }
 
 void ASOMinigun::PlaySound()

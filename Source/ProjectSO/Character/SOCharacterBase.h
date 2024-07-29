@@ -21,10 +21,8 @@ public:
 	virtual void BeginPlay() override;
 	
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SO|Equip")
-	TObjectPtr<ASOGunBase> CurrentWeapon;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
-public:
 	// 나중에 장착 가능한 것들만 모아서 하기
 	void EquipItem(ISOEquippableInterface* InEquipment);
 
@@ -34,4 +32,9 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ALS|Input")
 	void ChangeFireModeAction(bool bValue);
+
+		
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "SO|Equip")
+	TObjectPtr<ASOGunBase> CurrentWeapon;
 };

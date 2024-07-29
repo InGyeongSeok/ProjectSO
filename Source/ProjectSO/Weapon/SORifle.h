@@ -40,7 +40,7 @@ protected:
 
 	// Effect
 protected:
-	virtual void ShowEffect(const FVector& MuzzleLocation, FRotator& MuzzleRotation) override;
+	virtual void PlayMuzzleEffect(const FVector& MuzzleLocation, FRotator& MuzzleRotation) override;
 	virtual void PlaySound();
 	virtual void Recoil();
 	

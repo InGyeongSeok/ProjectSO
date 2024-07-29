@@ -42,9 +42,9 @@ void ASOShotGun::CreateProjectile(const FTransform& MuzzleTransform, const FVect
 	Super::CreateProjectile(MuzzleTransform, HitLocation);
 }
 
-void ASOShotGun::ShowEffect(const FVector& MuzzleLocation, FRotator& MuzzleRotation)
+void ASOShotGun::PlayMuzzleEffect(const FVector& MuzzleLocation, FRotator& MuzzleRotation)
 {
-	Super::ShowEffect(MuzzleLocation, MuzzleRotation);
+	Super::PlayMuzzleEffect(MuzzleLocation, MuzzleRotation);
 }
 
 void ASOShotGun::PlaySound()

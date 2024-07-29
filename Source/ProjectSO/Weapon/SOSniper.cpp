@@ -42,9 +42,9 @@ void ASOSniper::CreateProjectile(const FTransform& MuzzleTransform, const FVecto
 	Super::CreateProjectile(MuzzleTransform, HitLocation);
 }
 
-void ASOSniper::ShowEffect(const FVector& MuzzleLocation, FRotator& MuzzleRotation)
+void ASOSniper::PlayMuzzleEffect(const FVector& MuzzleLocation, FRotator& MuzzleRotation)
 {
-	Super::ShowEffect(MuzzleLocation, MuzzleRotation);
+	Super::PlayMuzzleEffect(MuzzleLocation, MuzzleRotation);
 }
 
 void ASOSniper::PlaySound()
