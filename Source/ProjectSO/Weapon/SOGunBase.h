@@ -82,6 +82,21 @@ protected:
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastRPCShowEffect(const FTransform& MuzzleTransform, const FVector& HitLocation);
 
+public:
+	uint8 GetAvailableFireMode() const {return AvailableFireMode;}
+	int32 GetAvailableFireModeCount() const {return AvailableFireModeCount;}
+
+
+	int32 CalculateAvailableFireModeCount() const;
+	// Gets the next available fire mode
+	ESOFireMode GetNextFireMode() const;
+	
+	void InitCurrentFireMode();
+
+	ESOFireMode GetCurrentFireMode() const { return CurrentFireMode; }
+
+	UFUNCTION(BlueprintCallable)
+	void SetCurrentFireMode(ESOFireMode NewCurrentFireMode) { CurrentFireMode = NewCurrentFireMode; }	
 	// Owner
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated)
@@ -132,7 +147,7 @@ protected:
 
 	// Properties
 protected:
-	UPROPERTY(EditAnywhere, Category = "Properties|Fire")
+	UPROPERTY(EditAnywhere, Meta = (Bitmask, BitmaskEnum = "/Script/ProjectSO.ESOFireMode"), Category = "Properties|Fire")
 	uint8 AvailableFireMode;
 	
 	UPROPERTY(EditAnywhere, Category = "Properties|Fire")
@@ -215,7 +230,7 @@ protected:
 	TObjectPtr<class UInputAction> ReloadAction;
 
 	// State
-public:
+protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Replicated,Category = "Properties|State")
 	ESOFireMode CurrentFireMode;
 
@@ -236,8 +251,7 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Replicated, Category = "Properties|State")
 	int32 CurrentAmmoInClip;
 	
-	UFUNCTION(BlueprintCallable)
-	void SetCurrentFireMode(ESOFireMode NewCurrentFireMode) { CurrentFireMode = NewCurrentFireMode; }
+	
 
 	FTimerHandle FireTimerHandle;
 	FTimerHandle BurstTimerHandle;
@@ -255,5 +269,9 @@ protected:
 	UPROPERTY()
 	TObjectPtr<class USOProjectilePoolComponent> ProjectilePoolComponent; 
 	
-	TSubclassOf<ASOProjectileBase> AmmoClass; 
+	TSubclassOf<ASOProjectileBase> AmmoClass;
+
+private:
+	int32 AvailableFireModeCount;
+	
 };

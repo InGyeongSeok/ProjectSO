@@ -40,12 +40,15 @@ ASOGunBase::ASOGunBase()
 
 	ProjectilePoolComponent = CreateDefaultSubobject<USOProjectilePoolComponent>(TEXT("ProjectilePool"));
 	
-	CurrentFireMode = ESOFireMode::Single;
+	// 초기 CurrentFireMode 설정
+	CurrentFireMode = ESOFireMode::None;
+	
 	CurrentAmmoInClip = 30;
 
 	MaxRange = 1000;
 	MuzzleSocketName = "MuzzleSocket";
 	MaxRepeatCount = 3;
+	AvailableFireMode = static_cast<int32>(ESOFireMode::None);
 }
 
 void ASOGunBase::SetGunData(const uint8 InID)
@@ -113,6 +116,10 @@ void ASOGunBase::BeginPlay()
 	FTimerHandle TimerHandle;
 	GetWorldTimerManager().SetTimer(TimerHandle, this, &ASOGunBase::DisablePhysics, 2.0f, false);
 
+	AvailableFireModeCount = CalculateAvailableFireModeCount();
+	SO_LOG(LogSOTemp,Warning, TEXT("AvailableFireMode : %d"), AvailableFireMode)
+
+	InitCurrentFireMode();
 }
 
 // Called every frame
@@ -389,19 +396,67 @@ void ASOGunBase::Equip()
 	//	HeldObjectRoot->SetRelativeLocation(Offset);
 }
 
-
-
 void ASOGunBase::ServerRPCOnFire_Implementation(const FTransform& MuzzleTransform, const FVector& HitLocation)
 {
 	CreateProjectile(MuzzleTransform, HitLocation);
 	MulticastRPCShowEffect(MuzzleTransform, HitLocation);	
 }
+
 void ASOGunBase::DisablePhysics()
 {
 	UE_LOG(LogTemp, Log, TEXT("DisablePhysics"));
 	WeaponMesh->SetSimulatePhysics(false);
 }
 
+int32 ASOGunBase::CalculateAvailableFireModeCount() const
+{
+	uint8 Mode = AvailableFireMode;
+	int32 Count = 0;
+	while (Mode)
+	{
+		Count += Mode & 1;
+		Mode >>= 1;
+	}
+	return Count;
+}
+
+ESOFireMode ASOGunBase::GetNextFireMode() const
+{
+	// 순환 방식으로 다음 발사 모드를 반환
+	uint8 CurrentMode = static_cast<uint8>(CurrentFireMode);
+	uint8 NextMode = CurrentMode << 1;
+
+	// 가능한 모드인가?
+	// true = 불가능한 모드 = 다음 모드 탐색
+	// false = 가능 = 탈출 후 반환
+	while ((NextMode & AvailableFireMode) == 0)
+	{
+		// 다음 모드
+		NextMode <<= 1;
+		// 만약 다음 모드가 끝에 도달 시 원복
+		if (NextMode == static_cast<uint8>(ESOFireMode::Max))
+		{
+			// Auto로 복귀
+			NextMode = 1;
+		}
+	}
+
+	return static_cast<ESOFireMode>(NextMode);
+}
+
+void ASOGunBase::InitCurrentFireMode()
+{
+	// 초기 사격 모드 초기화
+	for(uint8 i = 1; i <= static_cast<uint8>(ESOFireMode::Max); i <<= 1)
+	{
+		// 작은 수부터 시작해서 낮은 비트 시 break;
+		if(AvailableFireMode & i)
+		{
+			CurrentFireMode = static_cast<ESOFireMode>(i);
+			break;		
+		}
+	}
+}
 
 void ASOGunBase::MulticastRPCShowEffect_Implementation(const FTransform& MuzzleTransform, const FVector& HitLocation)
 {

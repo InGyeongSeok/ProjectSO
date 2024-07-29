@@ -31,4 +31,7 @@ public:
 	/** Input */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "SO|Input")
 	void AttackAction(bool bValue);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ALS|Input")
+	void ChangeFireModeAction(bool bValue);
 };

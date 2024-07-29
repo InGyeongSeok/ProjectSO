@@ -3,6 +3,8 @@
 
 #include "SOCharacterBase.h"
 
+#include "ProjectSO/ProjectSO.h"
+
 ASOCharacterBase::ASOCharacterBase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
@@ -19,6 +21,25 @@ void ASOCharacterBase::EquipItem(ISOEquippableInterface* InEquipment)
 	ASOGunBase* Weapon = Cast<ASOGunBase>(InEquipment);
 	 CurrentWeapon = Weapon;
 	 CurrentWeapon->Equip();
+}
+
+void ASOCharacterBase::ChangeFireModeAction_Implementation(bool bValue)
+{
+	if (CurrentWeapon == nullptr) return;
+	// 총의 발사 모드 개수 확인
+	int32 AvailableModeCount = CurrentWeapon->GetAvailableFireModeCount();
+	
+	if (AvailableModeCount <= 1)
+	{
+		SO_LOG(LogSOTemp, Log, TEXT("다른 모드는 없습니다."))
+		return;
+	}
+	if (bValue)
+	{
+		// Get the next available fire mode
+		CurrentWeapon->SetCurrentFireMode(CurrentWeapon->GetNextFireMode());
+		SO_LOG(LogSOTemp, Log, TEXT("%d Mode"), static_cast<uint8>(CurrentWeapon->GetCurrentFireMode()));
+	}
 }
 
 void ASOCharacterBase::AttackAction_Implementation(bool bValue)

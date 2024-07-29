@@ -243,6 +243,14 @@ void ASOPlayerController::LookingDirectionAction(const FInputActionValue& Value)
 	}
 }
 
+void ASOPlayerController::ChangeFireModeAction(const FInputActionValue& Value)
+{
+	if (PossessedCharacter && Value.Get<bool>())
+	{
+		PossessedCharacter->ChangeFireModeAction(Value.Get<bool>());
+	}
+}
+
 void ASOPlayerController::DebugToggleHudAction(const FInputActionValue& Value)
 {
 	if (PossessedCharacter && Value.Get<bool>())

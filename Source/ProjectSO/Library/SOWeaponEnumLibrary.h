@@ -15,11 +15,13 @@ enum class ESOWeaponType
 };
 
 // 발사 모드 비트 플래그 정의
-UENUM(BlueprintType)
+UENUM(BlueprintType, Meta = (Bitflags, UseEnumValuesAsMaskValuesInEditor = "true"))
 enum class ESOFireMode : uint8
-{
-	None   = 0,        // 0000
-	Auto   = 1 << 0, // 0001
-	Burst  = 1 << 1, // 0010
-	Single = 1 << 2  // 0100
+{	
+	None   = 0		UMETA(Hidden),	
+	Auto   = 1 << 0,   // 1   0000 0001 
+	Burst  = 1 << 1,   // 2	  0000 0010
+	Single = 1 << 2,   // 4   0000 0100
+	
+	Max    = 1 << 7	UMETA(Hidden),   // 1000 0000
 };

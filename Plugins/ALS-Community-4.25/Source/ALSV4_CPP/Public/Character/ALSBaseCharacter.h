@@ -324,7 +324,7 @@ public:
 	void SprintAction(bool bValue);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ALS|Input")
-	void AimAction(bool bValue);
+	void AimAction(bool bValue);	
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ALS|Input")
 	void CameraTapAction();
