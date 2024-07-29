@@ -36,9 +36,10 @@ void ASOCharacterBase::ChangeFireModeAction_Implementation(bool bValue)
 	}
 	if (bValue)
 	{
-		// Get the next available fire mode
-		CurrentWeapon->SetCurrentFireMode(CurrentWeapon->GetNextFireMode());
-		SO_LOG(LogSOTemp, Log, TEXT("%d Mode"), static_cast<uint8>(CurrentWeapon->GetCurrentFireMode()));
+		ESOFireMode NextFireMode = CurrentWeapon->GetNextValidFireMode();		
+		CurrentWeapon->SetCurrentFireMode(NextFireMode);
+		
+		SO_LOG(LogSOTemp, Log, TEXT("%hhd Mode"), CurrentWeapon->GetCurrentFireMode());
 	}
 }
 

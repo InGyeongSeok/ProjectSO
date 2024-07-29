@@ -51,54 +51,6 @@ ASOGunBase::ASOGunBase()
 	AvailableFireMode = static_cast<int32>(ESOFireMode::None);
 }
 
-void ASOGunBase::SetGunData(const uint8 InID)
-{
-	UWorld* World = GetWorld();
-	if (!World)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("World is not available."));
-		return;
-	}
-
-	// 게임 인스턴스 가져오기.
-	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(World);
-	if (!GameInstance)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("GameInstance is not available."));
-		return;
-	}
-
-	// 게임 인스턴스에서 서브시스템을 가져오기.
-	USOGameSubsystem* SOGameSubsystem = GameInstance->GetSubsystem<USOGameSubsystem>();
-	if (!SOGameSubsystem)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("SOGameSubsystem is not available."));
-		return;
-	}
-
-	// 서브시스템에서 원하는 ID의 WeaponStatData를 가져오기.
-	FSOWeaponStat* SelectedWeaponStat = SOGameSubsystem->GetWeaponStatData(InID);
-	if (SelectedWeaponStat)
-	{
-		WeaponStat = *SelectedWeaponStat;
-	}
-
-	FSOWeaponData* SelectedWeaponData = SOGameSubsystem->GetWeaponData(InID);
-	if (SelectedWeaponData)
-	{
-		WeaponData = *SelectedWeaponData;
-		WeaponMesh->SetSkeletalMesh(WeaponData.SkeletalMesh);
-		AttachPoint = WeaponData.SocketName;
-		AmmoClass =  WeaponData.AmmoClass;
-	}
-
-	if(AmmoClass)
-	{
-		ProjectilePoolComponent->SetAmmoClass(AmmoClass);
-	}
-}
-
-
 // Called when the game starts or when spawned
 void ASOGunBase::BeginPlay()
 {
@@ -383,7 +335,7 @@ void ASOGunBase::Aim()
 }
 
 void ASOGunBase::Equip()
-{
+{	
 	if (!bIsEquipped) return;
 
 	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
@@ -396,10 +348,51 @@ void ASOGunBase::Equip()
 	//	HeldObjectRoot->SetRelativeLocation(Offset);
 }
 
-void ASOGunBase::ServerRPCOnFire_Implementation(const FTransform& MuzzleTransform, const FVector& HitLocation)
+void ASOGunBase::SetGunData(const uint8 InID)
 {
-	CreateProjectile(MuzzleTransform, HitLocation);
-	MulticastRPCShowEffect(MuzzleTransform, HitLocation);	
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("World is not available."));
+		return;
+	}
+
+	// 게임 인스턴스 가져오기.
+	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(World);
+	if (!GameInstance)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GameInstance is not available."));
+		return;
+	}
+
+	// 게임 인스턴스에서 서브시스템을 가져오기.
+	USOGameSubsystem* SOGameSubsystem = GameInstance->GetSubsystem<USOGameSubsystem>();
+	if (!SOGameSubsystem)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SOGameSubsystem is not available."));
+		return;
+	}
+
+	// 서브시스템에서 원하는 ID의 WeaponStatData를 가져오기.
+	FSOWeaponStat* SelectedWeaponStat = SOGameSubsystem->GetWeaponStatData(InID);
+	if (SelectedWeaponStat)
+	{
+		WeaponStat = *SelectedWeaponStat;
+	}
+
+	FSOWeaponData* SelectedWeaponData = SOGameSubsystem->GetWeaponData(InID);
+	if (SelectedWeaponData)
+	{
+		WeaponData = *SelectedWeaponData;
+		WeaponMesh->SetSkeletalMesh(WeaponData.SkeletalMesh);
+		AttachPoint = WeaponData.SocketName;
+		AmmoClass =  WeaponData.AmmoClass;
+	}
+
+	if(AmmoClass)
+	{
+		ProjectilePoolComponent->SetAmmoClass(AmmoClass);
+	}
 }
 
 void ASOGunBase::DisablePhysics()
@@ -408,7 +401,25 @@ void ASOGunBase::DisablePhysics()
 	WeaponMesh->SetSimulatePhysics(false);
 }
 
-int32 ASOGunBase::CalculateAvailableFireModeCount() const
+void ASOGunBase::ServerRPCOnFire_Implementation(const FTransform& MuzzleTransform, const FVector& HitLocation)
+{
+	CreateProjectile(MuzzleTransform, HitLocation);
+	MulticastRPCShowEffect(MuzzleTransform, HitLocation);	
+}
+
+void ASOGunBase::MulticastRPCShowEffect_Implementation(const FTransform& MuzzleTransform, const FVector& HitLocation)
+{
+	// FQuat을 FRotator로 변환
+	FRotator MuzzleRotation = MuzzleTransform.GetRotation().Rotator();
+
+	// ShowEffect 함수 호출 시 변환된 FRotator 사용
+	ShowEffect(MuzzleTransform.GetLocation(), MuzzleRotation);
+	PlaySound();
+}
+
+
+
+int32 ASOGunBase::CalculateAvailableFireModeCount()
 {
 	uint8 Mode = AvailableFireMode;
 	int32 Count = 0;
@@ -420,11 +431,27 @@ int32 ASOGunBase::CalculateAvailableFireModeCount() const
 	return Count;
 }
 
-ESOFireMode ASOGunBase::GetNextFireMode() const
+void ASOGunBase::InitCurrentFireMode()
+{
+	// 초기 사격 모드 초기화
+	for(uint8 i = 1; i <= static_cast<uint8>(ESOFireMode::Max); i <<= 1)
+	{
+		// 작은 수부터 시작해서 낮은 비트 시 break;
+		if(AvailableFireMode & i)
+		{
+			CurrentFireMode = static_cast<ESOFireMode>(i);
+			break;		
+		}
+	}
+}
+
+ESOFireMode ASOGunBase::GetNextValidFireMode()
 {
 	// 순환 방식으로 다음 발사 모드를 반환
 	uint8 CurrentMode = static_cast<uint8>(CurrentFireMode);
 	uint8 NextMode = CurrentMode << 1;
+
+	StopFire();
 
 	// 가능한 모드인가?
 	// true = 불가능한 모드 = 다음 모드 탐색
@@ -442,28 +469,4 @@ ESOFireMode ASOGunBase::GetNextFireMode() const
 	}
 
 	return static_cast<ESOFireMode>(NextMode);
-}
-
-void ASOGunBase::InitCurrentFireMode()
-{
-	// 초기 사격 모드 초기화
-	for(uint8 i = 1; i <= static_cast<uint8>(ESOFireMode::Max); i <<= 1)
-	{
-		// 작은 수부터 시작해서 낮은 비트 시 break;
-		if(AvailableFireMode & i)
-		{
-			CurrentFireMode = static_cast<ESOFireMode>(i);
-			break;		
-		}
-	}
-}
-
-void ASOGunBase::MulticastRPCShowEffect_Implementation(const FTransform& MuzzleTransform, const FVector& HitLocation)
-{
-	// FQuat을 FRotator로 변환
-	FRotator MuzzleRotation = MuzzleTransform.GetRotation().Rotator();
-
-	// ShowEffect 함수 호출 시 변환된 FRotator 사용
-	ShowEffect(MuzzleTransform.GetLocation(), MuzzleRotation);
-	PlaySound();
 }

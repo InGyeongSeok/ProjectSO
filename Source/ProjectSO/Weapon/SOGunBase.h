@@ -85,18 +85,16 @@ protected:
 public:
 	uint8 GetAvailableFireMode() const {return AvailableFireMode;}
 	int32 GetAvailableFireModeCount() const {return AvailableFireModeCount;}
-
-
-	int32 CalculateAvailableFireModeCount() const;
-	// Gets the next available fire mode
-	ESOFireMode GetNextFireMode() const;
+	int32 CalculateAvailableFireModeCount();
 	
 	void InitCurrentFireMode();
-
 	ESOFireMode GetCurrentFireMode() const { return CurrentFireMode; }
-
+	
 	UFUNCTION(BlueprintCallable)
-	void SetCurrentFireMode(ESOFireMode NewCurrentFireMode) { CurrentFireMode = NewCurrentFireMode; }	
+	void SetCurrentFireMode(ESOFireMode NewCurrentFireMode) { CurrentFireMode = NewCurrentFireMode; }
+	
+	ESOFireMode GetNextValidFireMode();
+	
 	// Owner
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated)
