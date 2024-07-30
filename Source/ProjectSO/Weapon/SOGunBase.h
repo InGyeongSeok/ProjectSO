@@ -60,7 +60,6 @@ protected:
 
 	// Effect
 protected:
-	virtual void CreateFireEffectActor(const FTransform& MuzzleTransform, const FTransform& EjectTransform);
 	virtual void PlayMuzzleEffect(const FVector& MuzzleLocation, FRotator& MuzzleRotation);
 	virtual void PlayEjectAmmoEffect(const FVector& EjectLocation, FRotator& EjectRotation);
 	virtual void PlaySound();
@@ -82,9 +81,9 @@ protected:
 	UFUNCTION(Server, Unreliable)
 	void ServerRPCOnFire(const FTransform& MuzzleTransform, const FTransform& EjectTransform, const FVector& HitLocation);
 
-	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastRPCShowEffect(const FTransform& MuzzleTransform, const FVector& HitLocation);
-
+	UFUNCTION()
+	void OnRep_PlayFireEffect();
+	
 public:
 	uint8 GetAvailableFireMode() const {return AvailableFireMode;}
 	int32 GetAvailableFireModeCount() const {return AvailableFireModeCount;}
@@ -258,8 +257,6 @@ protected:
 	// How much ammo in the clip
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Replicated, Category = "Properties|State")
 	int32 CurrentAmmoInClip;
-	
-	
 
 	FTimerHandle FireTimerHandle;
 	FTimerHandle BurstTimerHandle;
@@ -282,9 +279,6 @@ protected:
 protected:
 	int32 AvailableFireModeCount;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_FireTriggered)
-	uint8 bFireTriggered : 1;
-
-	UFUNCTION()
-	void OnRep_FireTriggered();
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_PlayFireEffect)
+	uint8 bPlayFireEffect : 1;
 };

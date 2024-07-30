@@ -27,8 +27,10 @@ void ASOCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 void ASOCharacterBase::EquipItem(ISOEquippableInterface* InEquipment)
 {	
 	ASOGunBase* Weapon = Cast<ASOGunBase>(InEquipment);
-	
-	MulticastRPCEquipItem(Weapon);
+	if(Weapon)
+	{
+		MulticastRPCEquipItem(Weapon);		
+	}
 }
 
 void ASOCharacterBase::MulticastRPCEquipItem_Implementation(ASOGunBase* Weapon)
