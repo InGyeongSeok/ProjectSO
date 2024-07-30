@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Character/ALSCharacter.h"
 #include "ProjectSO/Weapon/SOGunBase.h"
+#include "ProjectSO/Interface/SOEquippableInterface.h"
 #include "SOCharacterBase.generated.h"
 
 /**
@@ -33,6 +34,11 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ALS|Input")
 	void ChangeFireModeAction(bool bValue);
 
+public:
+	
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastRPCEquipItem(ASOGunBase* Weapon);
+	
 		
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "SO|Equip")

@@ -5,6 +5,7 @@
 
 #include "Net/UnrealNetwork.h"
 #include "ProjectSO/ProjectSO.h"
+#include "ProjectSO/Weapon/SOGunBase.h"
 
 ASOCharacterBase::ASOCharacterBase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -24,11 +25,17 @@ void ASOCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 }
 
 void ASOCharacterBase::EquipItem(ISOEquippableInterface* InEquipment)
-{
-	OverlayState = InEquipment->GetOverlayState();
+{	
 	ASOGunBase* Weapon = Cast<ASOGunBase>(InEquipment);
+	
+	MulticastRPCEquipItem(Weapon);
+}
+
+void ASOCharacterBase::MulticastRPCEquipItem_Implementation(ASOGunBase* Weapon)
+{
+	OverlayState = Weapon->GetOverlayState();
 	CurrentWeapon = Weapon;
-	CurrentWeapon->SetOwner(this);
+	// CurrentWeapon->SetOwner(this);
 	CurrentWeapon->Equip();
 }
 

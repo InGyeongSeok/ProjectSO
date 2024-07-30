@@ -34,10 +34,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties|Effect")
 	TObjectPtr<class USkeletalMeshComponent> SkeletalMeshComponent;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated, Category = "Properties|Effect")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties|Effect")
 	TObjectPtr<class UParticleSystem> MuzzleFlash;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated, Category = "Properties|Effect")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties|Effect")
 	TObjectPtr<class UNiagaraSystem> EjectShellParticles;
 
 };

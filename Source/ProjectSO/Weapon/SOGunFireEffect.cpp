@@ -17,15 +17,14 @@ ASOGunFireEffect::ASOGunFireEffect()
 // Called when the game starts or when spawned
 void ASOGunFireEffect::BeginPlay()
 {
+	SO_LOG(LogSOTemp, Log, TEXT("Begin"))
 	Super::BeginPlay();
-	
+	SO_LOG(LogSOTemp, Log, TEXT("Begin"))
 }
 
 void ASOGunFireEffect::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(ASOGunFireEffect, MuzzleFlash);
-	DOREPLIFETIME(ASOGunFireEffect, EjectShellParticles);
 }
 
 void ASOGunFireEffect::PlayEffect(const FTransform& MuzzleTransform, const FTransform& EjectTransform)

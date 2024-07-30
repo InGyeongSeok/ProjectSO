@@ -279,7 +279,12 @@ protected:
 	
 	TSubclassOf<ASOProjectileBase> AmmoClass;
 
-private:
+protected:
 	int32 AvailableFireModeCount;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_FireTriggered)
+	uint8 bFireTriggered : 1;
+
+	UFUNCTION()
+	void OnRep_FireTriggered();
 };
