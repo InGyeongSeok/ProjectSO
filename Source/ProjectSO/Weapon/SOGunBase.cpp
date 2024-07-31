@@ -22,19 +22,20 @@ ASOGunBase::ASOGunBase()
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
 	
-	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(FName("NoCollision"));
-	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(FName("WeaponMesh"));
+	//WeaponMesh->SetCollisionEnabled();
+	WeaponMesh->SetCollisionProfileName(TEXT("WeaponMesh"));
 	WeaponMesh->CastShadow = true;
 	WeaponMesh->SetVisibility(true, false);	
-	//WeaponMesh->SetMobility(EComponentMobility::Movable);
-	WeaponMesh->SetSimulatePhysics(false);
+	WeaponMesh->SetMobility(EComponentMobility::Movable);
+	WeaponMesh->SetSimulatePhysics(true);
 	//WeaponMesh->SetupAttachment(CollisionComp);
 	RootComponent = WeaponMesh;
 	
-	CollisionComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Root"));
+	CollisionComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CollisionComp"));
 	CollisionComp->InitCapsuleSize(40.0f, 50.0f);
-	CollisionComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	CollisionComp->SetMobility(EComponentMobility::Movable);
+//	CollisionComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+//	CollisionComp->SetMobility(EComponentMobility::Movable);
 	CollisionComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	CollisionComp->SetupAttachment(RootComponent);
 
