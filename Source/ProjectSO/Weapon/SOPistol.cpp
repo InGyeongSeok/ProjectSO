@@ -47,7 +47,6 @@ void ASOPistol::PlayMuzzleEffect(const FVector& MuzzleLocation, FRotator& Muzzle
 	Super::PlayMuzzleEffect(MuzzleLocation, MuzzleRotation);
 }
 
-
 void ASOPistol::PlaySound()
 {
 	Super::PlaySound();

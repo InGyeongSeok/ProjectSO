@@ -18,7 +18,7 @@ USOProjectilePoolComponent::USOProjectilePoolComponent()
 void USOProjectilePoolComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
+	SetIsReplicated(true);
 }
 
 void USOProjectilePoolComponent::PushProjectileInPool(ASOProjectileBase* Projectile)
@@ -47,7 +47,6 @@ void USOProjectilePoolComponent::Expand()
 
 void USOProjectilePoolComponent::Initialize()
 {
-
 	if (AmmoClass)
 	{
 		for (int i = 0; i < InitialPoolSize; i++)

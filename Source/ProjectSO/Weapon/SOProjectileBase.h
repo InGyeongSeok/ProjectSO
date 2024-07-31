@@ -6,6 +6,9 @@
 #include "GameFramework/Actor.h"
 #include "SOProjectileBase.generated.h"
 
+class UProjectileMovementComponent;
+class UBoxComponent;
+
 UCLASS()
 class PROJECTSO_API ASOProjectileBase : public AActor
 {
@@ -22,11 +25,43 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+public:
+	UBoxComponent* GetCollisionComp() const { return CollisionComp; }
+	
+	UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovementComponent; }
 
+protected:
+	UFUNCTION()
+	virtual void OnHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);	
+
+	virtual void Destroyed() override;
+	
+	void StartDestroyTimer();
+	void DestroyTimerFinished();
+
+public:	
+	UFUNCTION()
+	void SetProjectileActive(bool IsActive);
+	
+	UFUNCTION()
+	void SetLifeSpanToPool();
+
+	UFUNCTION()
+	void PushPoolSelf();
+
+	UFUNCTION()
+	void SetLocationRotation(FVector InLocation, FRotator InRotation);
+	
+	// Multi
+	UFUNCTION()
+	void OnRep_OnHitProjectile();
+
+	UFUNCTION()
+	void OnRep_ShowProjectile();
+	
 	// Component
 public:
-
-	
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<class USceneComponent> SceneComponent;
 
@@ -82,28 +117,17 @@ public:
 	UPROPERTY()
 	float LifeSpanTime;
 	
-public:
-	UBoxComponent* GetCollisionComp() const { return CollisionComp; }
-	
-	UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovementComponent; }
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_ShowProjectile)
+	uint8 bShowProjectile : 1;
 
 protected:
-	UFUNCTION()
-	virtual void OnHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_OnHitProjectile)
+	uint8 bOnHitProjectile : 1;
 
-	virtual void Destroyed() override;
 	
-	void StartDestroyTimer();
-	void DestroyTimerFinished();
+	UPROPERTY(Replicated)
+	FVector Location;
 
-public:	
-	UFUNCTION()
-	void SetProjectileActive(bool IsActive);
-	
-	UFUNCTION()
-	void SetLifeSpanToPool();
-
-	UFUNCTION()
-	void PushPoolSelf();
-
+	UPROPERTY(Replicated)
+	FRotator Rotation;
 };
