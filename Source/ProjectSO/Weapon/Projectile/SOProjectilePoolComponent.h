@@ -51,7 +51,6 @@ public:
 	
 	//initialize
 	void Initialize();
-
 		
 };
 

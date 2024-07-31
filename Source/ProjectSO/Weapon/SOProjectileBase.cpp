@@ -12,7 +12,9 @@
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystemInstanceController.h"
 #include "Components/AudioComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "Projectile/SOProjectilePoolComponent.h"
+#include "ProjectSO/ProjectSO.h"
 
 // Sets default values
 ASOProjectileBase::ASOProjectileBase()
@@ -20,7 +22,7 @@ ASOProjectileBase::ASOProjectileBase()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
-
+	
 	SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
 	SetRootComponent(SceneComponent);
 	
@@ -35,9 +37,12 @@ ASOProjectileBase::ASOProjectileBase()
 	
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
-
+	
 	//Todo 숫자
 	LifeSpanTime = 3.0f;
+	bOnHitProjectile = false;
+	bShowProjectile = false;
+
 }
 
 // Called when the game starts or when spawned
@@ -62,18 +67,26 @@ void ASOProjectileBase::BeginPlay()
 	{
 		CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ASOProjectileBase::OnHit);
 		//StartDestroyTimer();
-	}	
+	}
+	ProjectileMovementComponent->SetIsReplicated(true);
+	AActor::SetReplicateMovement(true);
 }
 
 // Called every frame
 void ASOProjectileBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
 
+void ASOProjectileBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ASOProjectileBase, bOnHitProjectile);
+	DOREPLIFETIME(ASOProjectileBase, bShowProjectile);
 }
 
 void ASOProjectileBase::OnHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+                              UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	//Destroyed();
 
@@ -103,7 +116,7 @@ void ASOProjectileBase::OnHit(UPrimitiveComponent* OverlappedComponent, AActor* 
 	}
 	if (ProjectileMesh)
 	{
-		SetActorHiddenInGame(true);
+		bOnHitProjectile = !bOnHitProjectile;
 	}
 	if (CollisionComp)
 	{
@@ -155,7 +168,6 @@ void ASOProjectileBase::SetProjectileActive(bool IsActive)
 	SetActorEnableCollision(IsActive);
 	SetActorTickEnabled(IsActive);
 	
-
 	if (!IsActive)
 	{
 		ProjectileMovementComponent->Velocity = FVector::ZeroVector;
@@ -178,7 +190,6 @@ void ASOProjectileBase::SetLifeSpanToPool()
 
 void ASOProjectileBase::PushPoolSelf()
 {
-
 	if (ProjectilePool == nullptr)
 	{
 		return;
@@ -186,5 +197,23 @@ void ASOProjectileBase::PushPoolSelf()
 	ProjectilePool->PushProjectileInPool(this);
 	SetProjectileActive(false);
 	UE_LOG(LogTemp, Warning, TEXT("Pool Self : %d"), ProjectilePool->Pool.Num());
+}
+
+void ASOProjectileBase::SetLocationRotation(FVector InLocaion, FRotator InRotation)
+{
+	Location = InLocaion;
+	Rotation = InRotation;
+}
+
+//충돌했을 때 
+void ASOProjectileBase::OnRep_OnHitProjectile() 
+{
+	SetActorHiddenInGame(true); //Actor
+}
+
+//총 발사할 때
+void ASOProjectileBase::OnRep_ShowProjectile()
+{
+	ProjectileMesh->SetVisibility(true); //component
 }
 

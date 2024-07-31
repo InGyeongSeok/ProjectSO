@@ -200,10 +200,10 @@ void ASOGunBase::FireProjectile()
 	}
 
 	// Viewport LineTrace
-	FHitResult ScreenLaserHit;
-	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(this);
-	Params.AddIgnoredActor(GetOwner());
+	// FHitResult ScreenLaserHit;
+	// FCollisionQueryParams Params;
+	// Params.AddIgnoredActor(this);
+	// Params.AddIgnoredActor(GetOwner());
 
 	// 화면 중앙 LineTrace
 	FVector TraceStartLocation;
@@ -212,10 +212,10 @@ void ASOGunBase::FireProjectile()
 
 	// 수정 필요 
 	FVector TraceEnd = TraceStartLocation + TraceStartRotation.Vector() *  WeaponStat.MaxRange * 100; 
-	bool bScreenLaserSuccess = GetWorld()->LineTraceSingleByChannel(ScreenLaserHit, TraceStartLocation, TraceEnd, ECC_Projectile, Params);
+	// bool bScreenLaserSuccess = GetWorld()->LineTraceSingleByChannel(ScreenLaserHit, TraceStartLocation, TraceEnd, ECC_Projectile, Params);
 	
 	// 허공이면 TraceEnd, 아니면 Hit.Location
-	FVector HitLocation = bScreenLaserSuccess ? ScreenLaserHit.Location : TraceEnd;
+	// FVector HitLocation = bScreenLaserSuccess ? ScreenLaserHit.Location : TraceEnd;
 	// UE_LOG(LogTemp, Log, TEXT("ScreenLaserHit : %s "), *HitLocation.ToString());
 
 	FTransform MuzzleSocketTransform;
@@ -237,7 +237,7 @@ void ASOGunBase::FireProjectile()
 	}
 
 	DrawDebugLine(GetWorld(), MuzzleSocketTransform.GetLocation(), TraceEnd, FColor::Red,false, 5, 0, 2);
-	DrawDebugPoint(GetWorld(), ScreenLaserHit.Location, 3, FColor::Red, false, 5,0);
+	//DrawDebugPoint(GetWorld(), ScreenLaserHit.Location, 3, FColor::Red, false, 5,0);
 
 	FRotator MuzzleRotation = MuzzleSocketTransform.GetRotation().Rotator();
 	FRotator EjectRotation = AmmoEjectSocketTransform.GetRotation().Rotator();
@@ -248,7 +248,7 @@ void ASOGunBase::FireProjectile()
 	PlaySound();
 	bPlayFireEffect = true;
 	// 총알 생성
-	ServerRPCOnFire(MuzzleSocketTransform, AmmoEjectSocketTransform, HitLocation);
+	ServerRPCOnFire(MuzzleSocketTransform, AmmoEjectSocketTransform, TraceEnd);
 }
 
 void ASOGunBase::CreateProjectile(const FTransform& MuzzleTransform, const FVector& HitLocation)
@@ -285,9 +285,9 @@ void ASOGunBase::CreateProjectile(const FTransform& MuzzleTransform, const FVect
 	FRotator SpawnRotation = ToTarget.Rotation();
 	
 	// Set Spawn Collision Handling Override
-	FActorSpawnParameters ActorSpawnParams;
-	ActorSpawnParams.Owner = GetOwner();
-	ActorSpawnParams.Instigator = InstigatorPawn;
+	// FActorSpawnParameters ActorSpawnParams;
+	// ActorSpawnParams.Owner = GetOwner();
+	// ActorSpawnParams.Instigator = InstigatorPawn;
 	//ASOProjectileBase* Projectile = nullptr;
 	
 	// 서버에서 생성하면 자동 리플리케이션
@@ -295,21 +295,14 @@ void ASOGunBase::CreateProjectile(const FTransform& MuzzleTransform, const FVect
 	// if(Projectile) Projectile->SetOwner(OwningCharacter);		
 	// UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(__FUNCTION__))
 
-	//검사 로직 추가 
-	ASOProjectileBase* Bullet = ProjectilePoolComponent->PullProjectile();
-	// 데미지 강화 Bullet->CurrentDamage = Bullet->BaseDamage + DamageIncrease;
-	if(Bullet)
-	{
-		Bullet->SetActorLocation(SpawnLocation);
-		Bullet->SetActorRotation(SpawnRotation);
-		Bullet->ProjectileMesh->SetVisibility(true);
-		Bullet->SetProjectileActive(true);
-		Bullet->SetLifeSpanToPool();
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("No Bullet"));
-	}
+	 //검사 로직 추가
+	 ASOProjectileBase* Bullet= ProjectilePoolComponent->PullProjectile();
+	 Bullet->SetOwner(OwningCharacter);
+	 Bullet->SetActorLocation(SpawnLocation);
+	 Bullet->SetActorRotation(SpawnRotation);
+	 Bullet->SetProjectileActive(true);
+	 Bullet->SetLifeSpanToPool();
+	 Bullet->bShowProjectile = !Bullet->bShowProjectile;
 }
 
 void ASOGunBase::StopFire()
@@ -527,3 +520,4 @@ void ASOGunBase::OnRep_PlayFireEffect()
 	PlayEjectAmmoEffect(AmmoEjectSocketTransform.GetLocation(), EjectRotation);		
 	
 }
+
