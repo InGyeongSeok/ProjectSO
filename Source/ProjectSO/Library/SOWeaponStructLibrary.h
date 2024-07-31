@@ -104,6 +104,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
 	int LargeClipSize;
+
+
 };
 
 
@@ -122,11 +124,16 @@ public:
 			WeaponType = InOhterStat.WeaponType;
 			OverlayState = InOhterStat.OverlayState;
 			SkeletalMesh = InOhterStat.SkeletalMesh;
-			AnimMontage =  InOhterStat.AnimMontage;
+			FireMontage =  InOhterStat.FireMontage;
+			EquipMontage = InOhterStat.EquipMontage;
+			ReloadMontage = InOhterStat.ReloadMontage;
+			ReloadWeaponMontage = InOhterStat.ReloadWeaponMontage;
 			MuzzleFlashEffect = InOhterStat.MuzzleFlashEffect;
-			SocketLocation = InOhterStat.SocketLocation;
-			SocketRotation = InOhterStat.SocketRotation;
-			SocketName= InOhterStat.SocketName;
+			EjectShellParticles = InOhterStat.EjectShellParticles;
+			FireSound = InOhterStat.FireSound;
+			EquipSocketName= InOhterStat.EquipSocketName;
+			MuzzleSocketName= InOhterStat.MuzzleSocketName;
+
 		}
 		return *this;
 	}
@@ -149,18 +156,29 @@ public:
 	TObjectPtr<USkeletalMesh> SkeletalMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
-	TObjectPtr<UAnimMontage> AnimMontage;
+	TObjectPtr<UAnimMontage> FireMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	TObjectPtr<UAnimMontage> EquipMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	TObjectPtr<UAnimMontage> ReloadMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	TObjectPtr<UAnimMontage> ReloadWeaponMontage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Effect)
-	TObjectPtr<UNiagaraSystem> MuzzleFlashEffect;
+	TObjectPtr<UParticleSystem> MuzzleFlashEffect;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Effect)
+	TObjectPtr<class UNiagaraSystem> EjectShellParticles;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Sound)
+	TObjectPtr<class USoundBase> FireSound;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Socket)
-	FVector SocketLocation;
+	FName EquipSocketName; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Socket)
-	FVector SocketRotation;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Socket)
-	FName SocketName;
-	
+	FName MuzzleSocketName; 
 };

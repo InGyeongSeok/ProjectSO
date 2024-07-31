@@ -85,7 +85,7 @@ protected:
 	void OnRep_PlayFireEffect();
 	
 public:
-	uint8 GetAvailableFireMode() const {return AvailableFireMode;}
+	uint8 GetAvailableFireMode() const {return WeaponStat.FireMode;}
 	int32 GetAvailableFireModeCount() const {return AvailableFireModeCount;}
 	int32 CalculateAvailableFireModeCount();
 	
@@ -117,96 +117,18 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	TObjectPtr<class UCapsuleComponent> CollisionComp;
-	
-	// Montage
-protected:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
-	TObjectPtr<class UAnimMontage> EquipMontage;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
-	TObjectPtr<class UAnimMontage> FireMontage;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
-	TObjectPtr<class UAnimMontage> ReloadMontage;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
-	TObjectPtr<class UAnimMontage> ReloadWeaponMontage;
-	
-	// Effect
-protected:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated, Category = "Properties|Effect")
-	TObjectPtr<ASOGunFireEffect> FireEffect;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties|Effect")
-	TObjectPtr<class UParticleSystem> MuzzleFlash;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties|Effect")
-	TObjectPtr<class UNiagaraSystem> EjectShellParticles;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Properties|Audio")
-	TObjectPtr<class USoundBase> FireSound;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Properties|Audio")
-	TObjectPtr<class USoundBase> HitSound;
 
 	// Properties
 protected:
-	UPROPERTY(EditAnywhere, Meta = (Bitmask, BitmaskEnum = "/Script/ProjectSO.ESOFireMode"), Category = "Properties|Fire")
-	uint8 AvailableFireMode;
-	
-	UPROPERTY(EditAnywhere, Category = "Properties|Fire")
-	uint8 WeaponID;
-	
-	UPROPERTY(EditAnywhere, Category = "Properties|Weapon")
-	ESOWeaponType WeaponType;
-
+	//여기 구조체 생각  
 	UPROPERTY(EditAnywhere, Category = "Properties|Fire")
 	int32 MaxRepeatCount;
-	
-	UPROPERTY(EditAnywhere, Category = "Properties|Fire")
-	float FireInterval;
-
-	UPROPERTY(EditAnywhere, Category = "Properties|Fire")
-	float ReloadInterval;
-	
-	UPROPERTY(EditAnywhere, Category = "Properties|Fire")
-	float ShootingPreparationTime;
-	
-	UPROPERTY(EditAnywhere, Category = "Properties|Fire")
-	float MaxRange;
-	
-	UPROPERTY(EditAnywhere, Category = "Properties|Damage")
-	float Damage;
-
-	UPROPERTY(EditAnywhere, Category = "Properties|Damage")
-	float HeadShotDamage;
-
-	UPROPERTY(EditAnywhere, Category = "Properties|Recoil")
-	float RecoilYaw;
-
-	UPROPERTY(EditAnywhere, Category = "Properties|Recoil")
-	float RecoilPitch;
-
-	UPROPERTY(EditAnywhere, Category = "Properties|Recoil")
-	float AimedRecoilYaw;
-
-	UPROPERTY(EditAnywhere, Category = "Properties|Recoil")
-	float AimedRecoilPitch;
-	
-	UPROPERTY(EditAnywhere, Category = "Properties|Weapon")
-	FName AttachPoint;
-
-	UPROPERTY(EditAnywhere, Category = "Properties|Weapon")
-	FName MuzzleSocketName;
 
 	UPROPERTY(EditAnywhere, Category = "Properties|Weapon")
 	FName AmmoEjectSocketName;
 	
-	// Ammo
+	// Ammo 구조체 생각해보기 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated, Category = "Properties|Ammo")
-	int32 ClipSize;
-	
 	// maximum bullet capacity
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated, Category = "Properties|Ammo")
 	int32 MaxAmmoCapacity;
@@ -261,7 +183,7 @@ protected:
 	FTimerHandle FireTimerHandle;
 	FTimerHandle BurstTimerHandle;
 	
-	// Data
+	// Struct Stat & Data
 protected:
 	UPROPERTY()
 	FSOWeaponStat WeaponStat;
@@ -274,7 +196,7 @@ protected:
 	UPROPERTY()
 	TObjectPtr<class USOProjectilePoolComponent> ProjectilePoolComponent; 
 	
-	TSubclassOf<ASOProjectileBase> AmmoClass;
+	//TSubclassOf<ASOProjectileBase> AmmoClass;
 
 protected:
 	int32 AvailableFireModeCount;
