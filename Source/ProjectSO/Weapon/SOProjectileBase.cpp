@@ -9,12 +9,10 @@
 #include "Sound/SoundCue.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystemInstanceController.h"
 #include "Components/AudioComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Projectile/SOProjectilePoolComponent.h"
-#include "ProjectSO/ProjectSO.h"
 
 // Sets default values
 ASOProjectileBase::ASOProjectileBase()
@@ -89,7 +87,6 @@ void ASOProjectileBase::OnHit(UPrimitiveComponent* OverlappedComponent, AActor* 
                               UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	//Destroyed();
-
 	APawn* FiringPawn = GetInstigator();
 	if (FiringPawn && HasAuthority())
 	{
@@ -130,9 +127,9 @@ void ASOProjectileBase::OnHit(UPrimitiveComponent* OverlappedComponent, AActor* 
 	{
 		ProjectileLoopComponent->Stop();
 	}
-	
 }
 
+//삭제하지 않고 오브젝트 풀에 들어간다. (이 함수 사용 X)
 void ASOProjectileBase::Destroyed()
 {
 	Super::Destroyed();
@@ -146,6 +143,7 @@ void ASOProjectileBase::Destroyed()
 	}
 }
 
+// 사용 X
 void ASOProjectileBase::StartDestroyTimer()
 {
 	FTimerHandle DestroyTimer;
@@ -199,21 +197,31 @@ void ASOProjectileBase::PushPoolSelf()
 	UE_LOG(LogTemp, Warning, TEXT("Pool Self : %d"), ProjectilePool->Pool.Num());
 }
 
-void ASOProjectileBase::SetLocationRotation(FVector InLocaion, FRotator InRotation)
+//Server에서 호출
+void ASOProjectileBase::InitializeProjectile(FVector InLocation, FRotator InRotation)
 {
-	Location = InLocaion;
-	Rotation = InRotation;
+	SetActorLocation(InLocation);
+	SetActorRotation(InRotation);
+	SetProjectileActive(true);
+	SetLifeSpanToPool();
+	
+	CollisionComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	CollisionComp->BodyInstance.SetCollisionProfileName("Projectile");
+	bShowProjectile = !bShowProjectile;
 }
 
 //충돌했을 때 
 void ASOProjectileBase::OnRep_OnHitProjectile() 
 {
-	SetActorHiddenInGame(true); //Actor
+	// Actor
+	// SetActorHiddenInGame(true); 
+	ProjectileMesh->SetVisibility(false); 
 }
 
 //총 발사할 때
 void ASOProjectileBase::OnRep_ShowProjectile()
 {
-	ProjectileMesh->SetVisibility(true); //component
+	// component
+	ProjectileMesh->SetVisibility(true);
 }
 

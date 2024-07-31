@@ -10,6 +10,7 @@
 #include "Components/CapsuleComponent.h"
 
 #include "SOProjectileBase.h"
+#include "EntitySystem/MovieSceneEntitySystemRunner.h"
 #include "ProjectSO/Character/SOCharacterBase.h"
 #include "Projectile/SOProjectilePoolComponent.h"
 #include "ProjectSO/ProjectSO.h"
@@ -271,39 +272,34 @@ void ASOGunBase::CreateProjectile(const FTransform& MuzzleTransform, const FVect
 	{
 		UE_LOG(LogTemp, Warning, TEXT("OwnerController"));
 	}*/
-	
+
 	APawn* InstigatorPawn = Cast<APawn>(GetOwner());
-	
+
 	// Try and fire a projectile
-	if (ProjectileClass  == nullptr)
+	if (ProjectileClass == nullptr)
 	{
 		UE_LOG(LogTemp, Log, TEXT("ProjectileClass is null"));
 		return;
 	}
-	
-	FVector SpawnLocation = MuzzleTransform.GetLocation(); 
-	FVector ToTarget = HitLocation - SpawnLocation;	
+
+	FVector SpawnLocation = MuzzleTransform.GetLocation();
+	FVector ToTarget = HitLocation - SpawnLocation;
 	FRotator SpawnRotation = ToTarget.Rotation();
-	
+
 	// Set Spawn Collision Handling Override
-	// FActorSpawnParameters ActorSpawnParams;
+	 FActorSpawnParameters ActorSpawnParams;
 	// ActorSpawnParams.Owner = GetOwner();
 	// ActorSpawnParams.Instigator = InstigatorPawn;
-	//ASOProjectileBase* Projectile = nullptr;
-	
+	// ASOProjectileBase* Projectile = nullptr;
+
 	// 서버에서 생성하면 자동 리플리케이션
-	// Projectile = GetWorld()->SpawnActor<ASOProjectileBase>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+	 //Projectile = GetWorld()->SpawnActor<ASOProjectileBase>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
 	// if(Projectile) Projectile->SetOwner(OwningCharacter);		
 	// UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(__FUNCTION__))
 
-	 //검사 로직 추가
-	 ASOProjectileBase* Bullet= ProjectilePoolComponent->PullProjectile();
-	 Bullet->SetOwner(OwningCharacter);
-	 Bullet->SetActorLocation(SpawnLocation);
-	 Bullet->SetActorRotation(SpawnRotation);
-	 Bullet->SetProjectileActive(true);
-	 Bullet->SetLifeSpanToPool();
-	 Bullet->bShowProjectile = !Bullet->bShowProjectile;
+	//검사 로직 추가
+	ASOProjectileBase* Projectile = ProjectilePoolComponent->PullProjectile();
+	Projectile->InitializeProjectile(SpawnLocation, SpawnRotation);
 }
 
 void ASOGunBase::StopFire()
