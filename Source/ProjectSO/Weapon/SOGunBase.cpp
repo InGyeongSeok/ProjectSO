@@ -255,6 +255,7 @@ void ASOGunBase::FireProjectile()
 
 void ASOGunBase::CreateProjectile(const FTransform& MuzzleTransform, const FVector& HitLocation)
 {
+	
 	if (OwningCharacter == nullptr || OwningCharacter->GetController() == nullptr)
 	{
 		return;
@@ -298,6 +299,7 @@ void ASOGunBase::CreateProjectile(const FTransform& MuzzleTransform, const FVect
 	// UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(__FUNCTION__))
 
 	//검사 로직 추가
+	//서버에서 호출 
 	ASOProjectileBase* Projectile = ProjectilePoolComponent->PullProjectile();
 	Projectile->InitializeProjectile(SpawnLocation, SpawnRotation);
 }

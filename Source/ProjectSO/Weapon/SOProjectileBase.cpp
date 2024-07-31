@@ -13,6 +13,7 @@
 #include "Components/AudioComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Projectile/SOProjectilePoolComponent.h"
+#include "ProjectSO/ProjectSO.h"
 
 // Sets default values
 ASOProjectileBase::ASOProjectileBase()
@@ -68,6 +69,7 @@ void ASOProjectileBase::BeginPlay()
 	}
 	ProjectileMovementComponent->SetIsReplicated(true);
 	AActor::SetReplicateMovement(true);
+	
 }
 
 // Called every frame
@@ -200,6 +202,7 @@ void ASOProjectileBase::PushPoolSelf()
 //Server에서 호출
 void ASOProjectileBase::InitializeProjectile(FVector InLocation, FRotator InRotation)
 {
+	SO_LOG(LogSONetwork,Log,TEXT("LogSONetwork"));
 	SetActorLocation(InLocation);
 	SetActorRotation(InRotation);
 	SetProjectileActive(true);
@@ -213,9 +216,9 @@ void ASOProjectileBase::InitializeProjectile(FVector InLocation, FRotator InRota
 //충돌했을 때 
 void ASOProjectileBase::OnRep_OnHitProjectile() 
 {
-	// Actor
 	// SetActorHiddenInGame(true); 
-	ProjectileMesh->SetVisibility(false); 
+	ProjectileMesh->SetVisibility(false);
+	ProjectileMovementComponent->Velocity = FVector::ZeroVector;
 }
 
 //총 발사할 때
@@ -223,5 +226,7 @@ void ASOProjectileBase::OnRep_ShowProjectile()
 {
 	// component
 	ProjectileMesh->SetVisibility(true);
+	//ProjectileMovementComponent->SetUpdatedComponent(RootComponent);
+	ProjectileMovementComponent->Velocity = GetActorForwardVector() * 7000.0f;
 }
 

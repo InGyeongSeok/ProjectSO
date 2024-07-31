@@ -9,8 +9,9 @@
 USOProjectilePoolComponent::USOProjectilePoolComponent()
 {
 	//Todo 숫자
-	InitialPoolSize = 30;
+	InitialPoolSize = 40;
 	ExpandSize = 1;
+
 }
 
 
@@ -19,6 +20,7 @@ void USOProjectilePoolComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	SetIsReplicated(true);
+	//Initialize();
 }
 
 void USOProjectilePoolComponent::PushProjectileInPool(ASOProjectileBase* Projectile)
