@@ -51,8 +51,9 @@ public:
 	void PushPoolSelf();
 
 	UFUNCTION()
-	void SetLocationRotation(FVector InLocation, FRotator InRotation);
-	
+	void InitializeProjectile(FVector InLocation, FRotator InRotation);
+
+protected:
 	// Multi
 	UFUNCTION()
 	void OnRep_OnHitProjectile();
@@ -124,10 +125,5 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_OnHitProjectile)
 	uint8 bOnHitProjectile : 1;
 
-	
-	UPROPERTY(Replicated)
-	FVector Location;
 
-	UPROPERTY(Replicated)
-	FRotator Rotation;
 };
