@@ -22,25 +22,10 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-
 public:
 	UFUNCTION()
 	ASOProjectileBase* PullProjectile();
 	
-
-	UPROPERTY()
-	TArray<ASOProjectileBase*> Pool;
-protected:
-	TSubclassOf<ASOProjectileBase> AmmoClass;
-	
-protected:
-	UPROPERTY()
-	int InitialPoolSize;
-	
-	UPROPERTY()
-	int ExpandSize;
-	
-public:
 	UFUNCTION()
 	void PushProjectileInPool(ASOProjectileBase* Projectile);
 
@@ -51,6 +36,24 @@ public:
 	
 	//initialize
 	void Initialize();
+
+protected:
+	// Multi
+
+public:
+	UPROPERTY()
+	TArray<ASOProjectileBase*> Pool;
+	
+protected:
+	TSubclassOf<ASOProjectileBase> AmmoClass;
+	
+	UPROPERTY()
+	int InitialPoolSize;
+	
+	UPROPERTY()
+	int ExpandSize;
+	
+
 		
 };
 

@@ -61,7 +61,11 @@ void ASOGunBase::BeginPlay()
 	SetGunData(2);
 
 	//Object Pool
-	ProjectilePoolComponent->Initialize();
+	if(HasAuthority())
+	{
+		ProjectilePoolComponent->Initialize();
+	}
+
 	
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ASOGunBase::OnSphereBeginOverlap);
 	

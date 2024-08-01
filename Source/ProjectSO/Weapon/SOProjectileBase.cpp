@@ -2,7 +2,6 @@
 
 
 #include "SOProjectileBase.h"
-
 #include "NiagaraComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -41,7 +40,6 @@ ASOProjectileBase::ASOProjectileBase()
 	LifeSpanTime = 3.0f;
 	bOnHitProjectile = false;
 	bShowProjectile = false;
-
 }
 
 // Called when the game starts or when spawned
@@ -69,7 +67,6 @@ void ASOProjectileBase::BeginPlay()
 	}
 	ProjectileMovementComponent->SetIsReplicated(true);
 	AActor::SetReplicateMovement(true);
-	
 }
 
 // Called every frame
@@ -196,7 +193,7 @@ void ASOProjectileBase::PushPoolSelf()
 	}
 	ProjectilePool->PushProjectileInPool(this);
 	SetProjectileActive(false);
-	UE_LOG(LogTemp, Warning, TEXT("Pool Self : %d"), ProjectilePool->Pool.Num());
+	SO_LOG(LogTemp, Warning, TEXT("Pool Self : %d"), ProjectilePool->Pool.Num());
 }
 
 //Server에서 호출
@@ -216,7 +213,6 @@ void ASOProjectileBase::InitializeProjectile(FVector InLocation, FRotator InRota
 //충돌했을 때 
 void ASOProjectileBase::OnRep_OnHitProjectile() 
 {
-	// SetActorHiddenInGame(true); 
 	ProjectileMesh->SetVisibility(false);
 	ProjectileMovementComponent->Velocity = FVector::ZeroVector;
 }
@@ -224,9 +220,7 @@ void ASOProjectileBase::OnRep_OnHitProjectile()
 //총 발사할 때
 void ASOProjectileBase::OnRep_ShowProjectile()
 {
-	// component
 	ProjectileMesh->SetVisibility(true);
-	//ProjectileMovementComponent->SetUpdatedComponent(RootComponent);
 	ProjectileMovementComponent->Velocity = GetActorForwardVector() * 7000.0f;
 }
 
