@@ -56,11 +56,11 @@ public:
 protected:
 	// Multi
 	UFUNCTION()
-	void OnRep_OnHitProjectile();
+	void OnRep_ShowStartTime();
 
 	UFUNCTION()
-	void OnRep_ShowProjectile();
-	
+	void OnRep_HideStartTime();
+
 	// Component
 public:
 	UPROPERTY(EditAnywhere)
@@ -123,12 +123,12 @@ public:
 	UPROPERTY()
 	float LifeSpanTime;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_ShowProjectile)
-	uint8 bShowProjectile : 1;
-
+	UPROPERTY(ReplicatedUsing = OnRep_HideStartTime)
+	float HideStartTime;
+	
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_OnHitProjectile)
-	uint8 bOnHitProjectile : 1;
-
+	UPROPERTY(ReplicatedUsing = OnRep_ShowStartTime)
+	float ShowStartTime;
+	
 
 };

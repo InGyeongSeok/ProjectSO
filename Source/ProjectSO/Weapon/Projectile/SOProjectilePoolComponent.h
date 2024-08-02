@@ -47,14 +47,12 @@ public:
 protected:
 	TSubclassOf<ASOProjectileBase> AmmoClass;
 	
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly)
 	int InitialPoolSize;
 	
 	UPROPERTY()
 	int ExpandSize;
-	
 
-		
 };
 
 
