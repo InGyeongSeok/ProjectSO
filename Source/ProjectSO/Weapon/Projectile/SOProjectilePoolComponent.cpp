@@ -11,7 +11,7 @@
 USOProjectilePoolComponent::USOProjectilePoolComponent()
 {
 	//Todo 숫자
-	InitialPoolSize = 10;
+	InitialPoolSize = 1;
 	ExpandSize = 1;
 }
 
@@ -50,6 +50,10 @@ void USOProjectilePoolComponent::Expand()
 				SpawnedProjectile->FinishSpawning(SpawnTransform);
 			}
 			Pool.Push(SpawnedProjectile);
+			// ASOProjectileBase* SpawnedProjectile = GetWorld()->SpawnActor<ASOProjectileBase>(AmmoClass, FVector().ZeroVector, FRotator().ZeroRotator);
+			// SpawnedProjectile->SetProjectileActive(false);
+			// SpawnedProjectile->ProjectilePool = this;
+			// Pool.Push(SpawnedProjectile);
 		}
 	}
 }
@@ -63,6 +67,7 @@ void USOProjectilePoolComponent::Initialize()
 			// ASOProjectileBase* SpawnedProjectile = GetWorld()->SpawnActor<ASOProjectileBase>(AmmoClass, FVector().ZeroVector, FRotator().ZeroRotator);
 			// SpawnedProjectile->SetProjectileActive(false);
 			// SpawnedProjectile->ProjectilePool = this;
+			
 			FTransform SpawnTransform(FRotator().ZeroRotator, FVector().ZeroVector);
 			ASOProjectileBase* SpawnedProjectile = GetWorld()->SpawnActorDeferred<ASOProjectileBase>(AmmoClass, SpawnTransform);
 			if(SpawnedProjectile)

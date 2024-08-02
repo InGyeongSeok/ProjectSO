@@ -68,15 +68,14 @@ void ASOProjectileBase::BeginPlay()
 		CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ASOProjectileBase::OnHit);
 		// StartDestroyTimer();
 	}
-	ProjectileMovementComponent->SetIsReplicated(true);
-	ProjectileMesh->SetIsReplicated(true);
-	AActor::SetReplicateMovement(true);
 }
 
 // Called every frame
 void ASOProjectileBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	// SO_LOG(LogTemp, Warning, TEXT("%s"), *ProjectileMovementComponent->Velocity.ToString());
+
 }
 
 void ASOProjectileBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -173,10 +172,12 @@ void ASOProjectileBase::SetProjectileActive(bool IsActive)
 	SetActorTickEnabled(IsActive);
 	if (!IsActive)
 	{
+		ProjectileMovementComponent->bSimulationEnabled = false;
 		ProjectileMovementComponent->Velocity = FVector::ZeroVector;
 	}
 	else
 	{
+		ProjectileMovementComponent->bSimulationEnabled = true;
 		ProjectileMovementComponent->SetUpdatedComponent(RootComponent);
 		ProjectileMovementComponent->Velocity = GetActorForwardVector() * 7000.0f;
 	}
@@ -209,34 +210,24 @@ void ASOProjectileBase::InitializeProjectile(FVector InLocation, FRotator InRota
 	{
 		SO_LOG(LogSONetwork,Log,TEXT("ProjectileMesh false"));
 	}
-	// SO_LOG(LogSONetwork,Log,TEXT("LogSONetwork"));
 	SetActorLocation(InLocation);
 	SetActorRotation(InRotation);
 	SetProjectileActive(true);
-
-	SO_LOG(LogSONetwork,Log,TEXT("%s") ,*InLocation.ToString() );
 	SetLifeSpanToPool();
-
 	// 클라이언트에게 보이게 하라고 지시 OnRep_ShowStartTime
 	ShowStartTime = GetWorld()->GetTimeSeconds();
-
-	
 }
 
 // 충돌했을 때 
 void ASOProjectileBase::OnRep_HideStartTime() 
 {
-	
 	ProjectileMesh->SetVisibility(false);
-	ProjectileMovementComponent->Velocity = FVector::ZeroVector;
 }
 
 //총 발사할 때
 void ASOProjectileBase::OnRep_ShowStartTime()
 {
-
 	ProjectileMesh->SetVisibility(true);
-	ProjectileMovementComponent->Velocity = GetActorForwardVector() * 7000.0f;
 }
 
 
