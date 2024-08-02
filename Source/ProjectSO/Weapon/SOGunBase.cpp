@@ -409,7 +409,7 @@ void ASOGunBase::SetOwningCharacter(ASOCharacterBase* InOwningCharacter)
 	}
 	
 	OwningCharacter = InOwningCharacter;
-	// OwnerActor = OwningCharacter;
+	OwnerActor = OwningCharacter;
 	SetOwner(OwningCharacter);
 	if (OwningCharacter == nullptr)	return;
 
