@@ -78,11 +78,13 @@ protected:
 	// Multi
 protected:	
 	UFUNCTION(Server, Unreliable)
-	void ServerRPCOnFire(const FTransform& MuzzleTransform, const FTransform& EjectTransform, const FVector& HitLocation);
+	void ServerRPCOnFire(const FTransform& MuzzleTransform, const FVector& HitLocation);
 
 	UFUNCTION()
 	void OnRep_PlayFireEffect();
-	
+
+	UFUNCTION()
+	void OnRep_FireStartTime();
 public:
 	uint8 GetAvailableFireMode() const {return WeaponStat.FireMode;}
 	int32 GetAvailableFireModeCount() const {return AvailableFireModeCount;}
@@ -95,7 +97,8 @@ public:
 	void SetCurrentFireMode(ESOFireMode NewCurrentFireMode) { CurrentFireMode = NewCurrentFireMode; }
 	
 	ESOFireMode GetNextValidFireMode();
-	
+
+	FTransform GetSocketTransformByName( FName InSocketName, const class USkeletalMeshComponent* SkelComp);
 	// Owner
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated)
@@ -200,6 +203,9 @@ protected:
 protected:
 	int32 AvailableFireModeCount;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_PlayFireEffect)
-	uint8 bPlayFireEffect : 1;
+	/*UPROPERTY(EditAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_PlayFireEffect)
+	uint8 bPlayFireEffect : 1;*/
+
+	UPROPERTY(ReplicatedUsing = OnRep_FireStartTime)
+	float FireStartTime;
 };
