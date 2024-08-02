@@ -105,12 +105,11 @@ void ASOGunBase::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, 
 {
 	if (HasAuthority())
 	{
-		ASOCharacterBase* CharacterBase = Cast<ASOCharacterBase>(OtherActor);
-		OwningCharacter = CharacterBase;
-		if (OwningCharacter) // && !bIsEquipped)
+		ASOCharacterBase* CharacterBase = Cast<ASOCharacterBase>(OtherActor);		
+		if (CharacterBase) // && !bIsEquipped)
 		{
 			bIsEquipped = true;
-			OwningCharacter->EquipItem(this);
+			CharacterBase->EquipItem(this);
 		}
 	}
 }
@@ -305,7 +304,9 @@ void ASOGunBase::CreateProjectile(const FTransform& MuzzleTransform, const FVect
 	//검사 로직 추가
 	//서버에서 호출 
 	ASOProjectileBase* Projectile = ProjectilePoolComponent->PullProjectile();
+	// 발사
 	Projectile->InitializeProjectile(SpawnLocation, SpawnRotation);
+	
 }
 
 void ASOGunBase::StopFire()
@@ -366,8 +367,9 @@ void ASOGunBase::Equip()
 {
 	SO_LOG(LogSOTemp, Warning, TEXT("Begin"))
 	
-	if (!bIsEquipped) return;
-
+	// if (!bIsEquipped) return;
+	if(!IsValid(OwningCharacter)) return;
+	
 	// 이거 해줘야 ServerRPC 가능
 	SetOwner(OwningCharacter);	
 	
@@ -382,6 +384,35 @@ void ASOGunBase::Equip()
 	CollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
+	SO_LOG(LogSOTemp, Warning, TEXT("End"))
+}
+
+void ASOGunBase::SetOwningCharacter(ASOCharacterBase* InOwningCharacter)
+{
+	SO_LOG(LogSOTemp, Warning, TEXT("Begin"))
+	AActor* OwnerActor = GetOwner();
+	if(OwnerActor)
+	{
+		SO_LOG(LogSONetwork, Log, TEXT("Owner : %s"), *OwnerActor->GetName())
+	}
+	else
+	{
+		SO_LOG(LogSONetwork, Log, TEXT("%s"), TEXT("No Owner"))
+	}
+	
+	OwningCharacter = InOwningCharacter;
+	// OwnerActor = OwningCharacter;
+	SetOwner(OwningCharacter);
+	if (OwningCharacter == nullptr)	return;
+
+	if(OwnerActor)
+	{
+		SO_LOG(LogSONetwork, Log, TEXT("Owner : %s"), *OwnerActor->GetName())
+	}
+	else
+	{
+		SO_LOG(LogSONetwork, Log, TEXT("%s"), TEXT("No Owner"))
+	}
 	SO_LOG(LogSOTemp, Warning, TEXT("End"))
 }
 

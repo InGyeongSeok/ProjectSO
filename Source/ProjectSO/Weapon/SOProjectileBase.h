@@ -110,6 +110,11 @@ protected:
 	UPROPERTY(EditAnywhere)
 	float DestroyTime = 4.f;
 
+	UPROPERTY(EditDefaultsOnly)
+	float InitialSpeed;
+
+	UPROPERTY(EditDefaultsOnly)
+	FTransform SpawnTransform; 
 public:
 	//pool
 	UPROPERTY()

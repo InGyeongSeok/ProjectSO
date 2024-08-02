@@ -40,6 +40,7 @@ ASOProjectileBase::ASOProjectileBase()
 	LifeSpanTime = 3.0f;
 	bOnHitProjectile = false;
 	bShowProjectile = false;
+	InitialSpeed = 1000;
 }
 
 // Called when the game starts or when spawned
@@ -82,17 +83,18 @@ void ASOProjectileBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME(ASOProjectileBase, bShowProjectile);
 }
 
-void ASOProjectileBase::OnHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-                              UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ASOProjectileBase::OnHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	SO_LOG(LogTemp, Warning, TEXT("OtherActor : %s"), *OtherActor->GetName())
 	//Destroyed();
 	APawn* FiringPawn = GetInstigator();
 	if (FiringPawn && HasAuthority())
 	{
+		SO_LOG(LogTemp, Warning, TEXT("1"))
 		AController* FiringController = FiringPawn->GetController();
 		if (FiringController)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("OtherActor : %s"), *OtherActor->GetName());
+			SO_LOG(LogTemp, Warning, TEXT("2"))
 			// const float DamageToCause = MuzzleLaserHit.BoneName.ToString() == FString("Head") ? HeadShotDamage : Damage;
 			const float DamageToCause = Damage;
 			AActor* HitActor = OtherActor;
@@ -161,18 +163,19 @@ void ASOProjectileBase::DestroyTimerFinished()
 
 void ASOProjectileBase::SetProjectileActive(bool IsActive)
 {
-	SetActorHiddenInGame(!IsActive);
+	// SetActorHiddenInGame(!IsActive);
 	SetActorEnableCollision(IsActive);
 	SetActorTickEnabled(IsActive);
 	
 	if (!IsActive)
 	{
-		ProjectileMovementComponent->Velocity = FVector::ZeroVector;
+		// ProjectileMovementComponent->Velocity = FVector::ZeroVector;
+		ProjectileMovementComponent->StopMovementImmediately();
 	}
 	else
 	{
 		ProjectileMovementComponent->SetUpdatedComponent(RootComponent);
-		ProjectileMovementComponent->Velocity = GetActorForwardVector() * 7000.0f;
+		// ProjectileMovementComponent->Velocity = GetActorForwardVector() * 7000.0f;
 	}
 }
 
@@ -192,7 +195,14 @@ void ASOProjectileBase::PushPoolSelf()
 		return;
 	}
 	ProjectilePool->PushProjectileInPool(this);
-	SetProjectileActive(false);
+	SetActorLocation(SpawnTransform.GetLocation());
+	SetActorRotation(SpawnTransform.Rotator());
+	
+	// SetProjectileActive(false);
+
+	ProjectileMovementComponent->StopMovementImmediately();
+	ProjectileMovementComponent->ProjectileGravityScale = 0;
+	
 	SO_LOG(LogTemp, Warning, TEXT("Pool Self : %d"), ProjectilePool->Pool.Num());
 }
 
@@ -202,7 +212,13 @@ void ASOProjectileBase::InitializeProjectile(FVector InLocation, FRotator InRota
 	SO_LOG(LogSONetwork,Log,TEXT("LogSONetwork"));
 	SetActorLocation(InLocation);
 	SetActorRotation(InRotation);
-	SetProjectileActive(true);
+	// SetProjectileActive(true);
+
+	ProjectileMovementComponent->Velocity = GetActorForwardVector() * InitialSpeed;
+	ProjectileMovementComponent->ProjectileGravityScale = 1;
+
+	// 3초 후에 Pool에 돌아오게 하는 로직
+	// 이 함수에서 다시 중력과 속도를 초기화
 	SetLifeSpanToPool();
 	
 	CollisionComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
@@ -213,14 +229,17 @@ void ASOProjectileBase::InitializeProjectile(FVector InLocation, FRotator InRota
 //충돌했을 때 
 void ASOProjectileBase::OnRep_OnHitProjectile() 
 {
-	ProjectileMesh->SetVisibility(false);
-	ProjectileMovementComponent->Velocity = FVector::ZeroVector;
+	SO_LOG(LogTemp, Warning, TEXT("Begin"))
+	// ProjectileMesh->SetVisibility(false);
+	// ProjectileMovementComponent->Velocity = FVector::ZeroVector;
+	ProjectileMovementComponent->StopMovementImmediately();
 }
 
 //총 발사할 때
 void ASOProjectileBase::OnRep_ShowProjectile()
 {
-	ProjectileMesh->SetVisibility(true);
-	ProjectileMovementComponent->Velocity = GetActorForwardVector() * 7000.0f;
+	SO_LOG(LogTemp, Warning, TEXT("Begin"))
+	// ProjectileMesh->SetVisibility(true);
+	// ProjectileMovementComponent->Velocity = GetActorForwardVector() * 7000.0f;
 }
 

@@ -38,6 +38,7 @@ void ASOCharacterBase::MulticastRPCEquipItem_Implementation(ASOGunBase* Weapon)
 	OverlayState = Weapon->GetOverlayState();
 	CurrentWeapon = Weapon;
 	// CurrentWeapon->SetOwner(this);
+	CurrentWeapon->SetOwningCharacter(this);
 	CurrentWeapon->Equip();
 }
 

@@ -12,6 +12,7 @@
 #include "ProjectSO/Interface/SOEquippableInterface.h"
 #include "SOGunBase.generated.h"
 
+class ASOCharacterBase;
 class USkeletalMeshComponent;
 
 UCLASS()
@@ -45,6 +46,7 @@ public:
 	/* Member Function */
 public:
 	virtual void Equip();
+	virtual void SetOwningCharacter(ASOCharacterBase* InOwningCharacter);
 	
 	// Fire Logic
 protected:
