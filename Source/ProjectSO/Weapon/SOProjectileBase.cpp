@@ -121,7 +121,7 @@ void ASOProjectileBase::OnHit(UPrimitiveComponent* OverlappedComponent, AActor* 
 	}
 	if (CollisionComp)
 	{
-		SetActorEnableCollision(false); 
+		SetProjectileActive(false);
 	}
 	if (TrailSystemComponent && TrailSystemComponent->GetSystemInstanceController())
 	{
@@ -179,7 +179,7 @@ void ASOProjectileBase::SetProjectileActive(bool IsActive)
 	{
 		ProjectileMovementComponent->bSimulationEnabled = true;
 		ProjectileMovementComponent->SetUpdatedComponent(RootComponent);
-		// ProjectileMovementComponent->Velocity = GetActorForwardVector() * 7000.0f;
+		ProjectileMovementComponent->Velocity = GetActorForwardVector() * 7000.0f;
 	}
 }
 
@@ -205,7 +205,7 @@ void ASOProjectileBase::PushPoolSelf()
 	// SetProjectileActive(false);
 
 	ProjectileMovementComponent->StopMovementImmediately();
-	ProjectileMovementComponent->ProjectileGravityScale = 0;
+	// ProjectileMovementComponent->ProjectileGravityScale = 0;
 	
 	SO_LOG(LogTemp, Warning, TEXT("Pool Self : %d"), ProjectilePool->Pool.Num());
 }
@@ -219,10 +219,10 @@ void ASOProjectileBase::InitializeProjectile(FVector InLocation, FRotator InRota
 	}
 	SetActorLocation(InLocation);
 	SetActorRotation(InRotation);
-	// SetProjectileActive(true);
+	SetProjectileActive(true);
 
-	ProjectileMovementComponent->Velocity = GetActorForwardVector() * InitialSpeed;
-	ProjectileMovementComponent->ProjectileGravityScale = 1;
+	// ProjectileMovementComponent->Velocity = GetActorForwardVector() * InitialSpeed;
+	// ProjectileMovementComponent->ProjectileGravityScale = 1;
 
 	// 3초 후에 Pool에 돌아오게 하는 로직
 	// 이 함수에서 다시 중력과 속도를 초기화
@@ -234,12 +234,14 @@ void ASOProjectileBase::InitializeProjectile(FVector InLocation, FRotator InRota
 // 충돌했을 때 
 void ASOProjectileBase::OnRep_HideStartTime() 
 {
+	
 	ProjectileMesh->SetVisibility(false);
 }
 
 //총 발사할 때
 void ASOProjectileBase::OnRep_ShowStartTime()
 {
+	
 	ProjectileMesh->SetVisibility(true);
 }
 
