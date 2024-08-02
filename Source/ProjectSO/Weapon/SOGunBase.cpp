@@ -298,13 +298,22 @@ void ASOGunBase::CreateProjectile(const FTransform& MuzzleTransform, const FVect
 	// ASOProjectileBase* Projectile = nullptr;
 
 	// 서버에서 생성하면 자동 리플리케이션
-	 //Projectile = GetWorld()->SpawnActor<ASOProjectileBase>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+	// Projectile = GetWorld()->SpawnActor<ASOProjectileBase>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
 	// if(Projectile) Projectile->SetOwner(OwningCharacter);		
 	// UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(__FUNCTION__))
 
 	//검사 로직 추가
 	//서버에서 호출 
 	ASOProjectileBase* Projectile = ProjectilePoolComponent->PullProjectile();
+	// FTimerHandle TimerHandle_LifeSpanToPoolExpired;
+	// if (GetWorld())
+	// {
+	// 	GetWorldTimerManager().SetTimer(TimerHandle_LifeSpanToPoolExpired,[Projectile, SpawnLocation, SpawnRotation]()
+	// 	{
+	// 		Projectile->InitializeProjectile(SpawnLocation, SpawnRotation);
+	// 	},0.1,false
+	// 		);
+	// }
 	Projectile->InitializeProjectile(SpawnLocation, SpawnRotation);
 }
 

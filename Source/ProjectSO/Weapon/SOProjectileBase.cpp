@@ -38,8 +38,11 @@ ASOProjectileBase::ASOProjectileBase()
 	
 	//Todo 숫자
 	LifeSpanTime = 3.0f;
-	bOnHitProjectile = false;
-	bShowProjectile = false;
+	HideStartTime = 0.0f;
+	ShowStartTime = 0.0f;
+
+	// NeullCullDistance 
+	// NetCullDistanceSquared = FLT_MAX; 
 }
 
 // Called when the game starts or when spawned
@@ -63,9 +66,10 @@ void ASOProjectileBase::BeginPlay()
 	if (HasAuthority())
 	{
 		CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ASOProjectileBase::OnHit);
-		//StartDestroyTimer();
+		// StartDestroyTimer();
 	}
 	ProjectileMovementComponent->SetIsReplicated(true);
+	ProjectileMesh->SetIsReplicated(true);
 	AActor::SetReplicateMovement(true);
 }
 
@@ -78,13 +82,14 @@ void ASOProjectileBase::Tick(float DeltaTime)
 void ASOProjectileBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(ASOProjectileBase, bOnHitProjectile);
-	DOREPLIFETIME(ASOProjectileBase, bShowProjectile);
+	DOREPLIFETIME(ASOProjectileBase, HideStartTime);
+	DOREPLIFETIME(ASOProjectileBase, ShowStartTime);
 }
 
 void ASOProjectileBase::OnHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                               UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	SO_LOG(LogTemp, Warning, TEXT("OtherActor : %s"), *OtherActor->GetName());
 	//Destroyed();
 	APawn* FiringPawn = GetInstigator();
 	if (FiringPawn && HasAuthority())
@@ -92,7 +97,7 @@ void ASOProjectileBase::OnHit(UPrimitiveComponent* OverlappedComponent, AActor* 
 		AController* FiringController = FiringPawn->GetController();
 		if (FiringController)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("OtherActor : %s"), *OtherActor->GetName());
+			SO_LOG(LogTemp, Warning, TEXT("OtherActor : %s"), *OtherActor->GetName());
 			// const float DamageToCause = MuzzleLaserHit.BoneName.ToString() == FString("Head") ? HeadShotDamage : Damage;
 			const float DamageToCause = Damage;
 			AActor* HitActor = OtherActor;
@@ -112,11 +117,12 @@ void ASOProjectileBase::OnHit(UPrimitiveComponent* OverlappedComponent, AActor* 
 	}
 	if (ProjectileMesh)
 	{
-		bOnHitProjectile = !bOnHitProjectile;
+		// 클라이언트에게 숨기라고 지시 OnRep_HideStartTime
+		HideStartTime = GetWorld()->GetTimeSeconds();
 	}
 	if (CollisionComp)
 	{
-		CollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		SetActorEnableCollision(false); 
 	}
 	if (TrailSystemComponent && TrailSystemComponent->GetSystemInstanceController())
 	{
@@ -126,6 +132,7 @@ void ASOProjectileBase::OnHit(UPrimitiveComponent* OverlappedComponent, AActor* 
 	{
 		ProjectileLoopComponent->Stop();
 	}
+	// 충돌하면 Pool로 들어가게 설정
 }
 
 //삭제하지 않고 오브젝트 풀에 들어간다. (이 함수 사용 X)
@@ -161,10 +168,9 @@ void ASOProjectileBase::DestroyTimerFinished()
 
 void ASOProjectileBase::SetProjectileActive(bool IsActive)
 {
-	SetActorHiddenInGame(!IsActive);
-	SetActorEnableCollision(IsActive);
+	// 액터 전체 충돌 관리
+	SetActorEnableCollision(IsActive); 
 	SetActorTickEnabled(IsActive);
-	
 	if (!IsActive)
 	{
 		ProjectileMovementComponent->Velocity = FVector::ZeroVector;
@@ -196,31 +202,41 @@ void ASOProjectileBase::PushPoolSelf()
 	SO_LOG(LogTemp, Warning, TEXT("Pool Self : %d"), ProjectilePool->Pool.Num());
 }
 
-//Server에서 호출
+// Server에서 호출
 void ASOProjectileBase::InitializeProjectile(FVector InLocation, FRotator InRotation)
 {
-	SO_LOG(LogSONetwork,Log,TEXT("LogSONetwork"));
+	if(!ProjectileMesh->GetVisibleFlag())
+	{
+		SO_LOG(LogSONetwork,Log,TEXT("ProjectileMesh false"));
+	}
+	// SO_LOG(LogSONetwork,Log,TEXT("LogSONetwork"));
 	SetActorLocation(InLocation);
 	SetActorRotation(InRotation);
 	SetProjectileActive(true);
+
+	SO_LOG(LogSONetwork,Log,TEXT("%s") ,*InLocation.ToString() );
 	SetLifeSpanToPool();
+
+	// 클라이언트에게 보이게 하라고 지시 OnRep_ShowStartTime
+	ShowStartTime = GetWorld()->GetTimeSeconds();
+
 	
-	CollisionComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	CollisionComp->BodyInstance.SetCollisionProfileName("Projectile");
-	bShowProjectile = !bShowProjectile;
 }
 
-//충돌했을 때 
-void ASOProjectileBase::OnRep_OnHitProjectile() 
+// 충돌했을 때 
+void ASOProjectileBase::OnRep_HideStartTime() 
 {
+	
 	ProjectileMesh->SetVisibility(false);
 	ProjectileMovementComponent->Velocity = FVector::ZeroVector;
 }
 
 //총 발사할 때
-void ASOProjectileBase::OnRep_ShowProjectile()
+void ASOProjectileBase::OnRep_ShowStartTime()
 {
+
 	ProjectileMesh->SetVisibility(true);
 	ProjectileMovementComponent->Velocity = GetActorForwardVector() * 7000.0f;
 }
+
 
