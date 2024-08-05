@@ -72,7 +72,7 @@ void ASOPistol::Reload()
 	Super::Reload();
 }
 
-void ASOPistol::Aim()
+void ASOPistol::Aim(bool bPressed)
 {
-	Super::Aim();
+	Super::Aim(bPressed);
 }

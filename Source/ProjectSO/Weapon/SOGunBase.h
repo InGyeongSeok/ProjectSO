@@ -67,11 +67,15 @@ protected:
 	virtual void Recoil();
 
 	virtual void Reload();
-	virtual void Aim();
+public:
+	virtual void Aim(bool bPressed);
 
+public:
+	uint8 GetScopeAim() { return bScopeAim; }
+	
 	// Data Settings
 protected:
-	void SetGunData(const uint8 InID);
+	virtual void SetGunData(const uint8 InID);
 
 	// simulatePhysics
 protected:
@@ -93,6 +97,7 @@ public:
 	int32 CalculateAvailableFireModeCount();
 	
 	void InitCurrentFireMode();
+	
 	ESOFireMode GetCurrentFireMode() const { return CurrentFireMode; }
 	
 	UFUNCTION(BlueprintCallable)
@@ -106,9 +111,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated)
 	TObjectPtr<class ASOCharacterBase> OwningCharacter;
 
+
 	/** Projectile class to spawn */
-	UPROPERTY(EditAnywhere, Category = "Properties")
-	TSubclassOf<class ASOProjectileBase> ProjectileClass;
+	// UPROPERTY(EditAnywhere, Category = "Properties")
+	// TSubclassOf<class ASOProjectileBase> ProjectileClass;
 
 	/** Projectile class to spawn */
 	UPROPERTY(EditAnywhere, Category = "Properties")
@@ -130,7 +136,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Properties|Weapon")
 	FName AmmoEjectSocketName;
-	
+
 	// Ammo 구조체 생각해보기 
 protected:
 	// maximum bullet capacity
@@ -189,10 +195,15 @@ protected:
 	
 	// Struct Stat & Data
 protected:
-	UPROPERTY()
+
+	UPROPERTY(EditInstanceOnly)
+	int32 ID;
+	
+	
+	UPROPERTY(VisibleAnywhere)
 	FSOWeaponStat WeaponStat;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	FSOWeaponData WeaponData;
 	
 	// Ammo
@@ -210,4 +221,13 @@ protected:
 
 	UPROPERTY(ReplicatedUsing = OnRep_FireStartTime)
 	float FireStartTime;
+
+	
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera")
+	float HoldThreshold;
+	
+	float PressedTime;
+	float ReleasedTime;
+	uint8 bScopeAim : 1;
 };

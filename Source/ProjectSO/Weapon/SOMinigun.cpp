@@ -3,13 +3,29 @@
 
 #include "SOMinigun.h"
 
+#include "ProjectSO/ProjectSO.h"
+#include "ProjectSO/Library/SOWeaponMeshDataAsset.h"
+
 ASOMinigun::ASOMinigun()
 {
+	UE_LOG(LogTemp,Log,TEXT("ASOMinigun"));
+	CanoMesh = CreateDefaultSubobject<USkeletalMeshComponent>(FName("CanoMesh"));
+	CanoMesh->SetCollisionProfileName(TEXT("WeaponMesh"));
+	//WeaponMesh->SetCollisionEnabled();
+	CanoMesh->CastShadow = true;
+	CanoMesh->SetVisibility(true, false);
+	//CanoMesh->SetMobility(EComponentMobility::Movable);
+	//CanoMesh->SetSimulatePhysics(true);
+	CanoMesh->SetupAttachment(RootComponent);
 }
 
 void ASOMinigun::BeginPlay()
 {
+	UE_LOG(LogTemp,Log,TEXT("ASOMinigun : BeginPlay"));
+
 	Super::BeginPlay();
+	SetGunData(ID);
+	
 }
 
 void ASOMinigun::Tick(float DeltaTime)
@@ -57,6 +73,18 @@ void ASOMinigun::Recoil()
 	Super::Recoil();
 }
 
+void ASOMinigun::SetGunData(const uint8 InID)
+{
+	Super::SetGunData(InID);
+	SO_LOG(LogTemp,Log,TEXT("ASOMinigun : SetGunData"));
+
+	if(WeaponData.WeaponMeshDataAsset)
+	{
+		CanoMesh->SetSkeletalMesh(WeaponData.WeaponMeshDataAsset -> WeaponSkeletalMesh[1]);
+		CanoMesh->AttachToComponent(WeaponMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("Cano"));
+	}
+}
+
 void ASOMinigun::PressLMB()
 {
 	Super::PressLMB();
@@ -72,7 +100,7 @@ void ASOMinigun::Reload()
 	Super::Reload();
 }
 
-void ASOMinigun::Aim()
+void ASOMinigun::Aim(bool bPressed)
 {
-	Super::Aim();
+	Super::Aim(bPressed);
 }

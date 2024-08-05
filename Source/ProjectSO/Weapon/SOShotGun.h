@@ -49,7 +49,7 @@ protected:
 
 protected:
 	virtual void Reload() override;
-	virtual void Aim() override;
+	virtual void Aim(bool bPressed) override;
 	
 	// Multi
 protected:	

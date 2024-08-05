@@ -24,7 +24,15 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	
+
+
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	TObjectPtr<class USkeletalMeshComponent> CanoMesh;
+
+	// Data Settings
+protected:
+	virtual void SetGunData(const uint8 InID);
 	/** IDamageable **/
 public:
 	virtual void PressLMB() override;
@@ -46,5 +54,5 @@ protected:
 
 protected:
 	virtual void Reload() override;
-	virtual void Aim() override;
+	virtual void Aim(bool bPressed) override;
 };

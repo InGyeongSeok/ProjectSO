@@ -121,9 +121,9 @@ void ASOShotGun::Reload()
 	Super::Reload();
 }
 
-void ASOShotGun::Aim()
+void ASOShotGun::Aim(bool bPressed)
 {
-	Super::Aim();
+	Super::Aim(bPressed);
 }
 
 void ASOShotGun::ServerRPCOnFireShotGun_Implementation(const FTransform& MuzzleTransform, const TArray<FVector>& InTraceEndArray)

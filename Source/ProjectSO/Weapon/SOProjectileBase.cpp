@@ -36,7 +36,7 @@ ASOProjectileBase::ASOProjectileBase()
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
 	
-	//Todo 숫자
+
 	LifeSpanTime = 3.0f;
 	HideStartTime = 0.0f;
 	ShowStartTime = 0.0f;
@@ -142,7 +142,7 @@ void ASOProjectileBase::OnHit(UPrimitiveComponent* OverlappedComponent, AActor* 
 	// 충돌하면 Pool로 들어가게 설정
 }
 
-//삭제하지 않고 오브젝트 풀에 들어간다. (이 함수 사용 X)
+//
 void ASOProjectileBase::Destroyed()
 {
 	Super::Destroyed();
@@ -156,7 +156,6 @@ void ASOProjectileBase::Destroyed()
 	}
 }
 
-// 사용 X
 void ASOProjectileBase::StartDestroyTimer()
 {
 	FTimerHandle DestroyTimer;
@@ -167,12 +166,10 @@ void ASOProjectileBase::StartDestroyTimer()
 		DestroyTime
 	);
 }
-
 void ASOProjectileBase::DestroyTimerFinished()
 {
 	Destroy();
 }
-
 void ASOProjectileBase::SetProjectileActive(bool IsActive)
 {
 	// 액터 전체 충돌 관리

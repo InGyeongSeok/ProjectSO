@@ -3,3 +3,6 @@
 
 #include "SOReticleWidgetBase.h"
 
+USOReticleWidgetBase::USOReticleWidgetBase(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+{
+}
