@@ -7,7 +7,6 @@
 #include "SOWeaponStructLibrary.generated.h"
 
 
-class ASOProjectileBase;
 
 USTRUCT(BlueprintType)
 struct FSOWeaponStat : public FTableRowBase
@@ -123,7 +122,7 @@ public:
 			AmmoClass=InOhterStat.AmmoClass;
 			WeaponType = InOhterStat.WeaponType;
 			OverlayState = InOhterStat.OverlayState;
-			SkeletalMesh = InOhterStat.SkeletalMesh;
+			WeaponMeshDataAsset = InOhterStat.WeaponMeshDataAsset;
 			FireMontage =  InOhterStat.FireMontage;
 			EquipMontage = InOhterStat.EquipMontage;
 			ReloadMontage = InOhterStat.ReloadMontage;
@@ -143,7 +142,7 @@ public:
 	uint8 ID;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ammo)
-	TSubclassOf<ASOProjectileBase> AmmoClass; 
+	TSubclassOf<class ASOProjectileBase> AmmoClass; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponType)
 	ESOWeaponType WeaponType;
@@ -152,9 +151,12 @@ public:
 	EALSOverlayState OverlayState;
 
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh)
-	TObjectPtr<USkeletalMesh> SkeletalMesh;
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh)
+	// TObjectPtr<USkeletalMesh> SkeletalMesh;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh)
+	TObjectPtr<class USOWeaponMeshDataAsset> WeaponMeshDataAsset;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
 	TObjectPtr<UAnimMontage> FireMontage;
 

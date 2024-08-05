@@ -25,8 +25,6 @@ void ASORifle::PressLMB()
 void ASORifle::OnFire(ESOFireMode InFireMode)
 {
 	Super::OnFire(InFireMode);
-
-	
 }
 
 void ASORifle::FireAuto()

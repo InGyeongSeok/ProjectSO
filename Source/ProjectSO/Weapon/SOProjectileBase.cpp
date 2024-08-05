@@ -2,7 +2,6 @@
 
 
 #include "SOProjectileBase.h"
-
 #include "NiagaraComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -37,11 +36,10 @@ ASOProjectileBase::ASOProjectileBase()
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
 	
-	//Todo 숫자
+
 	LifeSpanTime = 3.0f;
 	bOnHitProjectile = false;
 	bShowProjectile = false;
-
 }
 
 // Called when the game starts or when spawned
@@ -131,7 +129,7 @@ void ASOProjectileBase::OnHit(UPrimitiveComponent* OverlappedComponent, AActor* 
 	}
 }
 
-//삭제하지 않고 오브젝트 풀에 들어간다. (이 함수 사용 X)
+//
 void ASOProjectileBase::Destroyed()
 {
 	Super::Destroyed();
@@ -145,7 +143,6 @@ void ASOProjectileBase::Destroyed()
 	}
 }
 
-// 사용 X
 void ASOProjectileBase::StartDestroyTimer()
 {
 	FTimerHandle DestroyTimer;
@@ -156,12 +153,10 @@ void ASOProjectileBase::StartDestroyTimer()
 		DestroyTime
 	);
 }
-
 void ASOProjectileBase::DestroyTimerFinished()
 {
 	Destroy();
 }
-
 void ASOProjectileBase::SetProjectileActive(bool IsActive)
 {
 	SetActorHiddenInGame(!IsActive);
@@ -199,7 +194,7 @@ void ASOProjectileBase::PushPoolSelf()
 	UE_LOG(LogTemp, Warning, TEXT("Pool Self : %d"), ProjectilePool->Pool.Num());
 }
 
-//Server에서 호출
+
 void ASOProjectileBase::InitializeProjectile(FVector InLocation, FRotator InRotation)
 {
 	SO_LOG(LogSONetwork,Log,TEXT("LogSONetwork"));

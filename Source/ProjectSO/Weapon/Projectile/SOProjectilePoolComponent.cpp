@@ -9,7 +9,7 @@
 USOProjectilePoolComponent::USOProjectilePoolComponent()
 {
 	//Todo 숫자
-	InitialPoolSize = 40;
+	InitialPoolSize = 10;
 	ExpandSize = 1;
 
 }

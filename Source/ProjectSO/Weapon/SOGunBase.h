@@ -6,7 +6,6 @@
 #include "SOGunFireEffect.h"
 #include "GameFramework/Actor.h"
 #include "Library/ALSCharacterEnumLibrary.h"
-
 #include "ProjectSO/Library/SOWeaponEnumLibrary.h"
 #include "ProjectSO/Library/SOWeaponStructLibrary.h"
 #include "ProjectSO/Interface/SODamageableInterface.h"
@@ -70,7 +69,7 @@ protected:
 
 	// Data Settings
 protected:
-	void SetGunData(const uint8 InID);
+	virtual void SetGunData(const uint8 InID);
 
 	// simulatePhysics
 protected:
@@ -90,21 +89,22 @@ public:
 	int32 CalculateAvailableFireModeCount();
 	
 	void InitCurrentFireMode();
+	
 	ESOFireMode GetCurrentFireMode() const { return CurrentFireMode; }
 	
 	UFUNCTION(BlueprintCallable)
 	void SetCurrentFireMode(ESOFireMode NewCurrentFireMode) { CurrentFireMode = NewCurrentFireMode; }
 	
 	ESOFireMode GetNextValidFireMode();
-	
 	// Owner
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated)
 	TObjectPtr<class ASOCharacterBase> OwningCharacter;
 
+
 	/** Projectile class to spawn */
-	UPROPERTY(EditAnywhere, Category = "Properties")
-	TSubclassOf<class ASOProjectileBase> ProjectileClass;
+	// UPROPERTY(EditAnywhere, Category = "Properties")
+	// TSubclassOf<class ASOProjectileBase> ProjectileClass;
 
 	/** Projectile class to spawn */
 	UPROPERTY(EditAnywhere, Category = "Properties")
@@ -185,10 +185,15 @@ protected:
 	
 	// Struct Stat & Data
 protected:
-	UPROPERTY()
+
+	UPROPERTY(EditInstanceOnly)
+	int32 ID;
+	
+	
+	UPROPERTY(VisibleAnywhere)
 	FSOWeaponStat WeaponStat;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	FSOWeaponData WeaponData;
 	
 	// Ammo
