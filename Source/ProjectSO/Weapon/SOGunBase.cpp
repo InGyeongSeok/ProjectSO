@@ -58,14 +58,13 @@ void ASOGunBase::BeginPlay()
 	Super::BeginPlay();
 
 	//Gun Data Setting
-	SetGunData(2);
+	SetGunData(7);
 
 	//Object Pool
 	if(HasAuthority())
 	{
 		ProjectilePoolComponent->Initialize();
 	}
-
 	
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ASOGunBase::OnSphereBeginOverlap);
 	
@@ -74,7 +73,7 @@ void ASOGunBase::BeginPlay()
 	GetWorldTimerManager().SetTimer(TimerHandle, this, &ASOGunBase::DisablePhysics, 2.0f, false);
 
 	AvailableFireModeCount = CalculateAvailableFireModeCount();
-	//SO_LOG(LogSOTemp,Warning, TEXT("AvailableFireMode : %d"), AvailableFireMode)	
+	// SO_LOG(LogSOTemp,Warning, TEXT("AvailableFireMode : %d"), AvailableFireMode)
 	InitCurrentFireMode();
 }
 
@@ -566,6 +565,7 @@ void ASOGunBase::OnRep_PlayFireEffect()
 
 void ASOGunBase::OnRep_FireStartTime()
 {
+	SO_LOG(LogSOTemp, Log, TEXT("ShotGun"))
 	// 클라 && 서버 X => 클라 본인 제외
 	if(OwningCharacter->IsLocallyControlled() && !OwningCharacter->HasAuthority()) return;
 	FTransform MuzzleSocketTransform = GetSocketTransformByName(WeaponData.MuzzleSocketName, WeaponMesh);

@@ -39,6 +39,8 @@ protected:
 	virtual void FireProjectile() override;
 	virtual void CreateProjectile(const FTransform& MuzzleTransform, const FVector& HitLocation) override;
 
+	FVector SpreadTraceEnd();
+
 	// Effect
 protected:
 	virtual void PlayMuzzleEffect(const FVector& MuzzleLocation, FRotator& MuzzleRotation) override;
@@ -48,5 +50,11 @@ protected:
 protected:
 	virtual void Reload() override;
 	virtual void Aim() override;
-	
+
+	UPROPERTY(EditDefaultsOnly)
+	int32 Spread;
+
+	UPROPERTY(EditDefaultsOnly)
+	int32 ShrapnelCount;
+
 };
