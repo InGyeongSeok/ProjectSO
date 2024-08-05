@@ -42,37 +42,38 @@ void ASOShotGun::FireSingle()
 void ASOShotGun::FireProjectile()
 {
 	SO_LOG(LogSOTemp, Log, TEXT("ShotGun"))
+	
+	// 변수로 빼기
+	AController* OwnerController = OwningCharacter->GetController();
+	if (OwnerController == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("OwnerController"));
+		return;
+	}
 
+	// 화면 중앙 LineTrace
+	FVector TraceStartLocation;
+	FRotator TraceStartRotation;
+	OwnerController->GetPlayerViewPoint(TraceStartLocation, TraceStartRotation);
+	FTransform MuzzleSocketTransform = GetSocketTransformByName(WeaponData.MuzzleSocketName, WeaponMesh);
+
+	TArray<FVector> TraceEndArray;
+	TraceEndArray.Empty();
 	for(int i =0; i< ShrapnelCount; ++i)
 	{
-		// 변수로 빼기
-		AController* OwnerController = OwningCharacter->GetController();
-		if (OwnerController == nullptr)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("OwnerController"));
-			return;
-		}
-
-		// 화면 중앙 LineTrace
-		FVector TraceStartLocation;
-		FRotator TraceStartRotation;
-		OwnerController->GetPlayerViewPoint(TraceStartLocation, TraceStartRotation);
-
 		FVector TraceEnd = TraceStartLocation + TraceStartRotation.Vector() *  WeaponStat.MaxRange * 100 +  SpreadTraceEnd();
-		FTransform MuzzleSocketTransform = GetSocketTransformByName(WeaponData.MuzzleSocketName, WeaponMesh);
-		FTransform AmmoEjectSocketTransform = GetSocketTransformByName(AmmoEjectSocketName, WeaponMesh);
-
+		TraceEndArray.Add(TraceEnd);
 		DrawDebugLine(GetWorld(), MuzzleSocketTransform.GetLocation(), TraceEnd, FColor::Red,false, 5, 0, 2);
-
-		FRotator MuzzleRotation = MuzzleSocketTransform.GetRotation().Rotator();
-		FRotator EjectRotation = AmmoEjectSocketTransform.GetRotation().Rotator();
-
-		// 효과 재생
-		PlayMuzzleEffect(MuzzleSocketTransform.GetLocation(), MuzzleRotation);
-		PlayEjectAmmoEffect(AmmoEjectSocketTransform.GetLocation(), EjectRotation);
-		PlaySound();
-		ServerRPCOnFire(MuzzleSocketTransform, TraceEnd);
 	}
+	FTransform AmmoEjectSocketTransform = GetSocketTransformByName(AmmoEjectSocketName, WeaponMesh);
+	FRotator MuzzleRotation = MuzzleSocketTransform.GetRotation().Rotator();
+	FRotator EjectRotation = AmmoEjectSocketTransform.GetRotation().Rotator();
+
+	// 효과 재생
+	PlayMuzzleEffect(MuzzleSocketTransform.GetLocation(), MuzzleRotation);
+	PlayEjectAmmoEffect(AmmoEjectSocketTransform.GetLocation(), EjectRotation);
+	PlaySound();
+	ServerRPCOnFireShotGun(MuzzleSocketTransform, TraceEndArray);
 }
 
 void ASOShotGun::CreateProjectile(const FTransform& MuzzleTransform, const FVector& HitLocation)
@@ -123,4 +124,18 @@ void ASOShotGun::Reload()
 void ASOShotGun::Aim()
 {
 	Super::Aim();
+}
+
+void ASOShotGun::ServerRPCOnFireShotGun_Implementation(const FTransform& MuzzleTransform, const TArray<FVector>& InTraceEndArray)
+{
+	SO_LOG(LogSOTemp, Warning, TEXT("Begin"))
+	
+	for(int i =0; i < InTraceEndArray.Num(); ++i)
+	{
+		CreateProjectile(MuzzleTransform, InTraceEndArray[i]);
+	}
+	
+	FireStartTime = GetWorld()->GetTimeSeconds();
+	
+	SO_LOG(LogSOTemp, Warning, TEXT("End"))
 }

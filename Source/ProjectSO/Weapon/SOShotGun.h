@@ -50,7 +50,13 @@ protected:
 protected:
 	virtual void Reload() override;
 	virtual void Aim() override;
+	
+	// Multi
+protected:	
+	UFUNCTION(Server, Unreliable)
+	void ServerRPCOnFireShotGun(const FTransform& MuzzleTransform, const TArray<FVector>& InTraceEndArray);
 
+protected:
 	UPROPERTY(EditDefaultsOnly)
 	int32 Spread;
 
