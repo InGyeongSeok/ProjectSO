@@ -68,7 +68,7 @@ void ASOGunBase::BeginPlay()
 	{
 		ProjectilePoolComponent->Initialize();
 	}
-
+	
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ASOGunBase::OnSphereBeginOverlap);
 
 	//여기서 타이머
@@ -76,7 +76,7 @@ void ASOGunBase::BeginPlay()
 	GetWorldTimerManager().SetTimer(TimerHandle, this, &ASOGunBase::DisablePhysics, 2.0f, false);
 
 	AvailableFireModeCount = CalculateAvailableFireModeCount();
-	//SO_LOG(LogSOTemp,Warning, TEXT("AvailableFireMode : %d"), AvailableFireMode)	
+	// SO_LOG(LogSOTemp,Warning, TEXT("AvailableFireMode : %d"), AvailableFireMode)
 	InitCurrentFireMode();
 }
 
@@ -573,6 +573,7 @@ void ASOGunBase::OnRep_PlayFireEffect()
 
 void ASOGunBase::OnRep_FireStartTime()
 {
+	SO_LOG(LogSOTemp, Log, TEXT("ShotGun"))
 	// 클라 && 서버 X => 클라 본인 제외
 	if(OwningCharacter->IsLocallyControlled() && !OwningCharacter->HasAuthority()) return;
 	FTransform MuzzleSocketTransform = GetSocketTransformByName(WeaponData.MuzzleSocketName, WeaponMesh);

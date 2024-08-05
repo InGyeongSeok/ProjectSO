@@ -89,6 +89,14 @@ void ASOProjectileBase::OnHit(UPrimitiveComponent* OverlappedComponent, AActor* 
 {
 	SO_LOG(LogTemp, Warning, TEXT("OtherActor : %s"), *OtherActor->GetName());
 	//Destroyed();
+	
+	// 충돌한 액터가 프로젝타일 경우
+	// ASOProjectileBase* OtherProjectile = Cast<ASOProjectileBase>(OtherActor);
+	// if (OtherProjectile)
+	// {
+	// 	return;
+	// }
+	//
 	APawn* FiringPawn = GetInstigator();
 	if (FiringPawn && HasAuthority())
 	{
