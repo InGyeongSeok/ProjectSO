@@ -14,7 +14,7 @@ ASOMinigun::ASOMinigun()
 	//WeaponMesh->SetCollisionEnabled();
 	CanoMesh->CastShadow = true;
 	CanoMesh->SetVisibility(true, false);
-	//CanoMesh->SetMobility(EComponentMobility::Movable);
+	CanoMesh->SetMobility(EComponentMobility::Movable);
 	//CanoMesh->SetSimulatePhysics(true);
 	CanoMesh->SetupAttachment(RootComponent);
 }

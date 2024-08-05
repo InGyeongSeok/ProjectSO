@@ -467,7 +467,7 @@ void ASOGunBase::SetGunData(const uint8 InID)
 	{
 		WeaponData = *SelectedWeaponData;
 		//0 인덱스 쓴거 수정 필요
-		//WeaponMesh->SetSkeletalMesh(WeaponData.WeaponMeshDataAsset->WeaponSkeletalMesh[0]);
+		WeaponMesh->SetSkeletalMesh(WeaponData.WeaponMeshDataAsset->WeaponSkeletalMesh[0]);
 		//AttachPoint = WeaponData.SocketName;
 	}
 	if (WeaponData.AmmoClass)
