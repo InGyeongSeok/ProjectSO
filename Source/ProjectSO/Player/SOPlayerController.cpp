@@ -183,7 +183,7 @@ void ASOPlayerController::AimAction(const FInputActionValue& Value)
 {
 	if (PossessedCharacter)
 	{
-		PossessedCharacter->AimAction(Value.Get<bool>());
+		PossessedCharacter->AimAction_(Value.Get<bool>());
 	}
 }
 

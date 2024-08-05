@@ -29,6 +29,10 @@ public:
 	/** IDamageable **/
 public:
 	virtual void PressLMB() override;
+
+	/* Member Function */
+public:
+	virtual void Equip() override;
 	
 	// Fire Logic
 protected:
@@ -47,5 +51,18 @@ protected:
 
 protected:
 	virtual void Reload() override;
-	virtual void Aim() override;
+	virtual void Aim(bool bPressed) override;
+
+
+public:
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UStaticMeshComponent> Lens;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
+	TObjectPtr<class UCameraComponent> ScopeCamera;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
+	TObjectPtr<USceneCaptureComponent2D> CaptureCamera;
+
+	
 };

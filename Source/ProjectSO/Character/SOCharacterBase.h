@@ -31,9 +31,12 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "SO|Input")
 	void AttackAction(bool bValue);
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ALS|Input")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "SO|Input")
 	void ChangeFireModeAction(bool bValue);
 
+	UFUNCTION(BlueprintCallable, Category = "SO|Input")
+	void AimAction_(bool bValue);
+	
 public:
 	
 	UFUNCTION(NetMulticast, Unreliable)

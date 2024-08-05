@@ -58,7 +58,7 @@ void ASOGunBase::BeginPlay()
 	Super::BeginPlay();
 
 	//Gun Data Setting
-	SetGunData(2);
+	SetGunData(WeaponID);
 
 	//Object Pool
 	if(HasAuthority())
@@ -367,7 +367,7 @@ void ASOGunBase::Reload()
 	
 }
 
-void ASOGunBase::Aim()
+void ASOGunBase::Aim(bool bPressed)
 {
 }
 

@@ -74,7 +74,7 @@ void ASORifle::Reload()
 	Super::Reload();
 }
 
-void ASORifle::Aim()
+void ASORifle::Aim(bool bPressed)
 {
-	Super::Aim();
+	Super::Aim(bPressed);
 }

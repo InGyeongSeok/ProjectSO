@@ -67,8 +67,12 @@ protected:
 	virtual void Recoil();
 
 	virtual void Reload();
-	virtual void Aim();
+public:
+	virtual void Aim(bool bPressed);
 
+public:
+	uint8 GetScopeAim() { return bScopeAim; }
+	
 	// Data Settings
 protected:
 	void SetGunData(const uint8 InID);
@@ -130,6 +134,10 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Properties|Weapon")
 	FName AmmoEjectSocketName;
+
+	UPROPERTY(EditAnywhere, Category = "Properties|Fire")
+	uint8 WeaponID;
+	
 	
 	// Ammo 구조체 생각해보기 
 protected:
@@ -210,4 +218,13 @@ protected:
 
 	UPROPERTY(ReplicatedUsing = OnRep_FireStartTime)
 	float FireStartTime;
+
+	
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera")
+	float HoldThreshold;
+	
+	float PressedTime;
+	float ReleasedTime;
+	uint8 bScopeAim : 1;
 };
