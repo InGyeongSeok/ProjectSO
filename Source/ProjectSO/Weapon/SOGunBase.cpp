@@ -61,7 +61,6 @@ void ASOGunBase::BeginPlay()
 
 	//Gun Data Setting
 	//삭제 필요 ID 
-	ID = 9;
 	SetGunData(ID);
 
 	//Object Pool
@@ -230,7 +229,7 @@ void ASOGunBase::FireProjectile()
 	FTransform MuzzleSocketTransform = GetSocketTransformByName(WeaponData.MuzzleSocketName, WeaponMesh);
 	FTransform AmmoEjectSocketTransform = GetSocketTransformByName(AmmoEjectSocketName, WeaponMesh);
 	
-	/*// 소켓 위치
+	
 	const USkeletalMeshSocket* AmmoEjectSocket = WeaponMesh->GetSocketByName(AmmoEjectSocketName);
 	const USkeletalMeshSocket* MuzzleSocket = WeaponMesh->GetSocketByName(WeaponData.MuzzleSocketName);
 

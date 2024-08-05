@@ -137,10 +137,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Properties|Weapon")
 	FName AmmoEjectSocketName;
 
-	UPROPERTY(EditAnywhere, Category = "Properties|Fire")
-	uint8 WeaponID;
-	
-	
 	// Ammo 구조체 생각해보기 
 protected:
 	// maximum bullet capacity
