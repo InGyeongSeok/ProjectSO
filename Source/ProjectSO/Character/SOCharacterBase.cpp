@@ -33,11 +33,55 @@ void ASOCharacterBase::EquipItem(ISOEquippableInterface* InEquipment)
 	}
 }
 
+void ASOCharacterBase::AimAction_(bool bValue)
+{
+	if (bValue)
+	{
+		// AimAction: Hold "AimAction" to enter the aiming mode, release to revert back the desired rotation mode.
+		SetRotationMode(EALSRotationMode::Aiming);
+		if(CurrentWeapon)
+		{
+			CurrentWeapon->Aim(bValue); 
+		}
+	}
+	else
+	{
+		if(CurrentWeapon)
+		{
+			CurrentWeapon->Aim(bValue);
+			// 총이 확대 조준중이라면 
+			if(CurrentWeapon->GetScopeAim())
+			{
+				SetViewMode(EALSViewMode::FirstPerson);
+				SetRotationMode(EALSRotationMode::Aiming);
+			}
+			else
+			{
+				SetViewMode(EALSViewMode::ThirdPerson);
+				SetRotationMode(DesiredRotationMode);
+			}
+				
+		}
+		else
+		{
+			if (ViewMode == EALSViewMode::ThirdPerson)
+			{
+				SetRotationMode(DesiredRotationMode);
+			}
+			else if (ViewMode == EALSViewMode::FirstPerson)
+			{
+				SetRotationMode(EALSRotationMode::LookingDirection);
+			}
+		}		
+	}
+}
+
 void ASOCharacterBase::MulticastRPCEquipItem_Implementation(ASOGunBase* Weapon)
 {
 	OverlayState = Weapon->GetOverlayState();
 	CurrentWeapon = Weapon;
 	// CurrentWeapon->SetOwner(this);
+	CurrentWeapon->SetOwningCharacter(this);
 	CurrentWeapon->Equip();
 }
 

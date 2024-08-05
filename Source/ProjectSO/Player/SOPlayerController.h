@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "SOPlayerController.generated.h"
 
+class ASOHUD;
 class ASOCharacterBase;
 class AALSBaseCharacter;
 class UInputMappingContext;
@@ -125,4 +126,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "ProjectSO|Input")
 	TObjectPtr<UInputMappingContext> DebugInputMappingContext = nullptr;
+
+	UPROPERTY()
+	TObjectPtr<ASOHUD> HUD; 
 };

@@ -12,6 +12,7 @@
 #include "ProjectSO/Interface/SOEquippableInterface.h"
 #include "SOGunBase.generated.h"
 
+class ASOCharacterBase;
 class USkeletalMeshComponent;
 
 UCLASS()
@@ -45,6 +46,7 @@ public:
 	/* Member Function */
 public:
 	virtual void Equip();
+	virtual void SetOwningCharacter(ASOCharacterBase* InOwningCharacter);
 	
 	// Fire Logic
 protected:
@@ -65,8 +67,12 @@ protected:
 	virtual void Recoil();
 
 	virtual void Reload();
-	virtual void Aim();
+public:
+	virtual void Aim(bool bPressed);
 
+public:
+	uint8 GetScopeAim() { return bScopeAim; }
+	
 	// Data Settings
 protected:
 	virtual void SetGunData(const uint8 InID);
@@ -78,11 +84,13 @@ protected:
 	// Multi
 protected:	
 	UFUNCTION(Server, Unreliable)
-	void ServerRPCOnFire(const FTransform& MuzzleTransform, const FTransform& EjectTransform, const FVector& HitLocation);
+	void ServerRPCOnFire(const FTransform& MuzzleTransform, const FVector& HitLocation);
 
 	UFUNCTION()
 	void OnRep_PlayFireEffect();
-	
+
+	UFUNCTION()
+	void OnRep_FireStartTime();
 public:
 	uint8 GetAvailableFireMode() const {return WeaponStat.FireMode;}
 	int32 GetAvailableFireModeCount() const {return AvailableFireModeCount;}
@@ -96,6 +104,8 @@ public:
 	void SetCurrentFireMode(ESOFireMode NewCurrentFireMode) { CurrentFireMode = NewCurrentFireMode; }
 	
 	ESOFireMode GetNextValidFireMode();
+
+	FTransform GetSocketTransformByName( FName InSocketName, const class USkeletalMeshComponent* SkelComp);
 	// Owner
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated)
@@ -126,6 +136,10 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Properties|Weapon")
 	FName AmmoEjectSocketName;
+
+	UPROPERTY(EditAnywhere, Category = "Properties|Fire")
+	uint8 WeaponID;
+	
 	
 	// Ammo 구조체 생각해보기 
 protected:
@@ -206,6 +220,18 @@ protected:
 protected:
 	int32 AvailableFireModeCount;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_PlayFireEffect)
-	uint8 bPlayFireEffect : 1;
+	/*UPROPERTY(EditAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_PlayFireEffect)
+	uint8 bPlayFireEffect : 1;*/
+
+	UPROPERTY(ReplicatedUsing = OnRep_FireStartTime)
+	float FireStartTime;
+
+	
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera")
+	float HoldThreshold;
+	
+	float PressedTime;
+	float ReleasedTime;
+	uint8 bScopeAim : 1;
 };

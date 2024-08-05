@@ -13,6 +13,7 @@
 #include "Character/ALSCharacter.h"
 #include "Character/ALSPlayerCameraManager.h"
 #include "Components/ALSDebugComponent.h"
+#include "ProjectSO/UI/SOHUD.h"
 
 void ASOPlayerController::OnPossess(APawn* NewPawn)
 {
@@ -33,6 +34,13 @@ void ASOPlayerController::OnPossess(APawn* NewPawn)
 	{
 		DebugComp->OnPlayerControllerInitialized(this);
 	}
+
+	HUD = HUD == nullptr ? Cast<ASOHUD>(GetHUD()) : HUD.Get();
+	if(HUD)
+	{
+		HUD->AddHUDLayout(this);
+	}
+	
 }
 
 void ASOPlayerController::OnRep_Pawn()
@@ -175,7 +183,7 @@ void ASOPlayerController::AimAction(const FInputActionValue& Value)
 {
 	if (PossessedCharacter)
 	{
-		PossessedCharacter->AimAction(Value.Get<bool>());
+		PossessedCharacter->AimAction_(Value.Get<bool>());
 	}
 }
 

@@ -50,7 +50,7 @@ ASOGunBase::ASOGunBase()
 	CurrentFireMode = ESOFireMode::None;
 	CurrentAmmoInClip = 30;
 	MaxRepeatCount = 3;
-	bPlayFireEffect = false;
+	// bPlayFireEffect = false;
 }
 
 // Called when the game starts or when spawned
@@ -100,7 +100,7 @@ void ASOGunBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 	DOREPLIFETIME(ASOGunBase, CurrentAmmo);
 	DOREPLIFETIME(ASOGunBase, CurrentAmmoInClip);
 	//DOREPLIFETIME(ASOGunBase, FireEffect);
-	DOREPLIFETIME(ASOGunBase, bPlayFireEffect);
+	DOREPLIFETIME(ASOGunBase, FireStartTime);
 }
 
 void ASOGunBase::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -111,12 +111,11 @@ void ASOGunBase::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, 
 
 	if (HasAuthority())
 	{
-		ASOCharacterBase* CharacterBase = Cast<ASOCharacterBase>(OtherActor);
-		OwningCharacter = CharacterBase;
-		if (OwningCharacter) // && !bIsEquipped)
+		ASOCharacterBase* CharacterBase = Cast<ASOCharacterBase>(OtherActor);		
+		if (CharacterBase) // && !bIsEquipped)
 		{
 			bIsEquipped = true;
-			OwningCharacter->EquipItem(this);
+			CharacterBase->EquipItem(this);
 		}
 	}
 }
@@ -228,10 +227,10 @@ void ASOGunBase::FireProjectile()
 	// FVector HitLocation = bScreenLaserSuccess ? ScreenLaserHit.Location : TraceEnd;
 	// UE_LOG(LogTemp, Log, TEXT("ScreenLaserHit : %s "), *HitLocation.ToString());
 
-	FTransform MuzzleSocketTransform;
-	FTransform AmmoEjectSocketTransform;
-
-	// 소켓 위치
+	FTransform MuzzleSocketTransform = GetSocketTransformByName(WeaponData.MuzzleSocketName, WeaponMesh);
+	FTransform AmmoEjectSocketTransform = GetSocketTransformByName(AmmoEjectSocketName, WeaponMesh);
+	
+	/*// 소켓 위치
 	const USkeletalMeshSocket* AmmoEjectSocket = WeaponMesh->GetSocketByName(AmmoEjectSocketName);
 	const USkeletalMeshSocket* MuzzleSocket = WeaponMesh->GetSocketByName(WeaponData.MuzzleSocketName);
 
@@ -256,9 +255,9 @@ void ASOGunBase::FireProjectile()
 	// CreateFireEffectActor(MuzzleSocketTransform, AmmoEjectSocketTransform);
 
 	PlaySound();
-	bPlayFireEffect = true;
+	// bPlayFireEffect = true;
 	// 총알 생성
-	ServerRPCOnFire(MuzzleSocketTransform, AmmoEjectSocketTransform, TraceEnd);
+	ServerRPCOnFire(MuzzleSocketTransform, TraceEnd);
 }
 
 void ASOGunBase::CreateProjectile(const FTransform& MuzzleTransform, const FVector& HitLocation)
@@ -308,7 +307,17 @@ void ASOGunBase::CreateProjectile(const FTransform& MuzzleTransform, const FVect
 	//검사 로직 추가
 	//서버에서 호출 
 	ASOProjectileBase* Projectile = ProjectilePoolComponent->PullProjectile();
+	// FTimerHandle TimerHandle_LifeSpanToPoolExpired;
+	// if (GetWorld())
+	// {
+	// 	GetWorldTimerManager().SetTimer(TimerHandle_LifeSpanToPoolExpired,[Projectile, SpawnLocation, SpawnRotation]()
+	// 	{
+	// 		Projectile->InitializeProjectile(SpawnLocation, SpawnRotation);
+	// 	},0.1,false
+	// 		);
+	// }
 	Projectile->InitializeProjectile(SpawnLocation, SpawnRotation);
+	
 }
 
 void ASOGunBase::StopFire()
@@ -359,7 +368,7 @@ void ASOGunBase::Reload()
 {
 }
 
-void ASOGunBase::Aim()
+void ASOGunBase::Aim(bool bPressed)
 {
 }
 
@@ -369,6 +378,10 @@ void ASOGunBase::Equip()
 
 	if (!bIsEquipped) return;
 
+	
+	// if (!bIsEquipped) return;
+	if(!IsValid(OwningCharacter)) return;
+	
 	// 이거 해줘야 ServerRPC 가능
 	SetOwner(OwningCharacter);
 
@@ -384,6 +397,35 @@ void ASOGunBase::Equip()
 	CollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
+	SO_LOG(LogSOTemp, Warning, TEXT("End"))
+}
+
+void ASOGunBase::SetOwningCharacter(ASOCharacterBase* InOwningCharacter)
+{
+	SO_LOG(LogSOTemp, Warning, TEXT("Begin"))
+	AActor* OwnerActor = GetOwner();
+	if(OwnerActor)
+	{
+		SO_LOG(LogSONetwork, Log, TEXT("Owner : %s"), *OwnerActor->GetName())
+	}
+	else
+	{
+		SO_LOG(LogSONetwork, Log, TEXT("%s"), TEXT("No Owner"))
+	}
+	
+	OwningCharacter = InOwningCharacter;
+	OwnerActor = OwningCharacter;
+	SetOwner(OwningCharacter);
+	if (OwningCharacter == nullptr)	return;
+
+	if(OwnerActor)
+	{
+		SO_LOG(LogSONetwork, Log, TEXT("Owner : %s"), *OwnerActor->GetName())
+	}
+	else
+	{
+		SO_LOG(LogSONetwork, Log, TEXT("%s"), TEXT("No Owner"))
+	}
 	SO_LOG(LogSOTemp, Warning, TEXT("End"))
 }
 
@@ -441,14 +483,15 @@ void ASOGunBase::DisablePhysics()
 	WeaponMesh->SetSimulatePhysics(false);
 }
 
-void ASOGunBase::ServerRPCOnFire_Implementation(const FTransform& MuzzleTransform, const FTransform& EjectTransform,
-                                                const FVector& HitLocation)
+void ASOGunBase::ServerRPCOnFire_Implementation(const FTransform& MuzzleTransform, const FVector& HitLocation)
 {
 	SO_LOG(LogSOTemp, Warning, TEXT("Begin"))
 	CreateProjectile(MuzzleTransform, HitLocation);
+	// 현재 시간. 쏜
+	FireStartTime = GetWorld()->GetTimeSeconds();
 
-	bPlayFireEffect = !bPlayFireEffect; // 여기서 OnRep
-
+	// bPlayFireEffect = !bPlayFireEffect;		// 여기서 OnRep
+	
 	SO_LOG(LogSOTemp, Warning, TEXT("End"))
 }
 
@@ -504,27 +547,40 @@ ESOFireMode ASOGunBase::GetNextValidFireMode()
 	return static_cast<ESOFireMode>(NextMode);
 }
 
+FTransform ASOGunBase::GetSocketTransformByName(FName InSocketName, const USkeletalMeshComponent* SkelComp)
+{
+	const USkeletalMeshSocket* Socket = SkelComp->GetSocketByName(InSocketName);
+	FTransform SocketTransform;
+		
+	if(IsValid(Socket))
+	{
+		SocketTransform = Socket->GetSocketTransform(SkelComp);
+	}
+
+	return SocketTransform;
+}
+
 void ASOGunBase::OnRep_PlayFireEffect()
 {
-	const USkeletalMeshSocket* AmmoEjectSocket = WeaponMesh->GetSocketByName(AmmoEjectSocketName);
-	const USkeletalMeshSocket* MuzzleSocket = WeaponMesh->GetSocketByName(WeaponData.MuzzleSocketName);
-
-
-	FTransform MuzzleSocketTransform;
-	FTransform AmmoEjectSocketTransform;
-
-	if (IsValid(AmmoEjectSocket))
-	{
-		AmmoEjectSocketTransform = AmmoEjectSocket->GetSocketTransform(WeaponMesh);
-	}
-
-	if (IsValid(MuzzleSocket))
-	{
-		MuzzleSocketTransform = MuzzleSocket->GetSocketTransform(WeaponMesh);
-	}
-
+	/*FTransform MuzzleSocketTransform = GetSocketTransformByName(WeaponData.MuzzleSocketName, WeaponMesh);
+	FTransform AmmoEjectSocketTransform = GetSocketTransformByName(AmmoEjectSocketName, WeaponMesh);
+	
 	FRotator MuzzleRotation = MuzzleSocketTransform.GetRotation().Rotator();
 	FRotator EjectRotation = AmmoEjectSocketTransform.GetRotation().Rotator();
 	PlayMuzzleEffect(MuzzleSocketTransform.GetLocation(), MuzzleRotation);
-	PlayEjectAmmoEffect(AmmoEjectSocketTransform.GetLocation(), EjectRotation);
+	PlayEjectAmmoEffect(AmmoEjectSocketTransform.GetLocation(), EjectRotation);*/		
+	
+}
+
+void ASOGunBase::OnRep_FireStartTime()
+{
+	// 클라 && 서버 X => 클라 본인 제외
+	if(OwningCharacter->IsLocallyControlled() && !OwningCharacter->HasAuthority()) return;
+	FTransform MuzzleSocketTransform = GetSocketTransformByName(WeaponData.MuzzleSocketName, WeaponMesh);
+	FTransform AmmoEjectSocketTransform = GetSocketTransformByName(AmmoEjectSocketName, WeaponMesh);
+	
+	FRotator MuzzleRotation = MuzzleSocketTransform.GetRotation().Rotator();
+	FRotator EjectRotation = AmmoEjectSocketTransform.GetRotation().Rotator();
+	PlayMuzzleEffect(MuzzleSocketTransform.GetLocation(), MuzzleRotation);
+	PlayEjectAmmoEffect(AmmoEjectSocketTransform.GetLocation(), EjectRotation);		
 }

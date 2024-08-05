@@ -10,7 +10,8 @@
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
 				"ALSV4_CPP",
-				"Engine"
+				"Engine",
+				"UMG"
 			]
 		}
 	],

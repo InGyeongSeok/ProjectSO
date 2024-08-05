@@ -100,7 +100,7 @@ void ASOMinigun::Reload()
 	Super::Reload();
 }
 
-void ASOMinigun::Aim()
+void ASOMinigun::Aim(bool bPressed)
 {
-	Super::Aim();
+	Super::Aim(bPressed);
 }
