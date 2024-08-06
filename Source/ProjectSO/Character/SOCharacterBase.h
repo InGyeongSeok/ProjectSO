@@ -51,7 +51,6 @@ public:
 
 	// Health
 public:
-	// Blaster
 	UFUNCTION()
 	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
 	

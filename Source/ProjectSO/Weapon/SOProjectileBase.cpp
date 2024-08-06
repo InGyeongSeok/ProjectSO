@@ -9,6 +9,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraSystemInstanceController.h"
+#include "SOGunBase.h"
 #include "Components/AudioComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Projectile/SOProjectilePoolComponent.h"
@@ -99,6 +100,7 @@ void ASOProjectileBase::OnHit(UPrimitiveComponent* OverlappedComponent, AActor* 
 	// 	return;
 	// }
 	//
+	
 	APawn* FiringPawn = GetInstigator();
 	if (FiringPawn && HasAuthority())
 	{
@@ -228,6 +230,10 @@ void ASOProjectileBase::InitializeProjectile(FVector InLocation, FRotator InRota
 	SetActorRotation(InRotation);
 	SetProjectileActive(true);
 
+	ASOGunBase* GunBaseTest = Cast<ASOGunBase>(this->GetOwner());
+	SetOwner(GunBaseTest->GetOwner());
+	SO_LOG(LogTemp, Warning, TEXT("%s"), *GunBaseTest->GetOwner()->GetName());
+	
 	// ProjectileMovementComponent->Velocity = GetActorForwardVector() * InitialSpeed;
 	// ProjectileMovementComponent->ProjectileGravityScale = 1;
 

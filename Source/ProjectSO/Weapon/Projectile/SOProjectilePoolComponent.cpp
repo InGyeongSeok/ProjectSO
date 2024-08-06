@@ -5,6 +5,7 @@
 
 #include "Net/UnrealNetwork.h"
 #include "ProjectSO/ProjectSO.h"
+#include "ProjectSO/Character/SOCharacterBase.h"
 #include "ProjectSO/Weapon/SOProjectileBase.h"
 
 // Sets default values for this component's properties
@@ -75,6 +76,9 @@ void USOProjectilePoolComponent::Initialize()
 				
 				SpawnedProjectile->SetProjectileActive(false);
 				SpawnedProjectile->ProjectilePool = this;
+				// ASOGunBase* GunBaseTest = Cast<ASOGunBase>(this->GetOwner());
+				// SpawnedProjectile->SetOwner(GunBaseTest->GetOwner());
+				// SO_SUBLOG(LogTemp, Warning, TEXT("%s"), *GunBaseTest->GetOwner()->GetName());
 				SpawnedProjectile->FinishSpawning(SpawnTransform);
 			}
 			Pool.Push(SpawnedProjectile);
