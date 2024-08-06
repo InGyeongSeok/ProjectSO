@@ -97,7 +97,7 @@ void UALSMantleComponent::MantleStart(float MantleHeight, const FALSComponentAnd
 
 	MantleParams.AnimMontage = MantleAsset.AnimMontage;
 	MantleParams.PositionCorrectionCurve = MantleAsset.PositionCorrectionCurve;
-	MantleParams.StartingOffset = MantleAsset.StartingOffset;
+ 	MantleParams.StartingOffset = MantleAsset.StartingOffset;
 	MantleParams.StartingPosition = FMath::GetMappedRangeValueClamped<float, float>({MantleAsset.LowHeight, MantleAsset.HighHeight},
 	                                                                  {
 		                                                                  MantleAsset.LowStartPosition,

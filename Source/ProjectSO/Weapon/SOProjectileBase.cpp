@@ -32,6 +32,7 @@ ASOProjectileBase::ASOProjectileBase()
 	ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Bullet Mesh"));
 	ProjectileMesh->SetupAttachment(SceneComponent);
 	ProjectileMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	ProjectileMesh->SetVisibility(false);
 	
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
@@ -49,6 +50,7 @@ ASOProjectileBase::ASOProjectileBase()
 void ASOProjectileBase::BeginPlay()
 {
 	Super::BeginPlay();
+	HideStartTime = GetWorld()->GetTimeSeconds();
 	if (Tracer)
 	{
 		TracerComponent = UGameplayStatics::SpawnEmitterAttached

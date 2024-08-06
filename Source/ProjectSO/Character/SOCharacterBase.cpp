@@ -5,11 +5,13 @@
 
 #include "Net/UnrealNetwork.h"
 #include "ProjectSO/ProjectSO.h"
+#include "ProjectSO/Component/SOHealthComponent.h"
 #include "ProjectSO/Weapon/SOGunBase.h"
 
 ASOCharacterBase::ASOCharacterBase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+	HealthComponent = CreateDefaultSubobject<USOHealthComponent>(TEXT("HealthComponent"));
 }
 
 void ASOCharacterBase::BeginPlay()
@@ -74,6 +76,18 @@ void ASOCharacterBase::AimAction_(bool bValue)
 			}
 		}		
 	}
+}
+
+void ASOCharacterBase::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
+	AController* InstigatorController, AActor* DamageCauser)
+{
+	// 이 부분 전부 HealthComponent에서 해도 될 듯.
+	float DamageToHealth = Damage;
+	float Health = HealthComponent->GetHealth();
+	float MaxHealth = HealthComponent->GetMaxHealth();
+	Health = FMath::Clamp(Health - DamageToHealth, 0.f, MaxHealth);
+	HealthComponent->SetHealth(Health);
+	// 죽음 처리 
 }
 
 void ASOCharacterBase::MulticastRPCEquipItem_Implementation(ASOGunBase* Weapon)

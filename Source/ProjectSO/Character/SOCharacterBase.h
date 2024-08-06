@@ -8,6 +8,7 @@
 #include "ProjectSO/Interface/SOEquippableInterface.h"
 #include "SOCharacterBase.generated.h"
 
+class USOHealthComponent;
 /**
  * 
  */
@@ -46,4 +47,15 @@ public:
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "SO|Equip")
 	TObjectPtr<ASOGunBase> CurrentWeapon;
+
+
+	// Health
+public:
+	// Blaster
+	UFUNCTION()
+	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
+	
+private:
+	UPROPERTY(EditAnywhere, Replicated, Category = "SO|Health")
+	TObjectPtr<USOHealthComponent> HealthComponent;
 };
