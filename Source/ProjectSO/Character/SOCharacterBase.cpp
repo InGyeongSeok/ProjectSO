@@ -18,6 +18,11 @@ ASOCharacterBase::ASOCharacterBase(const FObjectInitializer& ObjectInitializer)
 void ASOCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	if (HasAuthority())
+	{
+		OnTakeAnyDamage.AddDynamic(this, &ASOCharacterBase::ReceiveDamage);
+	}
 }
 
 void ASOCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -99,6 +104,8 @@ void ASOCharacterBase::ReceiveDamage(AActor* DamagedActor, float Damage, const U
 	float MaxHealth = HealthComponent->GetMaxHealth();
 	Health = FMath::Clamp(Health - DamageToHealth, 0.f, MaxHealth);
 	HealthComponent->SetHealth(Health);
+
+	SO_LOG(LogTemp, Warning, TEXT("Health %f"), Health);
 	// 죽음 처리 
 }
 

@@ -319,7 +319,7 @@ void ASOGunBase::CreateProjectile(const FTransform& MuzzleTransform, const FVect
 	// 	},0.1,false
 	// 		);
 	// }
-	Projectile->InitializeProjectile(SpawnLocation, SpawnRotation);
+	Projectile->InitializeProjectile(SpawnLocation, SpawnRotation, OwningCharacter);
 	
 }
 

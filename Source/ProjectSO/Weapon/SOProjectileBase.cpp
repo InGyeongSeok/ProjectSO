@@ -9,7 +9,6 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraSystemInstanceController.h"
-#include "SOGunBase.h"
 #include "Components/AudioComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Projectile/SOProjectilePoolComponent.h"
@@ -101,18 +100,17 @@ void ASOProjectileBase::OnHit(UPrimitiveComponent* OverlappedComponent, AActor* 
 	// }
 	//
 	
-	APawn* FiringPawn = GetInstigator();
+	// APawn* FiringPawn = GetInstigator();
 	if (FiringPawn && HasAuthority())
 	{
 		AController* FiringController = FiringPawn->GetController();
 		if (FiringController)
 		{
-			// const float DamageToCause = MuzzleLaserHit.BoneName.ToString() == FString("Head") ? HeadShotDamage : Damage;
-			const float DamageToCause = Damage;
+			const float DamageToCause = SweepResult.BoneName.ToString() == FString("Head") ? HeadShotDamage : Damage;
 			AActor* HitActor = OtherActor;
-			AController* OwnerController = FiringPawn->GetController();
-	
-			UGameplayStatics::ApplyDamage(HitActor,DamageToCause,OwnerController,this,UDamageType::StaticClass());
+			SO_LOG(LogTemp, Warning, TEXT("SweepResult.BoneName.ToString(): %s"), *SweepResult.BoneName.ToString());
+			SO_LOG(LogTemp, Warning, TEXT("OtherComp: %s"), *OtherComp->GetName());
+			UGameplayStatics::ApplyDamage(HitActor,DamageToCause,FiringController,this,UDamageType::StaticClass());
 		}
 	}
 	if (ImpactParticles)
@@ -216,17 +214,15 @@ void ASOProjectileBase::PushPoolSelf()
 }
 
 // Server에서 호출
-void ASOProjectileBase::InitializeProjectile(FVector InLocation, FRotator InRotation)
+void ASOProjectileBase::InitializeProjectile(FVector InLocation, FRotator InRotation, APawn* InFiringPawn)
 {
 
 	SetActorLocation(InLocation);
 	SetActorRotation(InRotation);
 	SetProjectileActive(true);
 
-	ASOGunBase* GunBaseTest = Cast<ASOGunBase>(this->GetOwner());
-	SetOwner(GunBaseTest->GetOwner());
-	SO_LOG(LogTemp, Warning, TEXT("%s"), *GunBaseTest->GetOwner()->GetName());
-	
+	// 
+	FiringPawn = InFiringPawn;
 	// ProjectileMovementComponent->Velocity = GetActorForwardVector() * InitialSpeed;
 	// ProjectileMovementComponent->ProjectileGravityScale = 1;
 

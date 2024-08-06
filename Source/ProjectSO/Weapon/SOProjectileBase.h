@@ -51,7 +51,7 @@ public:
 	void PushPoolSelf();
 
 	UFUNCTION()
-	void InitializeProjectile(FVector InLocation, FRotator InRotation);
+	void InitializeProjectile(FVector InLocation, FRotator InRotation, APawn* InFiringPawn);
 
 protected:
 	// Multi
@@ -105,7 +105,10 @@ public:
 	
 protected:
 	UPROPERTY(EditAnywhere)
-	float Damage;
+	float Damage = 20.f;
+
+	UPROPERTY(EditAnywhere)
+	float HeadShotDamage = 40.f;
 	
 	UPROPERTY(EditAnywhere)
 	float DestroyTime = 4.f;
@@ -114,7 +117,11 @@ protected:
 	float InitialSpeed;
 
 	UPROPERTY(EditDefaultsOnly)
-	FTransform SpawnTransform; 
+	FTransform SpawnTransform;
+
+	UPROPERTY()
+	TObjectPtr<APawn> FiringPawn;
+	
 public:
 	//pool
 	UPROPERTY()
