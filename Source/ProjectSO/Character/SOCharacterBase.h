@@ -37,6 +37,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "SO|Input")
 	void AimAction_(bool bValue);
+
+	UFUNCTION(BlueprintCallable, Category = "SO|Input")
+	void ReloadAction(bool bValue);
+	
 	
 public:
 	

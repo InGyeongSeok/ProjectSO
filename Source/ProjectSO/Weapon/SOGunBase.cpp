@@ -16,6 +16,7 @@
 #include "ProjectSO/ProjectSO.h"
 #include "ProjectSO/Core/SOGameSubsystem.h"
 #include "ProjectSO/Library/SOWeaponMeshDataAsset.h"
+#include "ProjectSO/Player/SOPlayerController.h"
 
 // Sets default values
 ASOGunBase::ASOGunBase()
@@ -50,7 +51,8 @@ ASOGunBase::ASOGunBase()
 	CurrentFireMode = ESOFireMode::None;
 	CurrentAmmoInClip = 30;
 	MaxRepeatCount = 3;
-	// bPlayFireEffect = false;
+	bReloading = false;
+	bInfiniteAmmo = true;
 }
 
 // Called when the game starts or when spawned
@@ -254,6 +256,8 @@ void ASOGunBase::FireProjectile()
 	// CreateFireEffectActor(MuzzleSocketTransform, AmmoEjectSocketTransform);
 
 	PlaySound();
+
+	CurrentAmmoInClip--;
 	// bPlayFireEffect = true;
 	// 총알 생성
 	ServerRPCOnFire(MuzzleSocketTransform, TraceEnd);
@@ -368,10 +372,111 @@ void ASOGunBase::Recoil()
 
 void ASOGunBase::Reload()
 {
+	SO_LOG(LogSOTemp, Log, TEXT("bReloading : %d bInfiniteAmmo : %d"), bReloading, bInfiniteAmmo)
+	if(bReloading) return;
+	// if(bInfiniteAmmo) return;
+	
+	// 소유한 총알 = 0
+	if(CurrentAmmo <= 0)
+	{
+		SO_LOG(LogSOTemp,Log,TEXT("Find Ammo"));
+		return;
+	}
+
+	// 탄창에 총알 가득
+	if(CurrentAmmoInClip == WeaponStat.ClipSize)
+	{
+		SO_LOG(LogSOTemp,Log,TEXT("Full Ammo"));
+		return;
+	}
+
+	// Reload
+	bReloading = true;
+
+	// 탄창 증가
+	if(CurrentAmmo > 0)
+	{
+		int32 NeededAmmo;
+		NeededAmmo = WeaponStat.ClipSize - CurrentAmmoInClip;
+		if(CurrentAmmo > NeededAmmo)
+		{
+			CurrentAmmoInClip = WeaponStat.ClipSize;
+			CurrentAmmo -= NeededAmmo;
+		}
+		else
+		{
+			CurrentAmmoInClip += CurrentAmmo;
+			CurrentAmmo = 0;
+		}		
+	}
+	
+	// 총 재장전 Animation Montage
+	if(WeaponData.ReloadWeaponMontage)
+	{
+		UAnimInstance* WeaponAnimInstance = WeaponMesh->GetAnimInstance();
+		if(WeaponAnimInstance) WeaponAnimInstance->Montage_Play(WeaponData.ReloadWeaponMontage);
+		else SO_LOG(LogSOTemp,Log,TEXT("WeaponAnimInstance is null"))
+	}
+	else
+	{
+		SO_LOG(LogSOTemp,Log,TEXT("WeaponData.ReloadWeaponMontage is null"))
+	}
+	
+	// 플레이어 재장전 Animation Montage
+	if(WeaponData.ReloadMontage)
+	{
+		UAnimInstance* CharacterAnimInstance = OwningCharacter->GetMesh()->GetAnimInstance();
+		if(CharacterAnimInstance) CharacterAnimInstance->Montage_Play(WeaponData.ReloadMontage, 1);
+		else SO_LOG(LogSOTemp,Log,TEXT("CharacterAnimInstance is null"))
+	}
+	else
+	{
+		SO_LOG(LogSOTemp,Log,TEXT("WeaponData.ReloadWeaponMontage is null"))
+	}
+		
+	
+	FTimerHandle ReloadTimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, [this]()
+	{
+		bReloading = false;		
+	}, 2.0f, false);
+	//TODO
+	// ReloadInterval 변수 추가하기
 }
 
 void ASOGunBase::Aim(bool bPressed)
 {
+	if(bPressed)
+	{
+		PressedTime = GetWorld()->GetTimeSeconds();
+		// 꾹 누르고 있는 경우엔 그냥 조준 모션만 취하기
+		// 확대 조준 상태에서 다시 누르면 해제		
+	}
+	else
+	{
+		if(bScopeAim)
+		{
+			bScopeAim = false;
+			// Lens->SetVisibility(false);
+			if(ASOPlayerController* PlayerController = CastChecked<ASOPlayerController>(OwningCharacter->GetController()))
+			{
+				PlayerController->SetViewTargetWithBlend(OwningCharacter,0.2);	
+			}
+			return;
+		}
+		ReleasedTime = GetWorld()->GetTimeSeconds();
+		const float ClickDuration = ReleasedTime - PressedTime;
+		if(ClickDuration < HoldThreshold)
+		{
+			bScopeAim = true;
+			// Short click action
+			// Lens->SetVisibility(true);
+			if(ASOPlayerController* PlayerController = CastChecked<ASOPlayerController>(OwningCharacter->GetController()))
+			{
+				PlayerController->SetViewTargetWithBlend(this,0.2);	
+			}
+		}
+	}
 }
 
 void ASOGunBase::Equip()
@@ -560,18 +665,6 @@ FTransform ASOGunBase::GetSocketTransformByName(FName InSocketName, const USkele
 	}
 
 	return SocketTransform;
-}
-
-void ASOGunBase::OnRep_PlayFireEffect()
-{
-	/*FTransform MuzzleSocketTransform = GetSocketTransformByName(WeaponData.MuzzleSocketName, WeaponMesh);
-	FTransform AmmoEjectSocketTransform = GetSocketTransformByName(AmmoEjectSocketName, WeaponMesh);
-	
-	FRotator MuzzleRotation = MuzzleSocketTransform.GetRotation().Rotator();
-	FRotator EjectRotation = AmmoEjectSocketTransform.GetRotation().Rotator();
-	PlayMuzzleEffect(MuzzleSocketTransform.GetLocation(), MuzzleRotation);
-	PlayEjectAmmoEffect(AmmoEjectSocketTransform.GetLocation(), EjectRotation);*/		
-	
 }
 
 //이펙트 동기화 

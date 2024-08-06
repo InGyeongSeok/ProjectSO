@@ -80,7 +80,9 @@ protected:
 
 	UFUNCTION()
 	void ChangeFireModeAction(const FInputActionValue& Value);
-	
+
+	UFUNCTION()
+	void ReloadAction(const FInputActionValue& Value);
 	
 	// Debug actions
 	UFUNCTION()
