@@ -5,6 +5,7 @@
 
 #include "Engine/SkeletalMeshSocket.h"
 #include "KisMet/GameplayStatics.h"
+#include "Net/UnrealNetwork.h"
 #include "ProjectSO/ProjectSO.h"
 #include "ProjectSO/Character/SOCharacterBase.h"
 #include "ProjectSO/Library/SOWeaponMeshDataAsset.h"
@@ -20,6 +21,8 @@ ASOMinigun::ASOMinigun()
 	CanoMesh->SetMobility(EComponentMobility::Movable);
 	//CanoMesh->SetSimulatePhysics(true);
 	CanoMesh->SetupAttachment(RootComponent);
+
+	bActiveMiniGun=false;
 }
 
 void ASOMinigun::BeginPlay()
@@ -28,7 +31,12 @@ void ASOMinigun::BeginPlay()
 
 	Super::BeginPlay();
 	SetGunData(ID);
-	
+}
+
+void ASOMinigun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ASOMinigun, bActiveMiniGun);
 }
 
 void ASOMinigun::Tick(float DeltaTime)
@@ -51,9 +59,10 @@ void ASOMinigun::FireSingle()
 	Super::FireSingle();
 }
 
+
 void ASOMinigun::FireProjectile()
 {
-
+	
 	AController* OwnerController = OwningCharacter->GetController();
 	if (OwnerController == nullptr)
 	{
@@ -107,6 +116,8 @@ void ASOMinigun::CreateProjectile(const FTransform& MuzzleTransform, const FVect
 	Super::CreateProjectile(MuzzleTransform, HitLocation);
 }
 
+
+
 void ASOMinigun::PlayMuzzleEffect(const FVector& MuzzleLocation, FRotator& MuzzleRotation)
 {
 	//Super::PlayMuzzleEffect(MuzzleLocation, MuzzleRotation);
@@ -152,6 +163,11 @@ void ASOMinigun::PressLMB()
 	Super::PressLMB();
 }
 
+void ASOMinigun::Equip() 
+{
+	Super::Equip();
+}
+
 void ASOMinigun::OnFire(ESOFireMode InFireMode)
 {
 	Super::OnFire(InFireMode);
@@ -164,5 +180,10 @@ void ASOMinigun::Reload()
 
 void ASOMinigun::Aim(bool bPressed)
 {
-	Super::Aim(bPressed);
+	ServerRPCActiveMiniGun(bPressed);
+}
+
+void ASOMinigun::ServerRPCActiveMiniGun_Implementation(const uint8 InActive)
+{
+	bActiveMiniGun =InActive;
 }

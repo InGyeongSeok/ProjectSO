@@ -259,6 +259,14 @@ void ASOPlayerController::ChangeFireModeAction(const FInputActionValue& Value)
 	}
 }
 
+void ASOPlayerController::ReloadAction(const FInputActionValue& Value)
+{
+	if (PossessedCharacter)
+	{
+		PossessedCharacter->ReloadAction(Value.Get<bool>());
+	}
+}
+
 void ASOPlayerController::DebugToggleHudAction(const FInputActionValue& Value)
 {
 	if (PossessedCharacter && Value.Get<bool>())

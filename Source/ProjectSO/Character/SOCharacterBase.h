@@ -37,6 +37,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "SO|Input")
 	void AimAction_(bool bValue);
+
+	UFUNCTION(BlueprintCallable, Category = "SO|Input")
+	void ReloadAction(bool bValue);
+	
 	
 public:
 	
@@ -57,4 +61,8 @@ public:
 private:
 	UPROPERTY(EditAnywhere, Replicated, Category = "SO|Health")
 	TObjectPtr<USOHealthComponent> HealthComponent;
+
+
+
+	
 };
