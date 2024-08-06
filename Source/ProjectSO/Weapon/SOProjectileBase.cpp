@@ -223,9 +223,9 @@ void ASOProjectileBase::InitializeProjectile(FVector InLocation, FRotator InRota
 	SetActorRotation(InRotation);
 	SetProjectileActive(true);
 
-	ASOGunBase* GunBaseTest = Cast<ASOGunBase>(this->GetOwner());
-	SetOwner(GunBaseTest->GetOwner());
-	SO_LOG(LogTemp, Warning, TEXT("%s"), *GunBaseTest->GetOwner()->GetName());
+	// ASOGunBase* GunBaseTest = Cast<ASOGunBase>(this->GetOwner());
+	// SetOwner(GunBaseTest->GetOwner());
+	// SO_LOG(LogTemp, Warning, TEXT("%s"), *GunBaseTest->GetOwner()->GetName());
 	
 	// ProjectileMovementComponent->Velocity = GetActorForwardVector() * InitialSpeed;
 	// ProjectileMovementComponent->ProjectileGravityScale = 1;
