@@ -413,8 +413,14 @@ void ASOGunBase::Reload()
 	if(WeaponData.ReloadWeaponMontage)
 	{
 		UAnimInstance* WeaponAnimInstance = WeaponMesh->GetAnimInstance();
-		if(WeaponAnimInstance) WeaponAnimInstance->Montage_Play(WeaponData.ReloadWeaponMontage);
-		else SO_LOG(LogSOTemp,Log,TEXT("WeaponAnimInstance is null"))
+		if(WeaponAnimInstance)
+		{
+			WeaponAnimInstance->Montage_Play(WeaponData.ReloadWeaponMontage);
+		}
+		else
+		{
+			SO_LOG(LogSOTemp,Log,TEXT("WeaponAnimInstance is null"))
+		}
 	}
 	else
 	{
@@ -425,8 +431,14 @@ void ASOGunBase::Reload()
 	if(WeaponData.ReloadMontage)
 	{
 		UAnimInstance* CharacterAnimInstance = OwningCharacter->GetMesh()->GetAnimInstance();
-		if(CharacterAnimInstance) CharacterAnimInstance->Montage_Play(WeaponData.ReloadMontage, 1);
-		else SO_LOG(LogSOTemp,Log,TEXT("CharacterAnimInstance is null"))
+		if(CharacterAnimInstance)
+		{
+			CharacterAnimInstance->Montage_Play(WeaponData.ReloadMontage, 1);			
+		}
+		else
+		{
+			SO_LOG(LogSOTemp,Log,TEXT("CharacterAnimInstance is null"))			
+		}
 	}
 	else
 	{
