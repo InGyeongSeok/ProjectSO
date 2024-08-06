@@ -102,18 +102,15 @@ void ASOProjectileBase::OnHit(UPrimitiveComponent* OverlappedComponent, AActor* 
 	APawn* FiringPawn = GetInstigator();
 	if (FiringPawn && HasAuthority())
 	{
-		SO_LOG(LogTemp, Warning, TEXT("1"))
 		AController* FiringController = FiringPawn->GetController();
 		if (FiringController)
 		{
-			SO_LOG(LogTemp, Warning, TEXT("OtherActor : %s"), *OtherActor->GetName());
 			// const float DamageToCause = MuzzleLaserHit.BoneName.ToString() == FString("Head") ? HeadShotDamage : Damage;
 			const float DamageToCause = Damage;
 			AActor* HitActor = OtherActor;
 			AController* OwnerController = FiringPawn->GetController();
 	
 			UGameplayStatics::ApplyDamage(HitActor,DamageToCause,OwnerController,this,UDamageType::StaticClass());
-			UE_LOG(LogTemp, Log, TEXT("HitActor : %s"), *GetNameSafe(HitActor))
 		}
 	}
 	if (ImpactParticles)
@@ -214,16 +211,12 @@ void ASOProjectileBase::PushPoolSelf()
 	ProjectileMovementComponent->StopMovementImmediately();
 	// ProjectileMovementComponent->ProjectileGravityScale = 0;
 	
-	SO_LOG(LogTemp, Warning, TEXT("Pool Self : %d"), ProjectilePool->Pool.Num());
 }
 
 // Server에서 호출
 void ASOProjectileBase::InitializeProjectile(FVector InLocation, FRotator InRotation)
 {
-	if(!ProjectileMesh->GetVisibleFlag())
-	{
-		SO_LOG(LogSONetwork,Log,TEXT("ProjectileMesh false"));
-	}
+
 	SetActorLocation(InLocation);
 	SetActorRotation(InRotation);
 	SetProjectileActive(true);

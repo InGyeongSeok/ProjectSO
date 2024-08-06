@@ -21,6 +21,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -36,7 +39,11 @@ protected:
 	/** IDamageable **/
 public:
 	virtual void PressLMB() override;
-	
+
+	/* Member Function */
+public:
+	virtual void Equip() override;
+
 	// Fire Logic
 protected:
 	virtual void OnFire(ESOFireMode InFireMode) override;
@@ -55,4 +62,13 @@ protected:
 protected:
 	virtual void Reload() override;
 	virtual void Aim(bool bPressed) override;
+
+//RPC
+	UFUNCTION(Server, Unreliable)
+	void ServerRPCActiveMiniGun();
+
+	//play Montage
+protected:
+	UPROPERTY(BlueprintReadOnly, Replicated)
+	uint8 bActivateMiniGun :1;
 };

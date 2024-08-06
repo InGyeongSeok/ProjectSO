@@ -372,11 +372,11 @@ void ASOGunBase::Reload()
 
 void ASOGunBase::Aim(bool bPressed)
 {
+	
 }
-
 void ASOGunBase::Equip()
 {
-	SO_LOG(LogSOTemp, Warning, TEXT("Begin"))
+	SO_LOG(LogSOTemp, Warning, TEXT("Equip"))
 
 	if (!bIsEquipped) return;
 

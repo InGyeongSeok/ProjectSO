@@ -12,6 +12,7 @@ ASOCharacterBase::ASOCharacterBase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	HealthComponent = CreateDefaultSubobject<USOHealthComponent>(TEXT("HealthComponent"));
+	
 }
 
 void ASOCharacterBase::BeginPlay()
@@ -29,6 +30,7 @@ void ASOCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 void ASOCharacterBase::EquipItem(ISOEquippableInterface* InEquipment)
 {	
 	ASOGunBase* Weapon = Cast<ASOGunBase>(InEquipment);
+	
 	if(Weapon)
 	{
 		MulticastRPCEquipItem(Weapon);		
@@ -39,11 +41,10 @@ void ASOCharacterBase::AimAction_(bool bValue)
 {
 	if (bValue)
 	{
-		// AimAction: Hold "AimAction" to enter the aiming mode, release to revert back the desired rotation mode.
 		SetRotationMode(EALSRotationMode::Aiming);
 		if(CurrentWeapon)
 		{
-			CurrentWeapon->Aim(bValue); 
+			CurrentWeapon->Aim(bValue);
 		}
 	}
 	else
@@ -119,7 +120,8 @@ void ASOCharacterBase::ChangeFireModeAction_Implementation(bool bValue)
 	}
 }
 
-void ASOCharacterBase::AttackAction_Implementation(bool bValue)
+// 총 발사 눌렀을 때
+void ASOCharacterBase::AttackAction_Implementation(bool bValue)  
 {
 	if (bValue)
 	{
@@ -127,7 +129,7 @@ void ASOCharacterBase::AttackAction_Implementation(bool bValue)
 		{
 			if(CurrentWeapon)
 			{
-				CurrentWeapon->PressLMB();				
+				CurrentWeapon->PressLMB();
 			}
 			else
 			{

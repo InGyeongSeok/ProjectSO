@@ -58,4 +58,8 @@ public:
 private:
 	UPROPERTY(EditAnywhere, Replicated, Category = "SO|Health")
 	TObjectPtr<USOHealthComponent> HealthComponent;
+
+
+
+	
 };
