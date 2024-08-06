@@ -339,7 +339,6 @@ void ASOGunBase::PlayMuzzleEffect(const FVector& MuzzleLocation, FRotator& Muzzl
 			WeaponData.MuzzleFlashEffect,
 			MuzzleLocation,
 			MuzzleRotation
-			//MuzzleFlashScale
 		);
 	}
 }

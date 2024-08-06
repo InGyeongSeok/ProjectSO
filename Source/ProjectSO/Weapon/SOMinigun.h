@@ -65,10 +65,10 @@ protected:
 
 //RPC
 	UFUNCTION(Server, Unreliable)
-	void ServerRPCActiveMiniGun();
+	void ServerRPCActiveMiniGun(const uint8 InActive);
 
 	//play Montage
 protected:
 	UPROPERTY(BlueprintReadOnly, Replicated)
-	uint8 bActivateMiniGun :1;
+	uint8 bActiveMiniGun :1;
 };

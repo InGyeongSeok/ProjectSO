@@ -22,7 +22,7 @@ ASOMinigun::ASOMinigun()
 	//CanoMesh->SetSimulatePhysics(true);
 	CanoMesh->SetupAttachment(RootComponent);
 
-	bActivateMiniGun=false;
+	bActiveMiniGun=false;
 }
 
 void ASOMinigun::BeginPlay()
@@ -36,7 +36,7 @@ void ASOMinigun::BeginPlay()
 void ASOMinigun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(ASOMinigun, bActivateMiniGun);
+	DOREPLIFETIME(ASOMinigun, bActiveMiniGun);
 }
 
 void ASOMinigun::Tick(float DeltaTime)
@@ -171,9 +171,6 @@ void ASOMinigun::Equip()
 void ASOMinigun::OnFire(ESOFireMode InFireMode)
 {
 	Super::OnFire(InFireMode);
-	SO_LOG(LogSONetwork,Log,TEXT("OnFire"));
-	ServerRPCActiveMiniGun();
-
 }
 
 void ASOMinigun::Reload()
@@ -183,12 +180,10 @@ void ASOMinigun::Reload()
 
 void ASOMinigun::Aim(bool bPressed)
 {
-	Super::Aim(bPressed);
+	ServerRPCActiveMiniGun(bPressed);
 }
 
-void ASOMinigun::ServerRPCActiveMiniGun_Implementation()
+void ASOMinigun::ServerRPCActiveMiniGun_Implementation(const uint8 InActive)
 {
-	SO_LOG(LogSONetwork,Log,TEXT("ServerRPC"));
-
-	bActivateMiniGun =true;
+	bActiveMiniGun =InActive;
 }
