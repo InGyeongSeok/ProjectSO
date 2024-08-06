@@ -132,6 +132,7 @@ public:
 			FireSound = InOhterStat.FireSound;
 			EquipSocketName= InOhterStat.EquipSocketName;
 			MuzzleSocketName= InOhterStat.MuzzleSocketName;
+			FireEffectSocketName= InOhterStat.FireEffectSocketName;
 
 		}
 		return *this;
@@ -182,5 +183,8 @@ public:
 	FName EquipSocketName; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Socket)
-	FName MuzzleSocketName; 
+	FName MuzzleSocketName;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Socket)
+	FName FireEffectSocketName; 
 };

@@ -328,11 +328,14 @@ void ASOGunBase::PlayMuzzleEffect(const FVector& MuzzleLocation, FRotator& Muzzl
 {
 	if (WeaponData.MuzzleFlashEffect)
 	{
+		//FVector MuzzleFlashScale = FVector(0.3f, 0.3f, 0.3f);
+		
 		UGameplayStatics::SpawnEmitterAtLocation(
 			GetWorld(),
 			WeaponData.MuzzleFlashEffect,
 			MuzzleLocation,
 			MuzzleRotation
+			//MuzzleFlashScale
 		);
 	}
 }
@@ -571,16 +574,16 @@ void ASOGunBase::OnRep_PlayFireEffect()
 	
 }
 
+//이펙트 동기화 
 void ASOGunBase::OnRep_FireStartTime()
 {
-	SO_LOG(LogSOTemp, Log, TEXT("ShotGun"))
 	// 클라 && 서버 X => 클라 본인 제외
 	if(OwningCharacter->IsLocallyControlled() && !OwningCharacter->HasAuthority()) return;
-	FTransform MuzzleSocketTransform = GetSocketTransformByName(WeaponData.MuzzleSocketName, WeaponMesh);
+	FTransform FireEffectSocketTransform = GetSocketTransformByName(WeaponData.FireEffectSocketName, WeaponMesh);
 	FTransform AmmoEjectSocketTransform = GetSocketTransformByName(AmmoEjectSocketName, WeaponMesh);
 	
-	FRotator MuzzleRotation = MuzzleSocketTransform.GetRotation().Rotator();
+	FRotator FireEffectRotation = FireEffectSocketTransform.GetRotation().Rotator();
 	FRotator EjectRotation = AmmoEjectSocketTransform.GetRotation().Rotator();
-	PlayMuzzleEffect(MuzzleSocketTransform.GetLocation(), MuzzleRotation);
+	PlayMuzzleEffect(FireEffectSocketTransform.GetLocation(), FireEffectRotation);
 	PlayEjectAmmoEffect(AmmoEjectSocketTransform.GetLocation(), EjectRotation);		
 }

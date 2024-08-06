@@ -3,7 +3,10 @@
 
 #include "SOMinigun.h"
 
+#include "Engine/SkeletalMeshSocket.h"
+#include "KisMet/GameplayStatics.h"
 #include "ProjectSO/ProjectSO.h"
+#include "ProjectSO/Character/SOCharacterBase.h"
 #include "ProjectSO/Library/SOWeaponMeshDataAsset.h"
 
 ASOMinigun::ASOMinigun()
@@ -50,7 +53,53 @@ void ASOMinigun::FireSingle()
 
 void ASOMinigun::FireProjectile()
 {
-	Super::FireProjectile();
+
+	AController* OwnerController = OwningCharacter->GetController();
+	if (OwnerController == nullptr)
+	{
+		return;
+	}
+
+	// 화면 중앙 LineTrace
+	FVector TraceStartLocation;
+	FRotator TraceStartRotation;
+	OwnerController->GetPlayerViewPoint(TraceStartLocation, TraceStartRotation);
+
+	// 수정 필요 
+	FVector TraceEnd = TraceStartLocation + TraceStartRotation.Vector() * WeaponStat.MaxRange * 100;
+
+	FTransform MuzzleSocketTransform = GetSocketTransformByName(WeaponData.MuzzleSocketName, CanoMesh);
+	FTransform AmmoEjectSocketTransform = GetSocketTransformByName(AmmoEjectSocketName, WeaponMesh);
+	
+	
+	const USkeletalMeshSocket* AmmoEjectSocket = WeaponMesh->GetSocketByName(AmmoEjectSocketName);
+	const USkeletalMeshSocket* MuzzleSocket = CanoMesh->GetSocketByName(WeaponData.MuzzleSocketName);
+
+	// ensure(AmmoEjectSocket);
+	if (IsValid(AmmoEjectSocket))
+	{
+		AmmoEjectSocketTransform = AmmoEjectSocket->GetSocketTransform(WeaponMesh);
+	}
+
+	if (IsValid(MuzzleSocket))
+	{
+		MuzzleSocketTransform = MuzzleSocket->GetSocketTransform(CanoMesh);
+	}
+
+	DrawDebugLine(GetWorld(), MuzzleSocketTransform.GetLocation(), TraceEnd, FColor::Red, false, 5, 0, 2);
+
+	//FRotator MuzzleRotation = MuzzleSocketTransform.GetRotation().Rotator();
+
+	FRotator EjectRotation = AmmoEjectSocketTransform.GetRotation().Rotator();
+	
+	PlayMuzzleEffect(AmmoEjectSocketTransform.GetLocation(), EjectRotation);
+	PlayEjectAmmoEffect(AmmoEjectSocketTransform.GetLocation(), EjectRotation);
+
+	PlaySound();
+	// bPlayFireEffect = true;
+	// 총알 생성
+	ServerRPCOnFire(MuzzleSocketTransform, TraceEnd);
+	
 }
 
 void ASOMinigun::CreateProjectile(const FTransform& MuzzleTransform, const FVector& HitLocation)
@@ -60,7 +109,20 @@ void ASOMinigun::CreateProjectile(const FTransform& MuzzleTransform, const FVect
 
 void ASOMinigun::PlayMuzzleEffect(const FVector& MuzzleLocation, FRotator& MuzzleRotation)
 {
-	Super::PlayMuzzleEffect(MuzzleLocation, MuzzleRotation);
+	//Super::PlayMuzzleEffect(MuzzleLocation, MuzzleRotation);
+
+	if (WeaponData.MuzzleFlashEffect)
+	{
+		FVector MuzzleFlashScale = FVector(0.3f, 0.3f, 0.3f);
+		
+		UGameplayStatics::SpawnEmitterAtLocation(
+			GetWorld(),
+			WeaponData.MuzzleFlashEffect,
+			MuzzleLocation,
+			MuzzleRotation,
+			MuzzleFlashScale
+		);
+	}
 }
 
 void ASOMinigun::PlaySound()
@@ -81,7 +143,7 @@ void ASOMinigun::SetGunData(const uint8 InID)
 	if(WeaponData.WeaponMeshDataAsset)
 	{
 		CanoMesh->SetSkeletalMesh(WeaponData.WeaponMeshDataAsset -> WeaponSkeletalMesh[1]);
-		CanoMesh->AttachToComponent(WeaponMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("Cano"));
+		CanoMesh->AttachToComponent(WeaponMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("CanoSocket"));
 	}
 }
 
