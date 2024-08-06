@@ -79,8 +79,19 @@ void ASOCharacterBase::AimAction_(bool bValue)
 	}
 }
 
+void ASOCharacterBase::ReloadAction(bool bValue)
+{
+	if (bValue)
+	{
+		if(CurrentWeapon)
+		{
+			CurrentWeapon->Reload();
+		}
+	}
+}
+
 void ASOCharacterBase::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
-	AController* InstigatorController, AActor* DamageCauser)
+                                     AController* InstigatorController, AActor* DamageCauser)
 {
 	// 이 부분 전부 HealthComponent에서 해도 될 듯.
 	float DamageToHealth = Damage;

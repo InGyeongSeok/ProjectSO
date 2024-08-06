@@ -66,8 +66,8 @@ protected:
 	virtual void PlaySound();
 	virtual void Recoil();
 
-	virtual void Reload();
 public:
+	virtual void Reload();
 	virtual void Aim(bool bPressed);
 
 public:
@@ -85,9 +85,6 @@ protected:
 protected:	
 	UFUNCTION(Server, Unreliable)
 	void ServerRPCOnFire(const FTransform& MuzzleTransform, const FVector& HitLocation);
-
-	UFUNCTION()
-	void OnRep_PlayFireEffect();
 
 	UFUNCTION()
 	void OnRep_FireStartTime();
@@ -140,33 +137,11 @@ protected:
 	// Ammo 구조체 생각해보기 
 protected:
 	// maximum bullet capacity
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated, Category = "Properties|Ammo")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "Properties|Ammo")
 	int32 MaxAmmoCapacity;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated, Category = "Properties|Ammo")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "Properties|Ammo")
 	uint8 bInfiniteAmmo : 1;
-	
-	// Input
-protected:
-	/** MappingContext */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-	TObjectPtr<class UInputMappingContext> FireMappingContext;
-
-	/** Fire Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-	TObjectPtr<class UInputAction> FireAction;
-
-	/** Aim Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-	TObjectPtr<class UInputAction> AimAction;
-
-	/** Precision Aim Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-	TObjectPtr<class UInputAction> PrecisionAimAction;
-
-	/** Reload Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-	TObjectPtr<class UInputAction> ReloadAction;
 
 	// State
 protected:
@@ -215,9 +190,6 @@ protected:
 
 protected:
 	int32 AvailableFireModeCount;
-	
-	/*UPROPERTY(EditAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_PlayFireEffect)
-	uint8 bPlayFireEffect : 1;*/
 
 	UPROPERTY(ReplicatedUsing = OnRep_FireStartTime)
 	float FireStartTime;

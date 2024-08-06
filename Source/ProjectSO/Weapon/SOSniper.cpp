@@ -101,18 +101,18 @@ void ASOSniper::OnFire(ESOFireMode InFireMode)
 void ASOSniper::Reload()
 {
 	Super::Reload();
+	
 }
 
 void ASOSniper::Aim(bool bPressed)
 {
-	Super::Aim(bPressed);
+	// Super::Aim(bPressed);
 
 	if(bPressed)
 	{
 		PressedTime = GetWorld()->GetTimeSeconds();
 		// 꾹 누르고 있는 경우엔 그냥 조준 모션만 취하기
-		// 확대 조준 상태에서 다시 누르면 해제
-		
+		// 확대 조준 상태에서 다시 누르면 해제		
 	}
 	else
 	{
