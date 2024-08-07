@@ -57,7 +57,10 @@ public:
 public:
 	UFUNCTION()
 	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
-	
+
+protected:
+	virtual void Tick(float DeltaTime) override;
+
 private:
 	UPROPERTY(EditAnywhere, Replicated, Category = "SO|Health")
 	TObjectPtr<USOHealthComponent> HealthComponent;

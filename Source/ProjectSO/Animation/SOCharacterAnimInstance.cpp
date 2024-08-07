@@ -3,3 +3,13 @@
 
 #include "SOCharacterAnimInstance.h"
 
+
+USOCharacterAnimInstance::USOCharacterAnimInstance()
+{
+	
+}
+
+void USOCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
+{
+	Super::NativeUpdateAnimation(DeltaSeconds);
+}

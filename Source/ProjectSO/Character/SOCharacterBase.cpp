@@ -3,10 +3,12 @@
 
 #include "SOCharacterBase.h"
 
+#include "Character/ALSCharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "ProjectSO/ProjectSO.h"
 #include "ProjectSO/Component/SOHealthComponent.h"
 #include "ProjectSO/Weapon/SOGunBase.h"
+#include "ProjectSO/Weapon/SOMinigun.h"
 
 ASOCharacterBase::ASOCharacterBase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -107,6 +109,27 @@ void ASOCharacterBase::ReceiveDamage(AActor* DamagedActor, float Damage, const U
 
 	SO_LOG(LogTemp, Warning, TEXT("Health %f"), Health);
 	// 죽음 처리 
+}
+
+void ASOCharacterBase::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if(Cast<ASOMinigun>(CurrentWeapon))
+	{
+		if (MovementState == EALSMovementState::Grounded)
+		{
+			// UpdateCharacterMovement();
+			const EALSGait AllowedGait = EALSGait::Walking;
+			const EALSGait ActualGait = EALSGait::Walking;
+			if (ActualGait != Gait)
+			{
+				SetGait(ActualGait);
+			}
+			// MyCharacterMovementComponent 필요한가?
+			MyCharacterMovementComponent->SetAllowedGait(AllowedGait);
+		}
+	}
 }
 
 void ASOCharacterBase::MulticastRPCEquipItem_Implementation(ASOGunBase* Weapon)

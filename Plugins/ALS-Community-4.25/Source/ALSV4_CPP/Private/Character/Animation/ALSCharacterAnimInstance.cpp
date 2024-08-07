@@ -117,6 +117,7 @@ void UALSCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 		if (Grounded.bShouldMove)
 		{
+			
 			// Do While Moving
 			UpdateMovementValues(DeltaSeconds);
 			UpdateRotationValues();
@@ -626,7 +627,7 @@ void UALSCharacterAnimInstance::UpdateMovementValues(float DeltaSeconds)
 
 	// Set the Diagonal Scale Amount.
 	Grounded.DiagonalScaleAmount = CalculateDiagonalScaleAmount();
-
+	
 	// Set the Relative Acceleration Amount and Interp the Lean Amount.
 	RelativeAccelerationAmount = CalculateRelativeAccelerationAmount();
 	LeanAmount.LR = FMath::FInterpTo(LeanAmount.LR, RelativeAccelerationAmount.Y, DeltaSeconds,
@@ -642,7 +643,9 @@ void UALSCharacterAnimInstance::UpdateMovementValues(float DeltaSeconds)
 
 	// Set the Standing and Crouching Play Rates
 	Grounded.StandingPlayRate = CalculateStandingPlayRate();
+
 	Grounded.CrouchingPlayRate = CalculateCrouchingPlayRate();
+
 }
 
 void UALSCharacterAnimInstance::UpdateRotationValues()

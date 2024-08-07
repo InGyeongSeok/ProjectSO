@@ -13,5 +13,8 @@ UCLASS()
 class PROJECTSO_API USOCharacterAnimInstance : public UALSCharacterAnimInstance
 {
 	GENERATED_BODY()
-	
+	USOCharacterAnimInstance();
+
+public:
+	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 };
