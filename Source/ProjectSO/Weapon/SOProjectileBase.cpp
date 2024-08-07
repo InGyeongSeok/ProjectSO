@@ -27,6 +27,7 @@ ASOProjectileBase::ASOProjectileBase()
 	CollisionComp = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
 	CollisionComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CollisionComp->BodyInstance.SetCollisionProfileName("Projectile");
+	CollisionComp->SetIsReplicated(true);
 	// CollisionComp->SetupAttachment(SceneComponent);
 	SetRootComponent(CollisionComp);
 	
