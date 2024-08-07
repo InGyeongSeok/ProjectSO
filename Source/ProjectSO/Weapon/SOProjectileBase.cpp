@@ -21,16 +21,17 @@ ASOProjectileBase::ASOProjectileBase()
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
 	
-	SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
-	SetRootComponent(SceneComponent);
+	// SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
+	// SetRootComponent(SceneComponent);
 	
 	CollisionComp = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
 	CollisionComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CollisionComp->BodyInstance.SetCollisionProfileName("Projectile");
-	CollisionComp->SetupAttachment(SceneComponent);
-
+	// CollisionComp->SetupAttachment(SceneComponent);
+	SetRootComponent(CollisionComp);
+	
 	ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Bullet Mesh"));
-	ProjectileMesh->SetupAttachment(SceneComponent);
+	ProjectileMesh->SetupAttachment(CollisionComp);
 	ProjectileMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	ProjectileMesh->SetVisibility(false);
 	
