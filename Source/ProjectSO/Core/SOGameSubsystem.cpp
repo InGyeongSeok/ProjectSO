@@ -29,6 +29,13 @@ USOGameSubsystem::USOGameSubsystem()
 		TArray<FName> RowNames = SpawnableItemDataTable->GetRowNames();
 		TotalSpawnableItem = RowNames.Num();
 	}
+
+	ConstructorHelpers::FObjectFinder<UDataTable> WeaponDamageDataRef(
+	TEXT("/Script/Engine.DataTable'/Game/StellarObsidian/GameData/DT_SOWeaponDamageData.DT_SOWeaponDamageData'"));
+	if (WeaponDamageDataRef.Succeeded())
+	{
+		WeaponDamageTable = WeaponDamageDataRef.Object;
+	}
 }
 
 void USOGameSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -91,6 +98,28 @@ FSOWeaponData* USOGameSubsystem::GetWeaponData(const uint8 InID)
 		UE_LOG(LogTemp, Warning, TEXT("No WeaponDataTable found for ID: %d"), InID);
 	}
 	return WeaponDataRow;
+}
+
+FSOWeaponDamageData* USOGameSubsystem::GetWeaponDamageData(const uint8 InID)
+{
+	if (!WeaponDamageTable)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("WeaponDamageTable is not assigned."));
+		return nullptr;
+	}
+
+	FString RowName = FString::Printf(TEXT("%d"), InID);
+
+	FSOWeaponDamageData* WeaponDamageDataRow = WeaponDataTable->FindRow<FSOWeaponDamageData>(FName(*RowName), "");
+	if (WeaponDamageDataRow)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Found WeaponDamageTable for ID: %d"), InID);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No WeaponDamageTable found for ID: %d"), InID);
+	}
+	return WeaponDamageDataRow;
 }
 
 FSOSpawnableItemClasses* USOGameSubsystem::GetSpawnableItemData(const int32 InIndex)

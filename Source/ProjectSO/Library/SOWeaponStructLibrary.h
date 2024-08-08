@@ -174,3 +174,73 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Socket)
 	FName FireEffectSocketName; 
 };
+
+
+
+USTRUCT(BlueprintType)
+struct FSOWeaponDamageData : public FTableRowBase
+{
+	GENERATED_BODY()
+	
+public:
+	FSOWeaponDamageData(): Head(0), Neck(0), Clavicles(0), Upperchest(0), Lowerchest(0),
+				 Stomach(0),
+				 Pelvis(0),
+				 Upperlimb(0), Lowerlimb(0),
+				 Handfoot(0)
+	{
+	}
+	
+	FSOWeaponDamageData& operator=(const FSOWeaponDamageData& InOhterDamageData)
+	{
+		if(this!= &InOhterDamageData)
+		{
+			ID = InOhterDamageData.ID;
+			Head = InOhterDamageData.Head;
+			Neck = InOhterDamageData.Neck;
+			Clavicles = InOhterDamageData.Clavicles;
+			Upperchest =  InOhterDamageData.Upperchest;
+			Lowerchest = InOhterDamageData.Lowerchest;
+			Stomach = InOhterDamageData.Stomach;
+			Pelvis = InOhterDamageData.Pelvis;
+			Upperlimb = InOhterDamageData.Upperlimb;
+			Lowerlimb = InOhterDamageData.Lowerlimb;
+			Handfoot = InOhterDamageData.Handfoot;
+		}
+		return *this;
+	}
+	
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponDamage)
+	uint8 ID;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponDamage)
+	float Head;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponDamage)
+	float Neck;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponDamage)
+	float Clavicles;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponDamage)
+	float Upperchest;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponDamage)
+	float Lowerchest;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponDamage)
+	float Stomach;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponDamage)
+	float Pelvis;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponDamage)
+	float Upperlimb;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponDamage)
+	float Lowerlimb;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponDamage)
+	float Handfoot;
+};
