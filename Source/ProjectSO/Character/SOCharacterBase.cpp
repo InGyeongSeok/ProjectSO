@@ -32,11 +32,11 @@ void ASOCharacterBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	// UpdateCharacterMovemnt
-	if (MovementState == EALSMovementState::Grounded)
+	/*if (MovementState == EALSMovementState::Grounded)
 	{
 		UpdateCharacterMovement();
 		UpdateGroundedRotation(DeltaTime);
-	}
+	}*/
 	
 	if(Cast<ASOMinigun>(CurrentWeapon))
 	{
