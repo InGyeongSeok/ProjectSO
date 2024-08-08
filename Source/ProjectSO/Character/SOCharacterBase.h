@@ -49,12 +49,17 @@ public:
 public:
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastRPCEquipItem(ASOGunBase* Weapon);
+
+
 	
 	// Health
 protected:
 	UFUNCTION()
 	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
 
+public:
+	//Apply Recoil 
+	void ApplyRecoil(const float InYawRecoil, const float InPitchRecil);
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "SO|Equip")
 	TObjectPtr<ASOGunBase> CurrentWeapon;

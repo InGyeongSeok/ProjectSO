@@ -10,8 +10,6 @@
 #include "Engine/LocalPlayer.h"
 #include "ProjectSO/Character/SOCharacterBase.h"
 #include "Character/ALSBaseCharacter.h"
-#include "Character/ALSCharacter.h"
-#include "Character/ALSPlayerCameraManager.h"
 #include "Components/ALSDebugComponent.h"
 #include "ProjectSO/UI/SOHUD.h"
 
@@ -398,3 +396,5 @@ void ASOPlayerController::DebugOverlayMenuCycleAction(const FInputActionValue& V
 		}
 	}
 }
+
+

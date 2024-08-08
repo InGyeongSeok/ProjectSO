@@ -171,6 +171,7 @@ protected:
 	// Struct Stat & Data
 protected:
 
+	//삭제 예정 
 	UPROPERTY(EditInstanceOnly)
 	int32 ID;
 	

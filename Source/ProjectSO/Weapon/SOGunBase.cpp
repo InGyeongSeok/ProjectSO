@@ -59,8 +59,7 @@ ASOGunBase::ASOGunBase()
 void ASOGunBase::BeginPlay()
 {
 	Super::BeginPlay();
-	UE_LOG(LogTemp, Log, TEXT("ASOGunBase : BeginPlay"));
-
+	//UE_LOG(LogTemp, Log, TEXT("ASOGunBase : BeginPlay"));
 	//Gun Data Setting
 	//삭제 필요 ID 
 	SetGunData(ID);
@@ -108,7 +107,7 @@ void ASOGunBase::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, 
                                       UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
                                       const FHitResult& SweepResult)
 {
-	SO_LOG(LogSONetwork, Log, TEXT("OnSphereBeginOverlap Name : %s"), *OtherActor->GetName());
+	//SO_LOG(LogSONetwork, Log, TEXT("OnSphereBeginOverlap Name : %s"), *OtherActor->GetName());
 
 	if (HasAuthority())
 	{
@@ -123,13 +122,12 @@ void ASOGunBase::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, 
 
 void ASOGunBase::PressLMB()
 {
-	SO_LOG(LogSOTemp, Warning, TEXT("Begin"))
+	//SO_LOG(LogSOTemp, Warning, TEXT("Begin"))
 	OnFire(CurrentFireMode);
 }
 
 void ASOGunBase::ReleaseLMB()
 {
-	SO_LOG(LogSOTemp, Warning, TEXT("Begin"))
 	StopFire();
 }
 
@@ -140,7 +138,7 @@ EALSOverlayState ASOGunBase::GetOverlayState() const
 
 void ASOGunBase::OnFire(ESOFireMode InFireMode)
 {
-	SO_LOG(LogSOTemp, Warning, TEXT("Begin"))
+	
 	if (!bIsEquipped) return;
 	if (bReloading || CurrentAmmoInClip <= 0) return;
 	switch (InFireMode)
@@ -199,13 +197,14 @@ void ASOGunBase::FireSingle()
 	FireProjectile();
 }
 
-void ASOGunBase::FireProjectile()
+void ASOGunBase::FireProjectile() //클라이언트 들어오는 함수 
 {
-	SO_LOG(LogSOTemp, Warning, TEXT("Begin"))
+
+	//SO_LOG(LogSOTemp, Warning, TEXT("Begin"))
 	AController* OwnerController = OwningCharacter->GetController();
 	if (OwnerController == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("OwnerController"));
+		//UE_LOG(LogTemp, Warning, TEXT("OwnerController"));
 		return;
 	}
 
@@ -214,6 +213,10 @@ void ASOGunBase::FireProjectile()
 	// FCollisionQueryParams Params;
 	// Params.AddIgnoredActor(this);
 	// Params.AddIgnoredActor(GetOwner());
+
+	//반동 코드 넣기 
+	OwningCharacter->ApplyRecoil(WeaponStat.AimedRecoilYaw,WeaponStat.AimedRecoilPitch);
+
 
 	// 화면 중앙 LineTrace
 	FVector TraceStartLocation;

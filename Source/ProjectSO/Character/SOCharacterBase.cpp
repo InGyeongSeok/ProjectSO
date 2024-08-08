@@ -4,6 +4,7 @@
 #include "SOCharacterBase.h"
 
 #include "Character/ALSCharacterMovementComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
 #include "ProjectSO/ProjectSO.h"
 #include "ProjectSO/Component/SOHealthComponent.h"
@@ -144,6 +145,7 @@ void ASOCharacterBase::ReceiveDamage(AActor* DamagedActor, float Damage, const U
 }
 
 
+
 void ASOCharacterBase::MulticastRPCEquipItem_Implementation(ASOGunBase* Weapon)
 {
 	OverlayState = Weapon->GetOverlayState();
@@ -213,4 +215,16 @@ void ASOCharacterBase::AttackAction_Implementation(bool bValue)
 			UE_LOG(LogTemp, Warning, TEXT("%s Punch!"), *FString(__FUNCTION__))
 		}
 	}
+}
+
+
+
+void ASOCharacterBase::ApplyRecoil(const float InYawRecoil, const float InPitchRecil)
+{
+	SO_LOG(LogSONetwork,Log,TEXT("ApplyRecoil %f") ,InYawRecoil );
+	float RYaw = UKismetMathLibrary::RandomFloatInRange(-InYawRecoil, InYawRecoil);
+	float RPitch = UKismetMathLibrary::RandomFloatInRange(-InPitchRecil,0.0f); // 총구가 위로 더 올라가는 현상을 위함 
+
+	AddControllerYawInput(RYaw);
+	AddControllerPitchInput(RPitch);
 }
