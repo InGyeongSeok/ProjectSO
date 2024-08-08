@@ -17,9 +17,7 @@ ASOGunFireEffect::ASOGunFireEffect()
 // Called when the game starts or when spawned
 void ASOGunFireEffect::BeginPlay()
 {
-	SO_LOG(LogSOTemp, Log, TEXT("Begin"))
 	Super::BeginPlay();
-	SO_LOG(LogSOTemp, Log, TEXT("Begin"))
 }
 
 void ASOGunFireEffect::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -29,10 +27,8 @@ void ASOGunFireEffect::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 
 void ASOGunFireEffect::PlayEffect(const FTransform& MuzzleTransform, const FTransform& EjectTransform)
 {
-	SO_LOG(LogSOTemp, Log,TEXT("Begin"))
 	PlayMuzzleEffect(MuzzleTransform);
 	PlayEjectAmmoEffect(EjectTransform);	
-	SO_LOG(LogSOTemp, Log,TEXT("End"))
 }
 
 void ASOGunFireEffect::PlayMuzzleEffect(const FTransform& MuzzleTransform)

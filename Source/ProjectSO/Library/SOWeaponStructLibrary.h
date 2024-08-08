@@ -17,8 +17,6 @@ public:
 	FSOWeaponStat(): WeaponType(ESOWeaponType::Pistol), FireMode(0), AmmoType(0), FireInterval(0), ReloadInterval(0), QuickReloadInterval(0),
 					 Speed(0),
 					 MaxRange(0),
-					 Damage(0),
-					 HeadShotDamage(0),
 					 AimedRecoilYaw(0), AimedRecoilPitch(0),
 					 ClipSize(0),
 					 LargeClipSize(0)
@@ -39,8 +37,6 @@ public:
 			QuickReloadInterval = InOhterStat.QuickReloadInterval;
 			Speed = InOhterStat.Speed;
 			MaxRange = InOhterStat.MaxRange;
-			Damage = InOhterStat.Damage;
-			HeadShotDamage = InOhterStat.HeadShotDamage;
 			RecoilYaw = InOhterStat.RecoilYaw;
 			RecoilPitch = InOhterStat.RecoilPitch;
 			AimedRecoilYaw = InOhterStat.AimedRecoilYaw;
@@ -79,12 +75,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
 	float MaxRange;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
-	float Damage;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
-	float HeadShotDamage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
 	float RecoilYaw;
@@ -150,10 +140,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AnimationState)
 	EALSOverlayState OverlayState;
-
-	
-	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh)
-	// TObjectPtr<USkeletalMesh> SkeletalMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh)
 	TObjectPtr<class USOWeaponMeshDataAsset> WeaponMeshDataAsset;
