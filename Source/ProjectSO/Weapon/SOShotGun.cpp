@@ -16,7 +16,6 @@ ASOShotGun::ASOShotGun()
 void ASOShotGun::BeginPlay()
 {
 	Super::BeginPlay();
-	// SetGunData(7);
 }
 
 void ASOShotGun::Tick(float DeltaTime)
@@ -41,9 +40,8 @@ void ASOShotGun::FireSingle()
 
 void ASOShotGun::FireProjectile()
 {
-	SO_LOG(LogSOTemp, Log, TEXT("ShotGun"))
+	// SO_LOG(LogSOTemp, Log, TEXT("ShotGun"))
 	
-	// 변수로 빼기
 	AController* OwnerController = OwningCharacter->GetController();
 	if (OwnerController == nullptr)
 	{

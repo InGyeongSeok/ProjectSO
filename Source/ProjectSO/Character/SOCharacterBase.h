@@ -20,7 +20,10 @@ class PROJECTSO_API ASOCharacterBase : public AALSCharacter
 public:
 	ASOCharacterBase(const FObjectInitializer& ObjectInitializer);
 
+protected:
 	virtual void BeginPlay() override;
+	
+	virtual void Tick(float DeltaTime) override;
 	
 public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -41,31 +44,23 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "SO|Input")
 	void ReloadAction(bool bValue);
 	
-	
+	void UpdateCharacterMinigunMovement();
+
 public:
-	
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastRPCEquipItem(ASOGunBase* Weapon);
 	
-		
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "SO|Equip")
-	TObjectPtr<ASOGunBase> CurrentWeapon;
-
-
 	// Health
-public:
+protected:
 	UFUNCTION()
 	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
 
 protected:
-	virtual void Tick(float DeltaTime) override;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "SO|Equip")
+	TObjectPtr<ASOGunBase> CurrentWeapon;
 
-private:
+protected:
 	UPROPERTY(EditAnywhere, Replicated, Category = "SO|Health")
 	TObjectPtr<USOHealthComponent> HealthComponent;
 
-
-
-	
 };

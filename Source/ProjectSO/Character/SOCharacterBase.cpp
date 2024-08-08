@@ -27,6 +27,24 @@ void ASOCharacterBase::BeginPlay()
 	}
 }
 
+void ASOCharacterBase::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	// UpdateCharacterMovemnt
+	if (MovementState == EALSMovementState::Grounded)
+	{
+		UpdateCharacterMovement();
+		UpdateGroundedRotation(DeltaTime);
+	}
+	
+	if(Cast<ASOMinigun>(CurrentWeapon))
+	{
+		UpdateCharacterMinigunMovement();
+	}
+}
+
+
 void ASOCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -97,6 +115,20 @@ void ASOCharacterBase::ReloadAction(bool bValue)
 	}
 }
 
+void ASOCharacterBase::UpdateCharacterMinigunMovement()
+{
+	if (MovementState == EALSMovementState::Grounded)
+	{
+		const EALSGait AllowedGait = EALSGait::Walking;
+		const EALSGait ActualGait = EALSGait::Walking;
+		if (ActualGait != Gait)
+		{
+			SetGait(ActualGait);
+		}
+		MyCharacterMovementComponent->SetAllowedGait(AllowedGait);
+	}
+}
+
 void ASOCharacterBase::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
                                      AController* InstigatorController, AActor* DamageCauser)
 {
@@ -111,26 +143,6 @@ void ASOCharacterBase::ReceiveDamage(AActor* DamagedActor, float Damage, const U
 	// 죽음 처리 
 }
 
-void ASOCharacterBase::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	if(Cast<ASOMinigun>(CurrentWeapon))
-	{
-		if (MovementState == EALSMovementState::Grounded)
-		{
-			// UpdateCharacterMovement();
-			const EALSGait AllowedGait = EALSGait::Walking;
-			const EALSGait ActualGait = EALSGait::Walking;
-			if (ActualGait != Gait)
-			{
-				SetGait(ActualGait);
-			}
-			// MyCharacterMovementComponent 필요한가?
-			MyCharacterMovementComponent->SetAllowedGait(AllowedGait);
-		}
-	}
-}
 
 void ASOCharacterBase::MulticastRPCEquipItem_Implementation(ASOGunBase* Weapon)
 {
