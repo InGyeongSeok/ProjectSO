@@ -215,7 +215,7 @@ void ASOGunBase::FireProjectile() //클라이언트 들어오는 함수
 	// Params.AddIgnoredActor(GetOwner());
 
 	//반동 코드 넣기 
-	OwningCharacter->ApplyRecoil(WeaponStat.AimedRecoilYaw,WeaponStat.AimedRecoilPitch);
+	//OwningCharacter->ApplyRecoil(WeaponStat.AimedRecoilYaw,WeaponStat.AimedRecoilPitch);
 
 
 	// 화면 중앙 LineTrace
@@ -260,7 +260,7 @@ void ASOGunBase::FireProjectile() //클라이언트 들어오는 함수
 
 	PlaySound();
 
-	CurrentAmmoInClip--;
+	//CurrentAmmoInClip--;
 	// bPlayFireEffect = true;
 	// 총알 생성
 	ServerRPCOnFire(MuzzleSocketTransform, TraceEnd);

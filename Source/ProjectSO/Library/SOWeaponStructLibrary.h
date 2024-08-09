@@ -244,3 +244,26 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponDamage)
 	float Handfoot;
 };
+
+USTRUCT(BlueprintType)
+struct FSOWeaponDamageByBone  : public FTableRowBase
+{
+	GENERATED_BODY()
+	
+public:
+	
+	FSOWeaponDamageByBone & operator=(const FSOWeaponDamageByBone& InOhterDamageData)
+	{
+		if(this!= &InOhterDamageData)
+		{
+			DamageByHitLocationMap = InOhterDamageData.DamageByHitLocationMap;
+		}
+		return *this;
+	}
+	
+public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponDamage)
+	TMap<FString, float> DamageByHitLocationMap;
+	
+};

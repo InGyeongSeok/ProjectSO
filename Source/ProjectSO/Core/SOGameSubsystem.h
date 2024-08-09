@@ -43,7 +43,15 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<UDataTable> SpawnableItemDataTable;
 
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<UDataTable> WeaponDamageByBoneTable;
+
+	//DT_SOWeaponDamageByBone
+
+
 	UPROPERTY()
 	uint32 TotalSpawnableItem;
 	
+	void ProcessWeaponDamageDataRows();
+	void InitializeWeaponDamageByBoneTable(const int32 InID , const FString& InBoneName, const FString& InPropertyValue);
 };
