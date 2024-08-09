@@ -125,6 +125,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	TObjectPtr<class UCapsuleComponent> CollisionComp;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
+	TObjectPtr<class UCameraComponent> ScopeCamera;
+
+	
 	// Properties
 protected:
 	//여기 구조체 생각  

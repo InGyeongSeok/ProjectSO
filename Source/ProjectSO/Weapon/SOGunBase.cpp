@@ -10,6 +10,7 @@
 #include "Components/CapsuleComponent.h"
 
 #include "SOProjectileBase.h"
+#include "Camera/CameraComponent.h"
 #include "EntitySystem/MovieSceneEntitySystemRunner.h"
 #include "ProjectSO/Character/SOCharacterBase.h"
 #include "Projectile/SOProjectilePoolComponent.h"
@@ -43,7 +44,9 @@ ASOGunBase::ASOGunBase()
 	CollisionComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	CollisionComp->SetupAttachment(RootComponent);
 
-	//RootComponent = CollisionComp;
+	ScopeCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("ScopeCamera"));
+	ScopeCamera->SetupAttachment(WeaponMesh);	
+	ScopeCamera->bUsePawnControlRotation = true;
 
 	ProjectilePoolComponent = CreateDefaultSubobject<USOProjectilePoolComponent>(TEXT("ProjectilePool"));
 
@@ -53,6 +56,10 @@ ASOGunBase::ASOGunBase()
 	MaxRepeatCount = 3;
 	bReloading = false;
 	bInfiniteAmmo = true;
+	
+	HoldThreshold = 0.2f;
+	bScopeAim = false;
+	
 }
 
 // Called when the game starts or when spawned
@@ -215,7 +222,7 @@ void ASOGunBase::FireProjectile() //클라이언트 들어오는 함수
 	// Params.AddIgnoredActor(GetOwner());
 
 	//반동 코드 넣기 
-	OwningCharacter->ApplyRecoil(WeaponStat.AimedRecoilYaw,WeaponStat.AimedRecoilPitch);
+	//OwningCharacter->ApplyRecoil(WeaponStat.AimedRecoilYaw,WeaponStat.AimedRecoilPitch);
 
 
 	// 화면 중앙 LineTrace
@@ -260,7 +267,7 @@ void ASOGunBase::FireProjectile() //클라이언트 들어오는 함수
 
 	PlaySound();
 
-	CurrentAmmoInClip--;
+	//CurrentAmmoInClip--;
 	// bPlayFireEffect = true;
 	// 총알 생성
 	ServerRPCOnFire(MuzzleSocketTransform, TraceEnd);

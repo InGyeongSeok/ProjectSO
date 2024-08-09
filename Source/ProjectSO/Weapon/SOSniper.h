@@ -59,9 +59,6 @@ public:
 	TObjectPtr<UStaticMeshComponent> Lens;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
-	TObjectPtr<class UCameraComponent> ScopeCamera;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
 	TObjectPtr<USceneCaptureComponent2D> CaptureCamera;
 
 	
