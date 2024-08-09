@@ -12,10 +12,6 @@ class ASOPlayerController;
 
 ASOSniper::ASOSniper()
 {
-	ScopeCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("ScopeCamera"));
-	ScopeCamera->SetupAttachment(WeaponMesh);	
-	ScopeCamera->bUsePawnControlRotation = true;
-
 	CaptureCamera = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("CaptureCamera"));
 	CaptureCamera->SetupAttachment(WeaponMesh);	
 	
@@ -28,7 +24,7 @@ ASOSniper::ASOSniper()
 	PressedTime = 0;
 	ReleasedTime = 0;
 	HoldThreshold = 0.5f;
-	bScopeAim = false;
+	
 }
 
 void ASOSniper::BeginPlay()
