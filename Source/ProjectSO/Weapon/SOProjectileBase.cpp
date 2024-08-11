@@ -69,7 +69,7 @@ void ASOProjectileBase::BeginPlay()
 	// CollisionComp->OnComponentHit.AddDynamic(this, &ACHProjectile::OnHit);
 	if (HasAuthority())
 	{
-		CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ASOProjectileBase::OnHit);
+		CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ASOProjectileBase::OnBeginOverlap);
 		// StartDestroyTimer();
 	}
 }
@@ -78,7 +78,7 @@ void ASOProjectileBase::BeginPlay()
 void ASOProjectileBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	// SO_LOG(LogTemp, Warning, TEXT("%s"), *ProjectileMovementComponent->Velocity.ToString());
+	// SO_LOG(LogSOProjectileBase, Warning, TEXT("%s"), *ProjectileMovementComponent->Velocity.ToString())
 
 }
 
@@ -89,17 +89,34 @@ void ASOProjectileBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME(ASOProjectileBase, ShowStartTime);
 }
 
-void ASOProjectileBase::OnHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ASOProjectileBase::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	SO_LOG(LogTemp, Warning, TEXT("OtherActor : %s"), *OtherActor->GetName());
-	//Destroyed();
-	
+	SO_LOG(LogSOProjectileBase, Warning, TEXT("OtherActor : %s"), *OtherActor->GetName())
+
+	// Destroyed();	
 	// 충돌한 액터가 프로젝타일 경우
 	// ASOProjectileBase* OtherProjectile = Cast<ASOProjectileBase>(OtherActor);
 	// if (OtherProjectile)
 	// {
-	// 	return;
+	// 	  return;
 	// }
+	
+	FVector HitLocation = SweepResult.ImpactPoint; 
+	float Dist = FVector::Dist(SpawnLocation, HitLocation);
+	const FRichCurve* Curve = GetCurveData(); 
+
+	// 거리에 데미지 영향주는 변수
+	float RangeModifier = 1.0f;
+	check(Curve);
+	if(Curve)
+	{
+		RangeModifier = Curve->HasAnyData() ? Curve->Eval(Dist) : 1.0f;		
+	}
+	else
+	{
+		SO_LOG(LogSOProjectileBase, Error, TEXT("Curve is null"))
+	}
+	
 	
 	// APawn* FiringPawn = GetInstigator();
 	if (FiringPawn && HasAuthority())
@@ -109,8 +126,8 @@ void ASOProjectileBase::OnHit(UPrimitiveComponent* OverlappedComponent, AActor* 
 		{
 			const float DamageToCause = SweepResult.BoneName.ToString() == FString("Head") ? HeadShotDamage : Damage;
 			AActor* HitActor = OtherActor;
-			SO_LOG(LogTemp, Warning, TEXT("SweepResult.BoneName.ToString(): %s"), *SweepResult.BoneName.ToString());
-			SO_LOG(LogTemp, Warning, TEXT("OtherComp: %s"), *OtherComp->GetName());
+			SO_LOG(LogSOProjectileBase, Warning, TEXT("SweepResult.BoneName.ToString(): %s"), *SweepResult.BoneName.ToString())
+			SO_LOG(LogSOProjectileBase, Warning, TEXT("OtherComp: %s"), *OtherComp->GetName())
 			UGameplayStatics::ApplyDamage(HitActor,DamageToCause,FiringController,this,UDamageType::StaticClass());
 		}
 	}
@@ -217,7 +234,7 @@ void ASOProjectileBase::PushPoolSelf()
 // Server에서 호출
 void ASOProjectileBase::InitializeProjectile(FVector InLocation, FRotator InRotation, APawn* InFiringPawn)
 {
-
+	SpawnLocation = InLocation;
 	SetActorLocation(InLocation);
 	SetActorRotation(InRotation);
 	SetProjectileActive(true);
@@ -239,6 +256,13 @@ void ASOProjectileBase::OnRep_HideStartTime()
 {
 	
 	ProjectileMesh->SetVisibility(false);
+}
+
+FRichCurve* ASOProjectileBase::GetCurveData()
+{
+	// DistanceDamageFalloff.GetRichCurveConst();
+	//Todo @김윤수 커브 데이터 반환해주세요 
+	return nullptr;
 }
 
 //총 발사할 때

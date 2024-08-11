@@ -33,7 +33,7 @@ public:
 
 protected:
 	UFUNCTION()
-	virtual void OnHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);	
+	virtual void OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);	
 
 	virtual void Destroyed() override;
 	
@@ -142,6 +142,9 @@ public:
 protected:
 	UPROPERTY(ReplicatedUsing = OnRep_ShowStartTime)
 	float ShowStartTime;
-	
 
+public:
+	FRichCurve* GetCurveData();
+private:
+	FVector SpawnLocation;	
 };
