@@ -111,6 +111,10 @@ void ASOProjectileBase::OnHit(UPrimitiveComponent* OverlappedComponent, AActor* 
 			AActor* HitActor = OtherActor;
 			SO_LOG(LogTemp, Warning, TEXT("SweepResult.BoneName.ToString(): %s"), *SweepResult.BoneName.ToString());
 			SO_LOG(LogTemp, Warning, TEXT("OtherComp: %s"), *OtherComp->GetName());
+			SO_LOG(LogTemp, Warning, TEXT("GetKeyByName: %s"), *GetKeyByBonName( SweepResult.BoneName.ToString()));
+
+			
+			
 			UGameplayStatics::ApplyDamage(HitActor,DamageToCause,FiringController,this,UDamageType::StaticClass());
 		}
 	}
@@ -232,6 +236,16 @@ void ASOProjectileBase::InitializeProjectile(FVector InLocation, FRotator InRota
 	SetLifeSpanToPool();
 	// 클라이언트에게 보이게 하라고 지시 OnRep_ShowStartTime
 	ShowStartTime = GetWorld()->GetTimeSeconds();
+}
+
+FString ASOProjectileBase::GetKeyByBonName(const FString& InBoneName)
+{
+	int32 UnderscoreIndex;
+	if (InBoneName.FindChar(TEXT('_'), UnderscoreIndex))
+	{
+		return InBoneName.Left(UnderscoreIndex);
+	}
+	return InBoneName;
 }
 
 // 충돌했을 때 
