@@ -1,0 +1,6 @@
+Name,WeaponType,Head,Neck,Torso,Upperarm,Lowerarm,Thigh,Calf,HandFoot
+0,Pistol,210,210,100,105,105,105,105,105
+1,AR,235,235,100,90,90,90,90,90
+2,SR,250,250,130,95,95,95,95,95
+3,Shot Gun,150,150,90,105,105,105,105,105
+4,Minigun,235,235,100,90,90,90,90,90
