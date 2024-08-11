@@ -54,9 +54,10 @@ public:
 	UFUNCTION()
 	void InitializeProjectile(FVector InLocation, FRotator InRotation, APawn* InFiringPawn);
 	
-	 
-protected:
+
 	
+protected:
+	FString GetKeyByBonName(const FString& InBoneName);
 	
 	
 protected:
