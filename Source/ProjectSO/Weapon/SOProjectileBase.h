@@ -40,6 +40,7 @@ protected:
 	void StartDestroyTimer();
 	void DestroyTimerFinished();
 
+	// ProjectilePool 
 public:	
 	UFUNCTION()
 	void SetProjectileActive(bool IsActive);
@@ -52,7 +53,12 @@ public:
 
 	UFUNCTION()
 	void InitializeProjectile(FVector InLocation, FRotator InRotation, APawn* InFiringPawn);
-
+	
+	 
+protected:
+	
+	
+	
 protected:
 	// Multi
 	UFUNCTION()
