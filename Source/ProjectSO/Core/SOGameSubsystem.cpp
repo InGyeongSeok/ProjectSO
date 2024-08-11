@@ -156,7 +156,7 @@ FSOSpawnableItemClasses* USOGameSubsystem::GetSpawnableItemData(const int32 InIn
 }
 
 //Initialize 에서 ProcessWeaponDamageDataRows 호출
-//이 함수는 Weapon Damage by bone 에 대한 정보를 가져온다. (파싱? )
+//이 함수는 Weapon Damage by bone 에 대한 정보를 가져온다. (파싱?)
 void USOGameSubsystem::ProcessWeaponDamageDataRows() 
 {
 	if (!WeaponDamageTable)

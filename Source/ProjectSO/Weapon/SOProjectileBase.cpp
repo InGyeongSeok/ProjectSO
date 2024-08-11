@@ -100,7 +100,6 @@ void ASOProjectileBase::OnHit(UPrimitiveComponent* OverlappedComponent, AActor* 
 	// {
 	// 	return;
 	// }
-	//
 	
 	// APawn* FiringPawn = GetInstigator();
 	if (FiringPawn && HasAuthority())
