@@ -185,6 +185,11 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	FSOWeaponData WeaponData;
+
+public:
+	FSOWeaponStat* GetWeaponStat() { return &WeaponStat; }
+	FSOWeaponData* GetWeaponData() { return &WeaponData; }
+
 	
 	// Ammo
 protected:

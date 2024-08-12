@@ -95,23 +95,31 @@ void ASOProjectileBase::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 	SO_LOG(LogSOProjectileBase, Warning, TEXT("OtherActor : %s"), *OtherActor->GetName())
 	
 	SO_LOG(LogSOProjectileBase, Warning, TEXT("SpawnedProjectile Owner : %s"), Owner == nullptr ? TEXT("Null") :  *Owner->GetName());
+
+	ASOGunBase* GunBase = Cast<ASOGunBase>(Owner);
+	ESOWeaponType WeaponType = GunBase->GetWeaponData()->WeaponType;
+	float BaseDamage = GunBase->GetWeaponStat()->Damage;
+	FRuntimeFloatCurve DistanceDamageFalloff = GunBase->GetWeaponData()->DistanceDamageFalloff;
 	
-	// // 사람에 맞았을때로 설정하기
-	// FVector HitLocation = SweepResult.ImpactPoint; 
-	// float Dist = FVector::Dist(SpawnLocation, HitLocation);
-	// const FRichCurve* Curve = GetCurveData(); 
- 
-	// // 거리에 데미지 영향주는 변수
-	// float RangeModifier = 1.0f;
-	// check(Curve);
-	// if(Curve)
-	// {
-	// 	RangeModifier = Curve->HasAnyData() ? Curve->Eval(Dist) : 1.0f;		
-	// }
-	// else
-	// {
-	// 	SO_LOG(LogSOProjectileBase, Error, TEXT("Curve is null"))
-	// }
+	
+	// 사람에 맞았을때로 설정하기
+	FVector HitLocation = SweepResult.ImpactPoint; 
+	float Dist = FVector::Dist(SpawnLocation, HitLocation);
+	const FRichCurve* Curve = DistanceDamageFalloff.GetRichCurveConst();	
+	SO_LOG(LogSOProjectileBase, Warning, TEXT("Dist : %f"), Dist)
+	
+	// 거리에 데미지 영향주는 변수
+	float RangeModifier = 1.0f;
+	check(Curve);
+	if(Curve)
+	{
+		RangeModifier = Curve->HasAnyData() ? Curve->Eval(Dist) : 1.0f;		
+		SO_LOG(LogSOProjectileBase, Warning, TEXT("RangeModifier : %f"), RangeModifier)
+	}
+	else
+	{
+		SO_LOG(LogSOProjectileBase, Error, TEXT("Curve is null"))
+	}
 	
 	
 	// APawn* FiringPawn = GetInstigator();
