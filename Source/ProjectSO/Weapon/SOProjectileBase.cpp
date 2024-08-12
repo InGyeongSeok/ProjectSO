@@ -93,14 +93,7 @@ void ASOProjectileBase::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 {
 	SO_LOG(LogSOProjectileBase, Warning, TEXT("OtherActor : %s"), *OtherActor->GetName())
 
-	// Destroyed();	
-	// 충돌한 액터가 프로젝타일 경우
-	// ASOProjectileBase* OtherProjectile = Cast<ASOProjectileBase>(OtherActor);
-	// if (OtherProjectile)
-	// {
-	// 	  return;
-	// }
-	
+	// 사람에 맞았을때로 설정하기
 	FVector HitLocation = SweepResult.ImpactPoint; 
 	float Dist = FVector::Dist(SpawnLocation, HitLocation);
 	const FRichCurve* Curve = GetCurveData(); 
@@ -124,14 +117,25 @@ void ASOProjectileBase::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 		AController* FiringController = FiringPawn->GetController();
 		if (FiringController)
 		{
-			const float DamageToCause = SweepResult.BoneName.ToString() == FString("Head") ? HeadShotDamage : Damage;
+			// const float Damage = SweepResult.BoneName.ToString() == FString("Head") ? HeadShotDamage : Damage;
 			AActor* HitActor = OtherActor;
-
+			const float Damage = 0.f;
+			
 			SO_LOG(LogSOProjectileBase, Warning, TEXT("SweepResult.BoneName.ToString(): %s"), *SweepResult.BoneName.ToString())
 			SO_LOG(LogSOProjectileBase, Warning, TEXT("OtherComp: %s"), *OtherComp->GetName())
 			SO_LOG(LogSOProjectileBase, Warning, TEXT("GetKeyByName: %s"), *GetKeyByBonName( SweepResult.BoneName.ToString()))
-            
-			UGameplayStatics::ApplyDamage(HitActor,DamageToCause,FiringController,this,UDamageType::StaticClass());
+
+			// Damage = Base damage × Hit area damage × Weapon class area damage
+			// Base Damage
+			
+			// Hit area damage
+			
+			//Weapon class area damage
+
+			
+
+			
+			UGameplayStatics::ApplyDamage(HitActor,Damage,FiringController,this,UDamageType::StaticClass());
 		}
 	}
 	if (ImpactParticles)

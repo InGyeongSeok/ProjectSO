@@ -3,7 +3,9 @@
 
 #include "SOGameSubsystem.h"
 
+#include "ProjectSO/ProjectSO.h"
 #include "ProjectSO/Library/SOWeaponStructLibrary.h"
+
 
 USOGameSubsystem::USOGameSubsystem()
 {
@@ -188,17 +190,33 @@ float USOGameSubsystem::GetHitAreaDamage(const FString& Area) const
 
 float USOGameSubsystem::GetHitAreaDamage(const FString& GunType, const FString& Area) const
 {
-	// if (HitAreaDamageMap.IsEmpty())
-	// {
-	// 	// 에러 발생
-	// 	return -1.0f;
-	// }
-	// if (const float* FoundValue = HitAreaDamageMap.Find(Key))
-	// {
-	// 	return *FoundValue;
-	// }
-	// // 에러 발생
-	return -1.0f;
+	if (WeaponClassAreaDamageMap.IsEmpty())
+	{
+		// 에러 발생
+		return -1.0f;
+	}
+	// GunType으로 FAreaDamageMap 찾기
+	const FAreaDamageMap* AreaDamageMap = WeaponClassAreaDamageMap.Find(GunType);
+	if (AreaDamageMap)
+	{
+		// Area로 데미지 값 찾기
+		if (const float* FoundValue = AreaDamageMap->DamageMap.Find(Area))
+		{
+			return *FoundValue;
+		}
+		else
+		{
+			// Area가 존재하지 않음
+			UE_LOG(LogSOSubsystem, Warning, TEXT("Area '%s' not found for GunType '%s'"), *Area, *GunType);
+			return -1.0f;
+		}
+	}
+	else
+	{
+		// GunType이 존재하지 않음
+		UE_LOG(LogSOSubsystem, Warning, TEXT("GunType '%s' not found in WeaponClassAreaDamageMap"), *GunType);
+		return -1.0f;
+	}
 }
 
 //Initialize 에서 ProcessWeaponDamageDataRows 호출
@@ -293,19 +311,16 @@ void USOGameSubsystem::LoadHitAreaDamageMap()
 	}
 	for (const auto& Pair : HitAreaDamageMap)
 	{
-		UE_LOG(LogTemp, Log, TEXT("Bone: %s, Damage: %f"), *Pair.Key, Pair.Value);
+		UE_LOG(LogSOSubsystem, Log, TEXT("Bone: %s, Damage: %f"), *Pair.Key, Pair.Value);
 	}
 }
 
 void USOGameSubsystem::LoadWeaponClassAreaDamageMap()
 {
-	UE_LOG(LogTemp, Log, TEXT("Weapon Class"));
 	if(!WeaponClassAreaDamageTable)
 	{
-		UE_LOG(LogTemp, Log, TEXT("Weapon Class1"));
 		return;
 	}
-	UE_LOG(LogTemp, Log, TEXT("Weapon Class2"));
 	WeaponClassAreaDamageMap.Empty();
 	TArray<FName> RowNames = WeaponClassAreaDamageTable->GetRowNames();
 	int32 NumDamageDataRows = RowNames.Num();
@@ -345,10 +360,10 @@ void USOGameSubsystem::LoadWeaponClassAreaDamageMap()
 	// 확인을 위해 WeaponClassAreaDamageMap 출력
 	for (const auto& WeaponClassPair : WeaponClassAreaDamageMap)
 	{
-		UE_LOG(LogTemp, Log, TEXT("Weapon Class: %s"), *WeaponClassPair.Key);
+		UE_LOG(LogSOSubsystem, Log, TEXT("Weapon Class: %s"), *WeaponClassPair.Key);
 		for (const auto& DamagePair : WeaponClassPair.Value.DamageMap)
 		{
-			UE_LOG(LogTemp, Log, TEXT("  Bone: %s, Damage: %f"), *DamagePair.Key, DamagePair.Value);
+			UE_LOG(LogSOSubsystem, Log, TEXT("  Bone: %s, Damage: %f"), *DamagePair.Key, DamagePair.Value);
 		}
 	}
 }
