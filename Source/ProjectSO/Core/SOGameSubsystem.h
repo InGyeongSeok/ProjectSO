@@ -7,6 +7,15 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "SOGameSubsystem.generated.h"
 
+USTRUCT(BlueprintType)
+struct FAreaDamageMap
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TMap<FString, float> DamageMap;
+};
+
 struct FSOSpawnableItemClasses;
 /**
  * 
@@ -28,7 +37,8 @@ public:
 	FSOWeaponDamageData* GetWeaponDamageData(const uint8 InID);
 	FSOSpawnableItemClasses* GetSpawnableItemData(const int32 InIndex);
 	uint32 GetSpawnableItemCount() const {return TotalSpawnableItem; };
-	float GetHitAreaDamage(const FString& Key) const;
+	float GetHitAreaDamage(const FString& Area) const;
+	float GetHitAreaDamage(const FString& GunType, const FString& Area) const;
 
 protected:
 	UPROPERTY(BlueprintReadOnly)
@@ -55,6 +65,9 @@ protected:
 	UPROPERTY()
 	TMap<FString, float> HitAreaDamageMap;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TMap<FString, FAreaDamageMap> WeaponClassAreaDamageMap;
+
 	//DT_SOWeaponDamageByBone
 
 
@@ -64,5 +77,6 @@ protected:
 	void ProcessWeaponDamageDataRows();
 	void InitializeWeaponDamageByBoneTable(const int32 InID , const FString& InBoneName, const FString& InPropertyValue);
 
-	void MakeHitAreaDamageMap();
+	void LoadHitAreaDamageMap();
+	void LoadWeaponClassAreaDamageMap();
 };
