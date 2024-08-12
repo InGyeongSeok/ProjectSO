@@ -38,7 +38,7 @@ public:
 	FSOSpawnableItemClasses* GetSpawnableItemData(const int32 InIndex);
 	uint32 GetSpawnableItemCount() const {return TotalSpawnableItem; };
 	float GetHitAreaDamage(const FString& Area) const;
-	float GetHitAreaDamage(const FString& GunType, const FString& Area) const;
+	float GetWeaponClassAreaDamage(const FString& GunType, const FString& Area) const;
 
 protected:
 	UPROPERTY(BlueprintReadOnly)

@@ -13,6 +13,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Projectile/SOProjectilePoolComponent.h"
 #include "ProjectSO/ProjectSO.h"
+#include "ProjectSO/Core/SOGameSubsystem.h"
 
 // Sets default values
 ASOProjectileBase::ASOProjectileBase()
@@ -96,55 +97,68 @@ void ASOProjectileBase::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 	
 	SO_LOG(LogSOProjectileBase, Warning, TEXT("SpawnedProjectile Owner : %s"), Owner == nullptr ? TEXT("Null") :  *Owner->GetName());
 
-	ASOGunBase* GunBase = Cast<ASOGunBase>(Owner);
-	ESOWeaponType WeaponType = GunBase->GetWeaponData()->WeaponType;
-	float BaseDamage = GunBase->GetWeaponStat()->Damage;
-	FRuntimeFloatCurve DistanceDamageFalloff = GunBase->GetWeaponData()->DistanceDamageFalloff;
-	
-	
 	// 사람에 맞았을때로 설정하기
-	FVector HitLocation = SweepResult.ImpactPoint; 
-	float Dist = FVector::Dist(SpawnLocation, HitLocation);
-	const FRichCurve* Curve = DistanceDamageFalloff.GetRichCurveConst();	
-	SO_LOG(LogSOProjectileBase, Warning, TEXT("Dist : %f"), Dist)
-	
-	// 거리에 데미지 영향주는 변수
-	float RangeModifier = 1.0f;
-	check(Curve);
-	if(Curve)
+	if (FiringPawn && HasAuthority() && Cast<APawn>(OtherActor))
 	{
-		RangeModifier = Curve->HasAnyData() ? Curve->Eval(Dist) : 1.0f;		
-		SO_LOG(LogSOProjectileBase, Warning, TEXT("RangeModifier : %f"), RangeModifier)
-	}
-	else
-	{
-		SO_LOG(LogSOProjectileBase, Error, TEXT("Curve is null"))
-	}
+		ASOGunBase* GunBase = Cast<ASOGunBase>(Owner);
+		
+		FRuntimeFloatCurve DistanceDamageFalloff = GunBase->GetWeaponData()->DistanceDamageFalloff;
 	
+		FVector HitLocation = SweepResult.ImpactPoint; 
+		float Dist = FVector::Dist(SpawnLocation, HitLocation);
+		const FRichCurve* Curve = DistanceDamageFalloff.GetRichCurveConst();	
+		SO_LOG(LogSOProjectileBase, Warning, TEXT("Dist : %f"), Dist)
 	
-	// APawn* FiringPawn = GetInstigator();
-	if (FiringPawn && HasAuthority())
-	{
+		// 거리에 데미지 영향주는 변수
+		float RangeModifier = 1.0f;
+		check(Curve);
+		if(Curve)
+		{
+			RangeModifier = Curve->HasAnyData() ? Curve->Eval(Dist) : 1.0f;
+			RangeModifier *= PERCENT;
+			SO_LOG(LogSOProjectileBase, Warning, TEXT("RangeModifier : %f"), RangeModifier)
+		}
+		else
+		{
+			SO_LOG(LogSOProjectileBase, Error, TEXT("Curve is null"))
+		}
+
+		
 		AController* FiringController = FiringPawn->GetController();
 		if (FiringController)
 		{
-			// const float Damage = SweepResult.BoneName.ToString() == FString("Head") ? HeadShotDamage : Damage;
 			AActor* HitActor = OtherActor;
-			const float Damage = 0.f;
+			float Damage = 0.f;
 			
-			SO_LOG(LogSOProjectileBase, Warning, TEXT("SweepResult.BoneName.ToString(): %s"), *SweepResult.BoneName.ToString())
-			SO_LOG(LogSOProjectileBase, Warning, TEXT("OtherComp: %s"), *OtherComp->GetName())
-			SO_LOG(LogSOProjectileBase, Warning, TEXT("GetKeyByName: %s"), *GetKeyByBonName( SweepResult.BoneName.ToString()))
+			// SO_LOG(LogSOProjectileBase, Warning, TEXT("SweepResult.BoneName.ToString(): %s"), *SweepResult.BoneName.ToString())
+			// SO_LOG(LogSOProjectileBase, Warning, TEXT("OtherComp: %s"), *OtherComp->GetName())
+			// SO_LOG(LogSOProjectileBase, Warning, TEXT("GetKeyByName: %s"), *GetKeyByBonName( SweepResult.BoneName.ToString()))
 
+			FString test = "Head";
+			
 			// Damage = Base damage × Hit area damage × Weapon class area damage
+			// PERCENT 매크로 사용하자
 			// Base Damage
+			float BaseDamage = GunBase->GetWeaponStat()->Damage;
+			SO_LOG(LogSOProjectileBase, Warning, TEXT("BaseDamage : %f"), BaseDamage)
+			
+			// subsystem 가지고 오기
+			USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();
 			
 			// Hit area damage
+			float HitAreaDamage = SOGameSubsystem->GetHitAreaDamage(test) * PERCENT;
+			SO_LOG(LogSOProjectileBase, Warning, TEXT("Hitareadamage : %f"), HitAreaDamage)
 			
 			//Weapon class area damage
+			ESOWeaponType WeaponTypeEnum = GunBase->GetWeaponData()->WeaponType;
+			FString WeaponType = UEnum::GetDisplayValueAsText(WeaponTypeEnum).ToString();
+			float WeaponClassAreaDamage = SOGameSubsystem->GetWeaponClassAreaDamage(WeaponType, test) * PERCENT;
+			SO_LOG(LogSOProjectileBase, Warning, TEXT("WeaponType : %s"), *WeaponType)
+			SO_LOG(LogSOProjectileBase, Warning, TEXT("Weaponclassareadamage : %f"), WeaponClassAreaDamage)
 
 			
-
+			Damage = BaseDamage * HitAreaDamage * WeaponClassAreaDamage * RangeModifier;
+			SO_LOG(LogSOProjectileBase, Warning, TEXT("Damage : %f"), Damage)
 			
 			UGameplayStatics::ApplyDamage(HitActor,Damage,FiringController,this,UDamageType::StaticClass());
 		}
@@ -280,6 +294,33 @@ FString ASOProjectileBase::GetKeyByBonName(const FString& InBoneName)
 		return InBoneName.Left(UnderscoreIndex);
 	}
 	return InBoneName;
+}
+
+USOGameSubsystem* ASOProjectileBase::GetSOGameSubsystem()
+{
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("World is not available."))
+		return nullptr;
+	}
+
+	// 게임 인스턴스 가져오기.
+	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(World);
+	if (!GameInstance)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GameInstance is not available."))
+		return nullptr;
+	}
+
+	// 게임 인스턴스에서 서브시스템을 가져오기.
+	USOGameSubsystem* SOGameSubsystem = GameInstance->GetSubsystem<USOGameSubsystem>();
+	if (!SOGameSubsystem)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SOGameSubsystem is not available."))
+		return nullptr;
+	}
+	return SOGameSubsystem;
 }
 
 // 충돌했을 때 

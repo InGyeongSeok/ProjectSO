@@ -7,6 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "SOProjectileBase.generated.h"
 
+class USOGameSubsystem;
 class UProjectileMovementComponent;
 class UBoxComponent;
 
@@ -60,6 +61,11 @@ public:
 protected:
 	FString GetKeyByBonName(const FString& InBoneName);
 	
+	//Subsystem
+	USOGameSubsystem* GetSOGameSubsystem();
+
+
+
 	
 protected:
 	// Multi
@@ -68,7 +74,7 @@ protected:
 
 	UFUNCTION()
 	void OnRep_HideStartTime();
-
+	
 	// Component
 public:
 	UPROPERTY(EditAnywhere)

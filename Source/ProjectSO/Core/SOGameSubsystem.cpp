@@ -188,7 +188,7 @@ float USOGameSubsystem::GetHitAreaDamage(const FString& Area) const
 	return -1.0f;
 }
 
-float USOGameSubsystem::GetHitAreaDamage(const FString& GunType, const FString& Area) const
+float USOGameSubsystem::GetWeaponClassAreaDamage(const FString& GunType, const FString& Area) const
 {
 	if (WeaponClassAreaDamageMap.IsEmpty())
 	{
@@ -207,14 +207,14 @@ float USOGameSubsystem::GetHitAreaDamage(const FString& GunType, const FString& 
 		else
 		{
 			// Area가 존재하지 않음
-			UE_LOG(LogSOSubsystem, Warning, TEXT("Area '%s' not found for GunType '%s'"), *Area, *GunType);
+			UE_LOG(LogTemp, Warning, TEXT("Area '%s' not found for GunType '%s'"), *Area, *GunType);
 			return -1.0f;
 		}
 	}
 	else
 	{
 		// GunType이 존재하지 않음
-		UE_LOG(LogSOSubsystem, Warning, TEXT("GunType '%s' not found in WeaponClassAreaDamageMap"), *GunType);
+		UE_LOG(LogTemp, Warning, TEXT("GunType '%s' not found in WeaponClassAreaDamageMap"), *GunType);
 		return -1.0f;
 	}
 }

@@ -27,3 +27,5 @@ DECLARE_LOG_CATEGORY_EXTERN(LogSOSubsystem, Log, All);
 #define ECC_Item ECollisionChannel::ECC_GameTraceChannel1
 #define ECC_Projectile ECollisionChannel::ECC_GameTraceChannel2
 #define ECC_ProjectileLaser ECollisionChannel::ECC_GameTraceChannel3
+
+#define PERCENT 0.01
