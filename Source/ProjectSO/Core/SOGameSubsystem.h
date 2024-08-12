@@ -28,7 +28,7 @@ public:
 	FSOWeaponDamageData* GetWeaponDamageData(const uint8 InID);
 	FSOSpawnableItemClasses* GetSpawnableItemData(const int32 InIndex);
 	uint32 GetSpawnableItemCount() const {return TotalSpawnableItem; };
-
+	float GetHitAreaDamage(const FString& Key) const;
 
 protected:
 	UPROPERTY(BlueprintReadOnly)
@@ -46,6 +46,15 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<UDataTable> WeaponDamageByBoneTable;
 
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<UDataTable> WeaponClassAreaDamageTable;
+
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<UDataTable> HitAreaDamageTable;
+
+	UPROPERTY()
+	TMap<FString, float> HitAreaDamageMap;
+
 	//DT_SOWeaponDamageByBone
 
 
@@ -54,4 +63,6 @@ protected:
 	
 	void ProcessWeaponDamageDataRows();
 	void InitializeWeaponDamageByBoneTable(const int32 InID , const FString& InBoneName, const FString& InPropertyValue);
+
+	void MakeHitAreaDamageMap();
 };

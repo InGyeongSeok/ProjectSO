@@ -334,6 +334,12 @@ struct FSOHitAreaDamageData : public FTableRowBase
 	GENERATED_BODY()
 	
 public:
+	FSOHitAreaDamageData(): Head(0), Neck(0), Torso(0), Upperarm(0), Lowerarm(0),
+				 Thigh(0), Calf(0),
+				 HandFoot(0)
+	{
+	}
+	
 	FSOHitAreaDamageData& operator=(const FSOHitAreaDamageData& InOhterDamageData)
 	{
 		if(this!= &InOhterDamageData)

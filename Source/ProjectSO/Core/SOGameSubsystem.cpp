@@ -44,6 +44,20 @@ USOGameSubsystem::USOGameSubsystem()
 	{
 		WeaponDamageByBoneTable = WeaponDamageByBoneRef.Object;
 	}
+
+	ConstructorHelpers::FObjectFinder<UDataTable> WeaponClassAreaDamageRef(
+	TEXT("/Script/Engine.DataTable'/Game/StellarObsidian/GameData/DT_SOWeaponClassAreaDamageData.DT_SOWeaponClassAreaDamageData'"));
+	if (WeaponClassAreaDamageRef.Succeeded())
+	{
+		WeaponClassAreaDamageTable = WeaponClassAreaDamageRef.Object;
+	}
+
+	ConstructorHelpers::FObjectFinder<UDataTable> HitAreaDamageRef(
+TEXT("/Script/Engine.DataTable'/Game/StellarObsidian/GameData/DT_SOHitAreaDamageData.DT_SOHitAreaDamageData'"));
+	if (HitAreaDamageRef.Succeeded())
+	{
+		HitAreaDamageTable = HitAreaDamageRef.Object;
+	}
 }
 
 void USOGameSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -52,6 +66,7 @@ void USOGameSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	UE_LOG(LogTemp, Warning, TEXT("Initialize "));
 
 	ProcessWeaponDamageDataRows();
+	MakeHitAreaDamageMap();
 }
 
 USOGameSubsystem* USOGameSubsystem::GetSOGameSubsystem()
@@ -155,6 +170,21 @@ FSOSpawnableItemClasses* USOGameSubsystem::GetSpawnableItemData(const int32 InIn
 	return SpawnableDataRow;
 }
 
+float USOGameSubsystem::GetHitAreaDamage(const FString& Key) const
+{
+	if (HitAreaDamageMap.IsEmpty())
+	{
+		// 에러 발생
+		return -1.0f;
+	}
+	if (const float* FoundValue = HitAreaDamageMap.Find(Key))
+	{
+		return *FoundValue;
+	}
+	// 에러 발생
+	return -1.0f;
+}
+
 //Initialize 에서 ProcessWeaponDamageDataRows 호출
 //이 함수는 Weapon Damage by bone 에 대한 정보를 가져온다. (파싱?)
 void USOGameSubsystem::ProcessWeaponDamageDataRows() 
@@ -209,5 +239,44 @@ void USOGameSubsystem::InitializeWeaponDamageByBoneTable(const int32 InID , cons
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("No WeaponDamageByBoneTable found for ID: %d"), InID);
+	}
+}
+
+void USOGameSubsystem::MakeHitAreaDamageMap()
+{
+	if(!HitAreaDamageTable)
+	{
+		return;
+	}
+	HitAreaDamageMap.Empty();
+	TArray<FName> RowNames = HitAreaDamageTable->GetRowNames();
+	int32 NumDamageDataRows = RowNames.Num();
+	
+	for (int32 ID = 0; ID < NumDamageDataRows; ++ID)
+	{
+		// 행의 데이터를 가져옴
+		FSOHitAreaDamageData* HitAreaDamageData = HitAreaDamageTable->FindRow<FSOHitAreaDamageData>(RowNames[ID], TEXT(""));
+
+		if (HitAreaDamageData)
+		{
+			// 구조체의 모든 프로퍼티를 순회
+			for (TFieldIterator<FProperty> It(FSOHitAreaDamageData::StaticStruct()); It; ++It)
+			{
+				FProperty* Property = *It;
+				FString PropertyName = Property->GetName();
+				FString PropertyValue;
+
+				// Property Value 값을 가져옴
+				Property->ExportText_InContainer(0, PropertyValue, HitAreaDamageData, HitAreaDamageData, nullptr, PPF_None);
+
+				// Property Value를 float로 변환하고 HitAreaDamageMap에 추가
+				float DamageValue = FCString::Atof(*PropertyValue);
+				HitAreaDamageMap.Add(PropertyName, DamageValue);
+			}
+		}
+	}
+	for (const auto& Pair : HitAreaDamageMap)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Bone: %s, Damage: %f"), *Pair.Key, Pair.Value);
 	}
 }
