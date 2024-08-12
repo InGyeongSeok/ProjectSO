@@ -21,6 +21,8 @@ DECLARE_LOG_CATEGORY_EXTERN(LogSONetwork, Log, All);
 DECLARE_LOG_CATEGORY_EXTERN(LogSOTemp, Log, All);
 DECLARE_LOG_CATEGORY_EXTERN(LogSOProjectileBase, Log, All);
 DECLARE_LOG_CATEGORY_EXTERN(LogSOAI, Log, All);
+DECLARE_LOG_CATEGORY_EXTERN(LogSOSubsystem, Log, All);
+
 
 #define ECC_Item ECollisionChannel::ECC_GameTraceChannel1
 #define ECC_Projectile ECollisionChannel::ECC_GameTraceChannel2

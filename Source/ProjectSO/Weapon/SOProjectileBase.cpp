@@ -93,33 +93,25 @@ void ASOProjectileBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 void ASOProjectileBase::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	SO_LOG(LogSOProjectileBase, Warning, TEXT("OtherActor : %s"), *OtherActor->GetName())
-
-	// Destroyed();	
-	// 충돌한 액터가 프로젝타일 경우
-	// ASOProjectileBase* OtherProjectile = Cast<ASOProjectileBase>(OtherActor);
-	// if (OtherProjectile)
-	// {
-	// 	  return;
-	// }
-
-	// AActor* Owner_ = GetOwner();
 	
 	SO_LOG(LogSOProjectileBase, Warning, TEXT("SpawnedProjectile Owner : %s"), Owner == nullptr ? TEXT("Null") :  *Owner->GetName());
-	/*FVector HitLocation = SweepResult.ImpactPoint; 
-	float Dist = FVector::Dist(SpawnLocation, HitLocation);
-	const FRichCurve* Curve = GetCurveData(); 
-
-	// 거리에 데미지 영향주는 변수
-	float RangeModifier = 1.0f;
-	check(Curve);
-	if(Curve)
-	{
-		RangeModifier = Curve->HasAnyData() ? Curve->Eval(Dist) : 1.0f;		
-	}
-	else
-	{
-		SO_LOG(LogSOProjectileBase, Error, TEXT("Curve is null"))
-	}*/
+	
+	// // 사람에 맞았을때로 설정하기
+	// FVector HitLocation = SweepResult.ImpactPoint; 
+	// float Dist = FVector::Dist(SpawnLocation, HitLocation);
+	// const FRichCurve* Curve = GetCurveData(); 
+ 
+	// // 거리에 데미지 영향주는 변수
+	// float RangeModifier = 1.0f;
+	// check(Curve);
+	// if(Curve)
+	// {
+	// 	RangeModifier = Curve->HasAnyData() ? Curve->Eval(Dist) : 1.0f;		
+	// }
+	// else
+	// {
+	// 	SO_LOG(LogSOProjectileBase, Error, TEXT("Curve is null"))
+	// }
 	
 	
 	// APawn* FiringPawn = GetInstigator();
@@ -128,14 +120,25 @@ void ASOProjectileBase::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 		AController* FiringController = FiringPawn->GetController();
 		if (FiringController)
 		{
-			const float DamageToCause = SweepResult.BoneName.ToString() == FString("Head") ? HeadShotDamage : Damage;
+			// const float Damage = SweepResult.BoneName.ToString() == FString("Head") ? HeadShotDamage : Damage;
 			AActor* HitActor = OtherActor;
-
+			const float Damage = 0.f;
+			
 			SO_LOG(LogSOProjectileBase, Warning, TEXT("SweepResult.BoneName.ToString(): %s"), *SweepResult.BoneName.ToString())
 			SO_LOG(LogSOProjectileBase, Warning, TEXT("OtherComp: %s"), *OtherComp->GetName())
 			SO_LOG(LogSOProjectileBase, Warning, TEXT("GetKeyByName: %s"), *GetKeyByBonName( SweepResult.BoneName.ToString()))
-            
-			UGameplayStatics::ApplyDamage(HitActor,DamageToCause,FiringController,this,UDamageType::StaticClass());
+
+			// Damage = Base damage × Hit area damage × Weapon class area damage
+			// Base Damage
+			
+			// Hit area damage
+			
+			//Weapon class area damage
+
+			
+
+			
+			UGameplayStatics::ApplyDamage(HitActor,Damage,FiringController,this,UDamageType::StaticClass());
 		}
 	}
 	if (ImpactParticles)

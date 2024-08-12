@@ -112,11 +112,11 @@ public:
 	TObjectPtr<class USoundAttenuation> LoopingSoundAttenuation;
 	
 protected:
-	UPROPERTY(EditAnywhere)
-	float Damage = 20.f;
-
-	UPROPERTY(EditAnywhere)
-	float HeadShotDamage = 40.f;
+	// UPROPERTY(EditAnywhere)
+	// float Damage = 20.f;
+	//
+	// UPROPERTY(EditAnywhere)
+	// float HeadShotDamage = 40.f;
 	
 	UPROPERTY(EditAnywhere)
 	float DestroyTime = 4.f;
