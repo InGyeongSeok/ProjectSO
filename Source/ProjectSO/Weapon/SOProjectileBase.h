@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SOGunBase.h"
 #include "GameFramework/Actor.h"
 #include "SOProjectileBase.generated.h"
 
@@ -52,7 +53,7 @@ public:
 	void PushPoolSelf();
 
 	UFUNCTION()
-	void InitializeProjectile(FVector InLocation, FRotator InRotation, APawn* InFiringPawn);
+	void InitializeProjectile(FVector InLocation, FRotator InRotation, APawn* InFiringPawn, ASOGunBase* InGun);
 	
 
 	

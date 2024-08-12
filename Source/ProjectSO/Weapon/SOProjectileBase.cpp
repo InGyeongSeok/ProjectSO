@@ -52,6 +52,7 @@ ASOProjectileBase::ASOProjectileBase()
 void ASOProjectileBase::BeginPlay()
 {
 	Super::BeginPlay();
+	
 	HideStartTime = GetWorld()->GetTimeSeconds();
 	if (Tracer)
 	{
@@ -100,8 +101,11 @@ void ASOProjectileBase::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 	// {
 	// 	  return;
 	// }
+
+	// AActor* Owner_ = GetOwner();
 	
-	FVector HitLocation = SweepResult.ImpactPoint; 
+	SO_LOG(LogSOProjectileBase, Warning, TEXT("SpawnedProjectile Owner : %s"), Owner == nullptr ? TEXT("Null") :  *Owner->GetName());
+	/*FVector HitLocation = SweepResult.ImpactPoint; 
 	float Dist = FVector::Dist(SpawnLocation, HitLocation);
 	const FRichCurve* Curve = GetCurveData(); 
 
@@ -115,7 +119,7 @@ void ASOProjectileBase::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 	else
 	{
 		SO_LOG(LogSOProjectileBase, Error, TEXT("Curve is null"))
-	}
+	}*/
 	
 	
 	// APawn* FiringPawn = GetInstigator();
@@ -235,9 +239,12 @@ void ASOProjectileBase::PushPoolSelf()
 }
 
 // Server에서 호출
-void ASOProjectileBase::InitializeProjectile(FVector InLocation, FRotator InRotation, APawn* InFiringPawn)
+void ASOProjectileBase::InitializeProjectile(FVector InLocation, FRotator InRotation, APawn* InFiringPawn, ASOGunBase* InGun)
 {
 	SpawnLocation = InLocation;
+	SO_LOG(LogSOProjectileBase, Warning, TEXT("Owner : %s"), Owner == nullptr ? TEXT("Null") :  *Owner->GetName());
+	SetOwner(InGun);
+	SO_LOG(LogSOProjectileBase, Warning, TEXT("Owner : %s"), Owner == nullptr ? TEXT("Null") :  *Owner->GetName());
 	SetActorLocation(InLocation);
 	SetActorRotation(InRotation);
 	SetProjectileActive(true);

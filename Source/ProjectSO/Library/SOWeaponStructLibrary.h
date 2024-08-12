@@ -115,6 +115,7 @@ public:
 			AmmoClass=InOhterStat.AmmoClass;
 			WeaponType = InOhterStat.WeaponType;
 			OverlayState = InOhterStat.OverlayState;
+			DistanceDamageFalloff = InOhterStat.DistanceDamageFalloff;
 			WeaponMeshDataAsset = InOhterStat.WeaponMeshDataAsset;
 			FireMontage =  InOhterStat.FireMontage;
 			EquipMontage = InOhterStat.EquipMontage;
@@ -144,6 +145,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AnimationState)
 	EALSOverlayState OverlayState;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Distance)
+	FRuntimeFloatCurve DistanceDamageFalloff;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh)
 	TObjectPtr<class USOWeaponMeshDataAsset> WeaponMeshDataAsset;
 	

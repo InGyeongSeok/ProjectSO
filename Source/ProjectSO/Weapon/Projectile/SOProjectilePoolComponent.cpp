@@ -70,16 +70,17 @@ void USOProjectilePoolComponent::Initialize()
 			// SpawnedProjectile->ProjectilePool = this;
 			
 			FTransform SpawnTransform(FRotator().ZeroRotator, FVector().ZeroVector);
+			// ASOGunBase* GunBaseTest = Cast<ASOGunBase>(this->GetOwner());
 			ASOProjectileBase* SpawnedProjectile = GetWorld()->SpawnActorDeferred<ASOProjectileBase>(AmmoClass, SpawnTransform);
 			if(SpawnedProjectile)
-			{
-				
+			{				
 				SpawnedProjectile->SetProjectileActive(false);
 				SpawnedProjectile->ProjectilePool = this;
+				SpawnedProjectile->FinishSpawning(SpawnTransform);
+				
 				// ASOGunBase* GunBaseTest = Cast<ASOGunBase>(this->GetOwner());
 				// SpawnedProjectile->SetOwner(GunBaseTest->GetOwner());
-				// SO_SUBLOG(LogTemp, Warning, TEXT("%s"), *GunBaseTest->GetOwner()->GetName());
-				SpawnedProjectile->FinishSpawning(SpawnTransform);
+				// SO_SUBLOG(LogSOProjectileBase, Warning, TEXT("SpawnedProjectile Owner : %s"), *GunBaseTest->GetName())
 			}
 			Pool.Push(SpawnedProjectile);
 		}

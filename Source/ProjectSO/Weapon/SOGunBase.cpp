@@ -320,6 +320,7 @@ void ASOGunBase::CreateProjectile(const FTransform& MuzzleTransform, const FVect
 	//검사 로직 추가
 	//서버에서 호출 
 	ASOProjectileBase* Projectile = ProjectilePoolComponent->PullProjectile();
+	
 	// FTimerHandle TimerHandle_LifeSpanToPoolExpired;
 	// if (GetWorld())
 	// {
@@ -329,7 +330,7 @@ void ASOGunBase::CreateProjectile(const FTransform& MuzzleTransform, const FVect
 	// 	},0.1,false
 	// 		);
 	// }
-	Projectile->InitializeProjectile(SpawnLocation, SpawnRotation, OwningCharacter);
+	Projectile->InitializeProjectile(SpawnLocation, SpawnRotation, OwningCharacter, this);
 	
 }
 
