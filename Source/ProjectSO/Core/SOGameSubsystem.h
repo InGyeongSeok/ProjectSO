@@ -17,10 +17,6 @@ struct FAreaDamageMap
 	TMap<FString, float> DamageMap;
 };
 
-// struct FSOSpawnableItemClasses;
-/**
- * 
- */
 UCLASS()
 class PROJECTSO_API USOGameSubsystem : public UGameInstanceSubsystem
 {
@@ -39,7 +35,7 @@ public:
 	FSOSpawnableItemClasses* GetSpawnableItemData(const int32 InIndex);
 	uint32 GetSpawnableItemCount() const {return TotalSpawnableItem; };
 	float GetHitAreaDamage(const FString& Area) const;
-	float GetWeaponClassAreaDamage(const FString& GunType, const FString& Area) const;
+	float GetWeaponClassAreaDamage(const FString& InGunType,const FString& InBoneName) ;
 
 protected:
 	UPROPERTY(BlueprintReadOnly)
@@ -64,20 +60,6 @@ protected:
 	TObjectPtr<UDataTable> HitAreaDamageTable;
 
 	UPROPERTY()
-	TMap<FString, float> HitAreaDamageMap;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TMap<FString, FAreaDamageMap> WeaponClassAreaDamageMap;
-
-	//DT_SOWeaponDamageByBone
-
-
-	UPROPERTY()
 	uint32 TotalSpawnableItem;
-	
-	//void ProcessWeaponDamageDataRows();
-	//void InitializeWeaponDamageByBoneTable(const int32 InID , const FString& InBoneName, const FString& InPropertyValue);
 
-	// void LoadHitAreaDamageMap();
-	// void LoadWeaponClassAreaDamageMap();
 };

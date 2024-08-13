@@ -287,6 +287,7 @@ public:
 		if(this!= &InOhterDamageData)
 		{
 			WeaponType = InOhterDamageData.WeaponType;
+			WeaponBoneDamageDataAsset = InOhterDamageData.WeaponBoneDamageDataAsset;
 		}
 		return *this;
 	}
@@ -322,23 +323,45 @@ public:
 	float ReflectRate;
 };
 
+
+
 USTRUCT(BlueprintType)
 struct FProjectileData
 {
 	GENERATED_BODY()
-
-	UPROPERTY()
+	
+public:
+	
+	FProjectileData& operator=(const FProjectileData& InProjectileData)
+	{
+		if(this!= &InProjectileData)
+		{
+			Location = InProjectileData.Location;
+			Rotation = InProjectileData.Rotation;
+			FiringPawn = InProjectileData.FiringPawn;
+			Damage = InProjectileData.Damage;
+			WeaponType = InProjectileData.WeaponType;
+			DistanceDamageFalloff = InProjectileData.DistanceDamageFalloff;
+		}
+		return *this;
+	}
+	
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ProjectileData)
 	FVector Location;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ProjectileData)
 	FRotator Rotation;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ProjectileData)
 	APawn* FiringPawn;
 
-	UPROPERTY()
-	FSOWeaponStat WeaponStat;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ProjectileData)
+	float Damage;
 
-	UPROPERTY()
-	FSOWeaponData WeaponData;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ProjectileData)
+	ESOWeaponType WeaponType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = ProjectileData)
+	FRuntimeFloatCurve DistanceDamageFalloff;
 };

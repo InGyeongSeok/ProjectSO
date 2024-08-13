@@ -334,8 +334,9 @@ void ASOGunBase::CreateProjectile(const FTransform& MuzzleTransform, const FVect
 		ProjectileData.Location = SpawnLocation;
 		ProjectileData.Rotation = SpawnRotation;
 		ProjectileData.FiringPawn = OwningCharacter;
-		ProjectileData.WeaponData = WeaponData;
-		ProjectileData.WeaponStat = WeaponStat;
+		ProjectileData.Damage = WeaponStat.Damage;
+		ProjectileData.WeaponType = WeaponData.WeaponType;
+		ProjectileData.DistanceDamageFalloff = WeaponData.DistanceDamageFalloff;
 		Projectile->InitializeProjectile(ProjectileData);
 	}
 }

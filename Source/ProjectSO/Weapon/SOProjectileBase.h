@@ -127,8 +127,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	FTransform SpawnTransform;
 
-	UPROPERTY()
-	TObjectPtr<APawn> FiringPawn;
+	// UPROPERTY()
+	// TObjectPtr<APawn> FiringPawn;
 	
 public:
 	//pool
@@ -148,7 +148,7 @@ protected:
 public:
 	FRichCurve* GetCurveData();
 private:
-	FVector SpawnLocation;
+	//FVector SpawnLocation;
 
-	FProjectileData Data;
+	FProjectileData ProjectileData;
 };
