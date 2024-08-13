@@ -74,9 +74,9 @@ protected:
 	UPROPERTY()
 	uint32 TotalSpawnableItem;
 	
-	void ProcessWeaponDamageDataRows();
-	void InitializeWeaponDamageByBoneTable(const int32 InID , const FString& InBoneName, const FString& InPropertyValue);
+	//void ProcessWeaponDamageDataRows();
+	//void InitializeWeaponDamageByBoneTable(const int32 InID , const FString& InBoneName, const FString& InPropertyValue);
 
-	void LoadHitAreaDamageMap();
-	void LoadWeaponClassAreaDamageMap();
+	// void LoadHitAreaDamageMap();
+	// void LoadWeaponClassAreaDamageMap();
 };

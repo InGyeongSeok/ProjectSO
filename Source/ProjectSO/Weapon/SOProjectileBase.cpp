@@ -93,9 +93,16 @@ void ASOProjectileBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 
 void ASOProjectileBase::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	SO_LOG(LogSOProjectileBase, Warning, TEXT("OtherActor : %s"), *OtherActor->GetName())
+
+	ESOWeaponType WeaponType123 = ESOWeaponType::Pistol;
+
+	FString ScoolColor = UEnum::GetValueAsString(WeaponType123);
+	SO_LOG(LogSOProjectileBase, Warning, TEXT("WeaponType123 : %s"), *ScoolColor)
 	
-	SO_LOG(LogSOProjectileBase, Warning, TEXT("SpawnedProjectile Owner : %s"), Owner == nullptr ? TEXT("Null") :  *Owner->GetName());
+	//SO_LOG(LogSOProjectileBase, Warning, TEXT("SpawnedProjectile Owner : %s"), Owner == nullptr ? TEXT("Null") :  *Owner->GetName());
+	//		FString ScoolColor = UEnum::GetValueAsString(MyPlayer->SchoolAffiliation);
+
+	//	FSkillFVXData* FvxData = VFXDataTable->FindRow<FSkillFVXData>(FName(*ScoolColor), "");
 
 	// 사람에 맞았을때로 설정하기
 	if (FiringPawn && HasAuthority() && Cast<APawn>(OtherActor))

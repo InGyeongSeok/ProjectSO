@@ -1,2 +1,13 @@
-Name,Head,Neck,Torso,Upperarm,Lowerarm,Thigh,Calf,HandFoot
-0,100,75,100,60,50,60,50,30
+Name,ReflectRate
+head,100
+neck,75
+spine,100
+upperarm,60
+lowerarm,50
+thigh,60
+calf,50
+foot,30
+hand,30
+pelvis,100
+ball,30
+Breast,100
