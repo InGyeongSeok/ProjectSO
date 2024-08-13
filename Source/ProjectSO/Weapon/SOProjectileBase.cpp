@@ -98,12 +98,12 @@ void ASOProjectileBase::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 	// 사람에 맞았을때로 설정하기
 	if (FiringPawn && HasAuthority() && Cast<APawn>(OtherActor))
 	{
-		ASOGunBase* GunBase = Cast<ASOGunBase>(Owner);
+		// ASOGunBase* GunBase = Cast<ASOGunBase>(Owner);
 		
-		FRuntimeFloatCurve DistanceDamageFalloff = GunBase->GetWeaponData()->DistanceDamageFalloff;
+		FRuntimeFloatCurve DistanceDamageFalloff = Data.WeaponData.DistanceDamageFalloff;
 	
 		FVector HitLocation = SweepResult.ImpactPoint; 
-		float Dist = FVector::Dist(SpawnLocation, HitLocation);
+		float Dist = FVector::Dist(SpawnLocation, HitLocation);  
 		const FRichCurve* Curve = DistanceDamageFalloff.GetRichCurveConst();	
 		SO_LOG(LogSOProjectileBase, Warning, TEXT("Dist : %f"), Dist)
 	
@@ -137,7 +137,7 @@ void ASOProjectileBase::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 			// Damage = Base damage × Hit area damage × Weapon class area damage
 			// PERCENT 매크로 사용하자
 			// Base Damage
-			float BaseDamage = GunBase->GetWeaponStat()->Damage;
+			float BaseDamage = Data.WeaponStat.Damage;
 			SO_LOG(LogSOProjectileBase, Warning, TEXT("BaseDamage : %f"), BaseDamage)
 			
 			// subsystem 가지고 오기
@@ -148,7 +148,7 @@ void ASOProjectileBase::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 			SO_LOG(LogSOProjectileBase, Warning, TEXT("Hitareadamage : %f"), HitAreaDamage)
 			
 			//Weapon class area damage
-			ESOWeaponType WeaponTypeEnum = GunBase->GetWeaponData()->WeaponType;
+			ESOWeaponType WeaponTypeEnum = Data.WeaponData.WeaponType;
 			FString WeaponType = UEnum::GetDisplayValueAsText(WeaponTypeEnum).ToString();
 			float WeaponClassAreaDamage = SOGameSubsystem->GetWeaponClassAreaDamage(WeaponType, test) * PERCENT;
 			SO_LOG(LogSOProjectileBase, Warning, TEXT("WeaponType : %s"), *WeaponType)
@@ -259,17 +259,17 @@ void ASOProjectileBase::PushPoolSelf()
 }
 
 // Server에서 호출
-void ASOProjectileBase::InitializeProjectile(FVector InLocation, FRotator InRotation, APawn* InFiringPawn, ASOGunBase* InGun)
+void ASOProjectileBase::InitializeProjectile(const FProjectileData& InData)
 {
-	SpawnLocation = InLocation;
+	Data = InData;
+	SpawnLocation = InData.Location;
 	SO_LOG(LogSOProjectileBase, Warning, TEXT("Owner : %s"), Owner == nullptr ? TEXT("Null") :  *Owner->GetName());
-	SetOwner(InGun);
+	// SetOwner(InGun);
 	SO_LOG(LogSOProjectileBase, Warning, TEXT("Owner : %s"), Owner == nullptr ? TEXT("Null") :  *Owner->GetName());
-	SetActorLocationAndRotation(InLocation, InRotation);
+	SetActorLocationAndRotation(InData.Location, InData.Rotation);
 	SetProjectileActive(true);
-	FiringPawn = InFiringPawn;
+	FiringPawn = InData.FiringPawn;
 	SetLifeSpanToPool();
-	
 }
 
 FString ASOProjectileBase::GetKeyByBonName(const FString& InBoneName)

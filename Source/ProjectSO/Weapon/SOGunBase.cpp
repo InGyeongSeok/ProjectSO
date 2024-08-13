@@ -17,6 +17,7 @@
 #include "ProjectSO/ProjectSO.h"
 #include "ProjectSO/Core/SOGameSubsystem.h"
 #include "ProjectSO/Library/SOWeaponMeshDataAsset.h"
+#include "ProjectSO/Library/SOWeaponStructLibrary.h"
 #include "ProjectSO/Player/SOPlayerController.h"
 
 // Sets default values
@@ -329,7 +330,13 @@ void ASOGunBase::CreateProjectile(const FTransform& MuzzleTransform, const FVect
 	ASOProjectileBase* Projectile = ProjectilePoolComponent->GetProjectile();
 	if(Projectile)
 	{
-		Projectile->InitializeProjectile(SpawnLocation, SpawnRotation, OwningCharacter, this);
+		FProjectileData ProjectileData;
+		ProjectileData.Location = SpawnLocation;
+		ProjectileData.Rotation = SpawnRotation;
+		ProjectileData.FiringPawn = OwningCharacter;
+		ProjectileData.WeaponData = WeaponData;
+		ProjectileData.WeaponStat = WeaponStat;
+		Projectile->InitializeProjectile(ProjectileData);
 	}
 }
 

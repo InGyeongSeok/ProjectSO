@@ -7,6 +7,7 @@
 #include "SOWeaponStructLibrary.generated.h"
 
 
+enum class EALSOverlayState : uint8;
 
 USTRUCT(BlueprintType)
 struct FSOWeaponStat : public FTableRowBase
@@ -390,4 +391,25 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HitDamage)
 	float HandFoot;
 
+};
+
+USTRUCT(BlueprintType)
+struct FProjectileData
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FVector Location;
+
+	UPROPERTY()
+	FRotator Rotation;
+
+	UPROPERTY()
+	APawn* FiringPawn;
+	
+	UPROPERTY()
+	FSOWeaponStat WeaponStat;
+	
+	UPROPERTY()
+	FSOWeaponData WeaponData;
 };

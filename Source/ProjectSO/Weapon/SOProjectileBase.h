@@ -11,6 +11,8 @@ class USOGameSubsystem;
 class UProjectileMovementComponent;
 class UBoxComponent;
 
+
+
 UCLASS()
 class PROJECTSO_API ASOProjectileBase : public AActor
 {
@@ -54,7 +56,7 @@ public:
 	void PushPoolSelf();
 
 	UFUNCTION()
-	void InitializeProjectile(FVector InLocation, FRotator InRotation, APawn* InFiringPawn, ASOGunBase* InGun);
+	void InitializeProjectile(const FProjectileData& InData);
 	
 
 	
@@ -146,5 +148,7 @@ protected:
 public:
 	FRichCurve* GetCurveData();
 private:
-	FVector SpawnLocation;	
+	FVector SpawnLocation;
+
+	FProjectileData Data;
 };
