@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ProjectSO/Library/SOItemStructLibrary.h"
 #include "ProjectSO/Library/SOWeaponStructLibrary.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "SOGameSubsystem.generated.h"
@@ -16,7 +17,7 @@ struct FAreaDamageMap
 	TMap<FString, float> DamageMap;
 };
 
-struct FSOSpawnableItemClasses;
+// struct FSOSpawnableItemClasses;
 /**
  * 
  */

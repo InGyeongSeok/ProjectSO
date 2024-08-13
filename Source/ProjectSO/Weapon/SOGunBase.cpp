@@ -17,6 +17,7 @@
 #include "ProjectSO/ProjectSO.h"
 #include "ProjectSO/Core/SOGameSubsystem.h"
 #include "ProjectSO/Library/SOWeaponMeshDataAsset.h"
+#include "ProjectSO/Library/SOWeaponStructLibrary.h"
 #include "ProjectSO/Player/SOPlayerController.h"
 
 // Sets default values
@@ -76,7 +77,7 @@ void ASOGunBase::BeginPlay()
 	//Object Pool
 	if (HasAuthority())
 	{
-		ProjectilePoolComponent->Initialize();
+		ProjectilePoolComponent->Reserve();
 	}
 	
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ASOGunBase::OnSphereBeginOverlap);
@@ -148,12 +149,7 @@ EALSOverlayState ASOGunBase::GetOverlayState() const
 void ASOGunBase::OnFire(ESOFireMode InFireMode)
 {	
 	if (!bIsEquipped) return;
-	if (bReloading || CurrentAmmoInClip <= 0)
-	{
-		Reload();
-		SO_LOG(LogSOGun, Log, TEXT("재장전"))
-		return;
-	}
+	
 	switch (InFireMode)
 	{
 	case ESOFireMode::Auto:
@@ -212,7 +208,13 @@ void ASOGunBase::FireSingle()
 
 void ASOGunBase::FireProjectile() //클라이언트 들어오는 함수 
 {
-
+	if (bReloading || CurrentAmmoInClip <= 0)
+	{
+		Reload();
+		SO_LOG(LogSOGun, Log, TEXT("재장전"))
+		return;
+	}
+	
 	//SO_LOG(LogSOTemp, Warning, TEXT("Begin"))
 	AController* OwnerController = OwningCharacter->GetController();
 	if (OwnerController == nullptr)
@@ -325,19 +327,17 @@ void ASOGunBase::CreateProjectile(const FTransform& MuzzleTransform, const FVect
 
 	//검사 로직 추가
 	//서버에서 호출 
-	ASOProjectileBase* Projectile = ProjectilePoolComponent->PullProjectile();
-	
-	// FTimerHandle TimerHandle_LifeSpanToPoolExpired;
-	// if (GetWorld())
-	// {
-	// 	GetWorldTimerManager().SetTimer(TimerHandle_LifeSpanToPoolExpired,[Projectile, SpawnLocation, SpawnRotation]()
-	// 	{
-	// 		Projectile->InitializeProjectile(SpawnLocation, SpawnRotation);
-	// 	},0.1,false
-	// 		);
-	// }
-	Projectile->InitializeProjectile(SpawnLocation, SpawnRotation, OwningCharacter, this);
-	
+	ASOProjectileBase* Projectile = ProjectilePoolComponent->GetProjectile();
+	if(Projectile)
+	{
+		FProjectileData ProjectileData;
+		ProjectileData.Location = SpawnLocation;
+		ProjectileData.Rotation = SpawnRotation;
+		ProjectileData.FiringPawn = OwningCharacter;
+		ProjectileData.WeaponData = WeaponData;
+		ProjectileData.WeaponStat = WeaponStat;
+		Projectile->InitializeProjectile(ProjectileData);
+	}
 }
 
 void ASOGunBase::StopFire()
