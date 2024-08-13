@@ -59,5 +59,11 @@ void ASOPartsBase::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, 
 {
 }
 
+EALSOverlayState ASOPartsBase::GetOverlayState() const
+{
+	return EALSOverlayState::Default;
+	// return WeaponData.OverlayState;
+}
+
 
 
