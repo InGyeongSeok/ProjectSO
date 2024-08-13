@@ -71,6 +71,7 @@ void ASOShotGun::FireProjectile()
 	PlayMuzzleEffect(MuzzleSocketTransform.GetLocation(), MuzzleRotation);
 	PlayEjectAmmoEffect(AmmoEjectSocketTransform.GetLocation(), EjectRotation);
 	PlaySound();
+	if(!bInfiniteAmmo) { CurrentAmmoInClip--; }
 	ServerRPCOnFireShotGun(MuzzleSocketTransform, TraceEndArray);
 }
 

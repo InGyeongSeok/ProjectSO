@@ -64,6 +64,7 @@ protected:
 	virtual void PlayMuzzleEffect(const FVector& MuzzleLocation, FRotator& MuzzleRotation);
 	virtual void PlayEjectAmmoEffect(const FVector& EjectLocation, FRotator& EjectRotation);
 	virtual void PlaySound();
+	virtual float PlayAnimMontage(UAnimMontage* AnimMontage, USkeletalMeshComponent* Mesh, float InPlayRate  = 1.f, FName StartSectionName = NAME_None);
 	virtual void Recoil();
 
 public:
@@ -86,8 +87,15 @@ protected:
 	UFUNCTION(Server, Unreliable)
 	void ServerRPCOnFire(const FTransform& MuzzleTransform, const FVector& HitLocation);
 
+	UFUNCTION(Server, Unreliable)
+	void ServerRPCOnReload();
+	
 	UFUNCTION()
 	void OnRep_FireStartTime();
+
+	UFUNCTION()
+	void OnRep_bReloading();	
+	
 public:
 	uint8 GetAvailableFireMode() const {return WeaponStat.FireMode;}
 	int32 GetAvailableFireModeCount() const {return AvailableFireModeCount;}
@@ -155,7 +163,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Replicated, Category = "Properties|State")
 	uint8 bIsEquipped : 1;
 	
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Replicated, Category = "Properties|State")
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, ReplicatedUsing = OnRep_bReloading, Category = "Properties|State")
 	uint8 bReloading : 1;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Replicated,Category = "Properties|State")

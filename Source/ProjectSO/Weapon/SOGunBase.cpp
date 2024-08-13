@@ -52,10 +52,12 @@ ASOGunBase::ASOGunBase()
 
 	// 초기 CurrentFireMode 설정
 	CurrentFireMode = ESOFireMode::None;
-	CurrentAmmoInClip = 30;
+	
+	CurrentAmmo = 999;
+	
 	MaxRepeatCount = 3;
 	bReloading = false;
-	bInfiniteAmmo = true;
+	bInfiniteAmmo = false;
 	
 	HoldThreshold = 0.2f;
 	bScopeAim = false;
@@ -70,7 +72,7 @@ void ASOGunBase::BeginPlay()
 	//Gun Data Setting
 	//삭제 필요 ID 
 	SetGunData(ID);
-
+	CurrentAmmoInClip = WeaponStat.ClipSize;
 	//Object Pool
 	if (HasAuthority())
 	{
@@ -144,10 +146,14 @@ EALSOverlayState ASOGunBase::GetOverlayState() const
 }
 
 void ASOGunBase::OnFire(ESOFireMode InFireMode)
-{
-	
+{	
 	if (!bIsEquipped) return;
-	if (bReloading || CurrentAmmoInClip <= 0) return;
+	if (bReloading || CurrentAmmoInClip <= 0)
+	{
+		Reload();
+		SO_LOG(LogSOGun, Log, TEXT("재장전"))
+		return;
+	}
 	switch (InFireMode)
 	{
 	case ESOFireMode::Auto:
@@ -267,7 +273,7 @@ void ASOGunBase::FireProjectile() //클라이언트 들어오는 함수
 
 	PlaySound();
 
-	//CurrentAmmoInClip--;
+	if(!bInfiniteAmmo) { CurrentAmmoInClip--; }
 	// bPlayFireEffect = true;
 	// 총알 생성
 	ServerRPCOnFire(MuzzleSocketTransform, TraceEnd);
@@ -376,6 +382,32 @@ void ASOGunBase::PlaySound()
 	}
 }
 
+float ASOGunBase::PlayAnimMontage(UAnimMontage* AnimMontage, USkeletalMeshComponent* Mesh, float InPlayRate, FName StartSectionName)
+{
+	UAnimInstance * AnimInstance = (Mesh)? Mesh->GetAnimInstance() : nullptr; 
+	if( AnimMontage && AnimInstance )
+	{
+		float const Duration = AnimInstance->Montage_Play(AnimMontage, InPlayRate);
+
+		if (Duration > 0.f)
+		{
+			// Start at a given Section.
+			if( StartSectionName != NAME_None )
+			{
+				AnimInstance->Montage_JumpToSection(StartSectionName, AnimMontage);
+			}
+
+			return Duration;
+		}
+	}
+	else
+	{
+		SO_LOG(LogSOTemp,Log,TEXT("WeaponAnimInstance is null"))
+	}
+
+	return 0.f;
+}
+
 void ASOGunBase::Recoil()
 {
 }
@@ -384,7 +416,6 @@ void ASOGunBase::Reload()
 {
 	SO_LOG(LogSOTemp, Log, TEXT("bReloading : %d bInfiniteAmmo : %d"), bReloading, bInfiniteAmmo)
 	if(bReloading) return;
-	// if(bInfiniteAmmo) return;
 	
 	// 소유한 총알 = 0
 	if(CurrentAmmo <= 0)
@@ -400,8 +431,7 @@ void ASOGunBase::Reload()
 		return;
 	}
 
-	// Reload
-	bReloading = true;
+	ServerRPCOnReload();
 
 	// 탄창 증가
 	if(CurrentAmmo > 0)
@@ -418,44 +448,7 @@ void ASOGunBase::Reload()
 			CurrentAmmoInClip += CurrentAmmo;
 			CurrentAmmo = 0;
 		}		
-	}
-	
-	// 총 재장전 Animation Montage
-	if(WeaponData.ReloadWeaponMontage)
-	{
-		UAnimInstance* WeaponAnimInstance = WeaponMesh->GetAnimInstance();
-		if(WeaponAnimInstance)
-		{
-			WeaponAnimInstance->Montage_Play(WeaponData.ReloadWeaponMontage);
-		}
-		else
-		{
-			SO_LOG(LogSOTemp,Log,TEXT("WeaponAnimInstance is null"))
-		}
-	}
-	else
-	{
-		SO_LOG(LogSOTemp,Log,TEXT("WeaponData.ReloadWeaponMontage is null"))
-	}
-	
-	// 플레이어 재장전 Animation Montage
-	if(WeaponData.ReloadMontage)
-	{
-		UAnimInstance* CharacterAnimInstance = OwningCharacter->GetMesh()->GetAnimInstance();
-		if(CharacterAnimInstance)
-		{
-			CharacterAnimInstance->Montage_Play(WeaponData.ReloadMontage, 1);			
-		}
-		else
-		{
-			SO_LOG(LogSOTemp,Log,TEXT("CharacterAnimInstance is null"))			
-		}
-	}
-	else
-	{
-		SO_LOG(LogSOTemp,Log,TEXT("WeaponData.ReloadWeaponMontage is null"))
-	}
-		
+	}		
 	
 	FTimerHandle ReloadTimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, [this]()
@@ -500,6 +493,7 @@ void ASOGunBase::Aim(bool bPressed)
 		}
 	}
 }
+
 void ASOGunBase::Equip()
 {
 	SO_LOG(LogSOTemp, Warning, TEXT("Equip"))
@@ -623,6 +617,18 @@ void ASOGunBase::ServerRPCOnFire_Implementation(const FTransform& MuzzleTransfor
 	SO_LOG(LogSOTemp, Warning, TEXT("End"))
 }
 
+void ASOGunBase::ServerRPCOnReload_Implementation()
+{
+	// Reload
+	bReloading = true;
+
+	FTimerHandle ReloadTimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, [this]()
+	{
+		bReloading = false;		
+	}, 2.0f, false);
+}
+
 int32 ASOGunBase::CalculateAvailableFireModeCount()
 {
 	uint8 Mode = WeaponStat.FireMode;
@@ -688,6 +694,7 @@ FTransform ASOGunBase::GetSocketTransformByName(FName InSocketName, const USkele
 	return SocketTransform;
 }
 
+
 //이펙트 동기화 
 void ASOGunBase::OnRep_FireStartTime()
 {
@@ -700,4 +707,20 @@ void ASOGunBase::OnRep_FireStartTime()
 	FRotator EjectRotation = AmmoEjectSocketTransform.GetRotation().Rotator();
 	PlayMuzzleEffect(FireEffectSocketTransform.GetLocation(), FireEffectRotation);
 	PlayEjectAmmoEffect(AmmoEjectSocketTransform.GetLocation(), EjectRotation);		
+}
+
+void ASOGunBase::OnRep_bReloading()
+{
+	if(bReloading)
+	{
+		if(WeaponData.ReloadWeaponMontage)
+		{
+			PlayAnimMontage(WeaponData.ReloadWeaponMontage, WeaponMesh);
+		}
+
+		if(WeaponData.ReloadMontage)
+		{
+			PlayAnimMontage(WeaponData.ReloadMontage, OwningCharacter->GetMesh());
+		}
+	}	
 }
