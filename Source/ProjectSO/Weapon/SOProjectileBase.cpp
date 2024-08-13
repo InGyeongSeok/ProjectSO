@@ -44,7 +44,7 @@ ASOProjectileBase::ASOProjectileBase()
 	LifeSpanTime = 3.0f;
 	HideStartTime = 0.0f;
 	ShowStartTime = 0.0f;
-
+	
 	// NeullCullDistance 
 	// NetCullDistanceSquared = FLT_MAX; 
 }
@@ -53,8 +53,6 @@ ASOProjectileBase::ASOProjectileBase()
 void ASOProjectileBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	HideStartTime = GetWorld()->GetTimeSeconds();
 	if (Tracer)
 	{
 		TracerComponent = UGameplayStatics::SpawnEmitterAttached
@@ -226,11 +224,13 @@ void ASOProjectileBase::SetProjectileActive(bool IsActive)
 	SetActorTickEnabled(IsActive);
 	if (!IsActive)
 	{
+		HideStartTime = GetWorld()->GetTimeSeconds();
 		ProjectileMovementComponent->bSimulationEnabled = false;
 		ProjectileMovementComponent->Velocity = FVector::ZeroVector;
 	}
 	else
 	{
+		ShowStartTime = GetWorld()->GetTimeSeconds();
 		ProjectileMovementComponent->bSimulationEnabled = true;
 		ProjectileMovementComponent->SetUpdatedComponent(RootComponent);
 		ProjectileMovementComponent->Velocity = GetActorForwardVector() * 7000.0f;
@@ -252,15 +252,10 @@ void ASOProjectileBase::PushPoolSelf()
 	{
 		return;
 	}
-	ProjectilePool->PushProjectileInPool(this);
+	ProjectilePool->ReturnToPool(this);
 	SetActorLocation(SpawnTransform.GetLocation());
 	SetActorRotation(SpawnTransform.Rotator());
-	
-	// SetProjectileActive(false);
-
 	ProjectileMovementComponent->StopMovementImmediately();
-	// ProjectileMovementComponent->ProjectileGravityScale = 0;
-	
 }
 
 // Server에서 호출
@@ -270,20 +265,11 @@ void ASOProjectileBase::InitializeProjectile(FVector InLocation, FRotator InRota
 	SO_LOG(LogSOProjectileBase, Warning, TEXT("Owner : %s"), Owner == nullptr ? TEXT("Null") :  *Owner->GetName());
 	SetOwner(InGun);
 	SO_LOG(LogSOProjectileBase, Warning, TEXT("Owner : %s"), Owner == nullptr ? TEXT("Null") :  *Owner->GetName());
-	SetActorLocation(InLocation);
-	SetActorRotation(InRotation);
+	SetActorLocationAndRotation(InLocation, InRotation);
 	SetProjectileActive(true);
-
-	// 
 	FiringPawn = InFiringPawn;
-	// ProjectileMovementComponent->Velocity = GetActorForwardVector() * InitialSpeed;
-	// ProjectileMovementComponent->ProjectileGravityScale = 1;
-
-	// 3초 후에 Pool에 돌아오게 하는 로직
-	// 이 함수에서 다시 중력과 속도를 초기화
 	SetLifeSpanToPool();
-	// 클라이언트에게 보이게 하라고 지시 OnRep_ShowStartTime
-	ShowStartTime = GetWorld()->GetTimeSeconds();
+	
 }
 
 FString ASOProjectileBase::GetKeyByBonName(const FString& InBoneName)
@@ -323,10 +309,9 @@ USOGameSubsystem* ASOProjectileBase::GetSOGameSubsystem()
 	return SOGameSubsystem;
 }
 
-// 충돌했을 때 
+// 메시 숨기기
 void ASOProjectileBase::OnRep_HideStartTime() 
 {
-	
 	ProjectileMesh->SetVisibility(false);
 }
 
@@ -337,7 +322,7 @@ FRichCurve* ASOProjectileBase::GetCurveData()
 	return nullptr;
 }
 
-//총 발사할 때
+// 메시 보이게 하기
 void ASOProjectileBase::OnRep_ShowStartTime()
 {
 	
