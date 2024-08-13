@@ -2,17 +2,13 @@
 
 
 #include "SOProjectilePoolComponent.h"
-
-#include "Net/UnrealNetwork.h"
-#include "ProjectSO/ProjectSO.h"
-#include "ProjectSO/Character/SOCharacterBase.h"
 #include "ProjectSO/Weapon/SOProjectileBase.h"
 
 // Sets default values for this component's properties
 USOProjectilePoolComponent::USOProjectilePoolComponent()
 {
 	//Todo 숫자
-	InitialPoolSize = 10;
+	// InitialPoolSize = 10;
 	ExpandSize = 1;
 }
 
@@ -21,12 +17,21 @@ USOProjectilePoolComponent::USOProjectilePoolComponent()
 void USOProjectilePoolComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	// SetIsReplicated(true);
-	// Initialize();
+}
+
+void USOProjectilePoolComponent::Reserve(int32 Count)
+{
+	if (AmmoClass)
+	{
+		for (int i = 0; i < Count; i++)
+		{
+			Pool.Push(CreateProjectile());
+		}
+	}
 }
 
 
-void USOProjectilePoolComponent::PushProjectileInPool(ASOProjectileBase* Projectile)
+void USOProjectilePoolComponent::ReturnToPool(ASOProjectileBase* Projectile)
 {
 	Pool.Push(Projectile);
 }
@@ -36,69 +41,51 @@ void USOProjectilePoolComponent::SetAmmoClass(TSubclassOf<ASOProjectileBase> InA
 	AmmoClass = InAmmoClass;
 }
 
-void USOProjectilePoolComponent::Expand()
+ASOProjectileBase* USOProjectilePoolComponent::GetProjectile()
 {
-	if (AmmoClass)
-	{
-		for (int i = 0; i < ExpandSize; i++)
-		{
-			FTransform SpawnTransform(FRotator().ZeroRotator, FVector().ZeroVector);
-			ASOProjectileBase* SpawnedProjectile = GetWorld()->SpawnActorDeferred<ASOProjectileBase>(AmmoClass, SpawnTransform);
-			if(SpawnedProjectile)
-			{
-				SpawnedProjectile->SetProjectileActive(false);
-				SpawnedProjectile->ProjectilePool = this;
-				SpawnedProjectile->FinishSpawning(SpawnTransform);
-			}
-			Pool.Push(SpawnedProjectile);
-			// ASOProjectileBase* SpawnedProjectile = GetWorld()->SpawnActor<ASOProjectileBase>(AmmoClass, FVector().ZeroVector, FRotator().ZeroRotator);
-			// SpawnedProjectile->SetProjectileActive(false);
-			// SpawnedProjectile->ProjectilePool = this;
-			// Pool.Push(SpawnedProjectile);
-		}
-	}
-}
-
-void USOProjectilePoolComponent::Initialize()
-{
-	if (AmmoClass)
-	{
-		for (int i = 0; i < InitialPoolSize; i++)
-		{
-			// ASOProjectileBase* SpawnedProjectile = GetWorld()->SpawnActor<ASOProjectileBase>(AmmoClass, FVector().ZeroVector, FRotator().ZeroRotator);
-			// SpawnedProjectile->SetProjectileActive(false);
-			// SpawnedProjectile->ProjectilePool = this;
-			
-			FTransform SpawnTransform(FRotator().ZeroRotator, FVector().ZeroVector);
-			// ASOGunBase* GunBaseTest = Cast<ASOGunBase>(this->GetOwner());
-			ASOProjectileBase* SpawnedProjectile = GetWorld()->SpawnActorDeferred<ASOProjectileBase>(AmmoClass, SpawnTransform);
-			if(SpawnedProjectile)
-			{				
-				SpawnedProjectile->SetProjectileActive(false);
-				SpawnedProjectile->ProjectilePool = this;
-				SpawnedProjectile->FinishSpawning(SpawnTransform);
-				
-				// ASOGunBase* GunBaseTest = Cast<ASOGunBase>(this->GetOwner());
-				// SpawnedProjectile->SetOwner(GunBaseTest->GetOwner());
-				// SO_SUBLOG(LogSOProjectileBase, Warning, TEXT("SpawnedProjectile Owner : %s"), *GunBaseTest->GetName())
-			}
-			Pool.Push(SpawnedProjectile);
-		}
-	}
+	return GetNewOrRecycle();
 }
 
 
-ASOProjectileBase* USOProjectilePoolComponent::PullProjectile()
+ASOProjectileBase* USOProjectilePoolComponent::CreateProjectile()
 {
+	if (AmmoClass)
+	{
+		FTransform SpawnTransform(FRotator().ZeroRotator, FVector().ZeroVector);
+		ASOProjectileBase* SpawnedProjectile = GetWorld()->SpawnActorDeferred<ASOProjectileBase>(
+			AmmoClass, SpawnTransform);
+		if (SpawnedProjectile)
+		{
+			SpawnedProjectile->SetProjectileActive(false);
+			SpawnedProjectile->ProjectilePool = this;
+			SpawnedProjectile->FinishSpawning(SpawnTransform);
+			return SpawnedProjectile;
+		}
+	}
+	return nullptr; 
+}
+
+
+ASOProjectileBase* USOProjectilePoolComponent::GetNewOrRecycle()
+{
+	// 풀에 객체가 없을 경우
 	if (Pool.Num() <= 0)
 	{
-		// 실패했을 때 처리하기
-		Expand();
+		ASOProjectileBase* NewProjectile = CreateProjectile();
+		if (IsValid(NewProjectile))
+		{
+			return NewProjectile; 
+		}
+		else
+		{
+			// 실패했을 때 처리 
+			return nullptr;
+		}
 	}
-	
-	SO_SUBLOG(LogTemp, Warning, TEXT("Pool Num :  %d"), Pool.Num());
-	
-	return Pool.Pop();
+	// 풀에 객체가 있을 경우, 풀에서 하나 꺼내서 반환
+	UE_LOG(LogTemp, Warning, TEXT("Pool Num :  %d"), Pool.Num());
+	ASOProjectileBase* NewProjectile = Pool.Pop();
+	// NewProjectile->SetProjectileActive(true);
+	return NewProjectile;
 }
-
 

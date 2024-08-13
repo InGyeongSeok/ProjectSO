@@ -14,6 +14,6 @@ class PROJECTSO_API USOWeaponDamageDataAsset : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Damage)
-	TMap<FString, float> DamageByHitLocationMap;
+	 UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Damage)
+	 TMap<FString, float> DamageByHitLocationMap;
 };

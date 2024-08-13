@@ -24,21 +24,23 @@ protected:
 	virtual void BeginPlay() override;
 public:
 	UFUNCTION()
-	ASOProjectileBase* PullProjectile();
+	void Reserve(int32 Count = 10);
 	
 	UFUNCTION()
-	void PushProjectileInPool(ASOProjectileBase* Projectile);
-
+	void ReturnToPool(ASOProjectileBase* Projectile);
+	
+	UFUNCTION()
 	void SetAmmoClass(TSubclassOf<ASOProjectileBase> InAmmoClass);
 
 	UFUNCTION()
-	void Expand();
+	ASOProjectileBase* GetProjectile();
 	
-	//initialize
-	void Initialize();
-
 protected:
-	// Multi
+	UFUNCTION()
+	ASOProjectileBase* CreateProjectile();
+	
+	UFUNCTION()
+	ASOProjectileBase* GetNewOrRecycle();
 
 public:
 	UPROPERTY()
@@ -47,11 +49,11 @@ public:
 protected:
 	TSubclassOf<ASOProjectileBase> AmmoClass;
 	
-	UPROPERTY(EditDefaultsOnly)
-	int InitialPoolSize;
+	// UPROPERTY(EditDefaultsOnly)
+	// int32 InitialPoolSize;
 	
 	UPROPERTY()
-	int ExpandSize;
+	int32 ExpandSize;
 
 };
 

@@ -8,6 +8,7 @@
 #include "SOWeaponStructLibrary.generated.h"
 
 
+enum class EALSOverlayState : uint8;
 
 USTRUCT(BlueprintType)
 struct FSOWeaponStat : public FTableRowBase
@@ -286,52 +287,20 @@ public:
 	{
 		if(this!= &InOhterDamageData)
 		{
-			// ID = InOhterDamageData.ID;
 			WeaponType = InOhterDamageData.WeaponType;
-			Head = InOhterDamageData.Head;
-			Neck = InOhterDamageData.Neck;
-			Torso =  InOhterDamageData.Torso;
-			Upperarm = InOhterDamageData.Upperarm;
-			Lowerarm = InOhterDamageData.Lowerarm;
-			Thigh = InOhterDamageData.Thigh;
-			Calf = InOhterDamageData.Calf;
-			HandFoot = InOhterDamageData.HandFoot;
 		}
 		return *this;
 	}
 	
 public:
-	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponDamage)
-	// uint8 ID;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponDamage)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponType)
 	ESOWeaponType WeaponType;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponDamage)
-	float Head;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponDamage)
-	float Neck;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponDamage)
-	float Torso;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponDamage)
-	float Upperarm;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponDamage)
-	float Lowerarm;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponDamage)
-	float Thigh;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponDamage)
-	float Calf;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponDamage)
-	float HandFoot;
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponDamageDataAsset)
+	TObjectPtr<class USOWeaponDamageDataAsset> WeaponBoneDamageDataAsset;
+	
 };
+
 
 USTRUCT(BlueprintType)
 struct FSOHitAreaDamageData : public FTableRowBase
@@ -339,56 +308,38 @@ struct FSOHitAreaDamageData : public FTableRowBase
 	GENERATED_BODY()
 	
 public:
-	FSOHitAreaDamageData(): Head(0), Neck(0), Torso(0), Upperarm(0), Lowerarm(0),
-				 Thigh(0), Calf(0),
-				 HandFoot(0)
-	{
-	}
 	
 	FSOHitAreaDamageData& operator=(const FSOHitAreaDamageData& InOhterDamageData)
 	{
 		if(this!= &InOhterDamageData)
 		{
-			// ID = InOhterDamageData.ID;
-			
-			Head = InOhterDamageData.Head;
-			Neck = InOhterDamageData.Neck;
-			Torso =  InOhterDamageData.Torso;
-			Upperarm = InOhterDamageData.Upperarm;
-			Lowerarm = InOhterDamageData.Lowerarm;
-			Thigh = InOhterDamageData.Thigh;
-			Calf = InOhterDamageData.Calf;
-			HandFoot = InOhterDamageData.HandFoot;
+			ReflectRate = InOhterDamageData.ReflectRate;
 		}
 		return *this;
 	}
 	
 public:
-	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponDamage)
-	// uint8 ID;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HitAreaDamage)
+	float ReflectRate;
+};
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HitDamage)
-	float Head;
+USTRUCT(BlueprintType)
+struct FProjectileData
+{
+	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HitDamage)
-	float Neck;
+	UPROPERTY()
+	FVector Location;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HitDamage)
-	float Torso;
+	UPROPERTY()
+	FRotator Rotation;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HitDamage)
-	float Upperarm;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HitDamage)
-	float Lowerarm;
+	UPROPERTY()
+	APawn* FiringPawn;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HitDamage)
-	float Thigh;
+	UPROPERTY()
+	FSOWeaponStat WeaponStat;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HitDamage)
-	float Calf;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HitDamage)
-	float HandFoot;
-
+	UPROPERTY()
+	FSOWeaponData WeaponData;
 };

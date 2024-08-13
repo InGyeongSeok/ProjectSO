@@ -12,6 +12,8 @@ class USOGameSubsystem;
 class UProjectileMovementComponent;
 class UBoxComponent;
 
+
+
 UCLASS()
 class PROJECTSO_API ASOProjectileBase : public AActor
 {
@@ -55,7 +57,7 @@ public:
 	void PushPoolSelf();
 
 	UFUNCTION()
-	void InitializeProjectile(FVector InLocation, FRotator InRotation, APawn* InFiringPawn, ASOGunBase* InGun);
+	void InitializeProjectile(const FProjectileData& InData);
 	
 
 	
@@ -64,7 +66,6 @@ protected:
 	
 	//Subsystem
 	USOGameSubsystem* GetSOGameSubsystem();
-
 
 protected:
 	void PlayHitEffectBySurface(const FHitResult& SweepResult);
@@ -128,11 +129,6 @@ public:
 	TObjectPtr<class USoundAttenuation> LoopingSoundAttenuation;
 	
 protected:
-	// UPROPERTY(EditAnywhere)
-	// float Damage = 20.f;
-	//
-	// UPROPERTY(EditAnywhere)
-	// float HeadShotDamage = 40.f;
 	
 	UPROPERTY(EditAnywhere)
 	float DestroyTime = 4.f;
@@ -164,5 +160,7 @@ protected:
 public:
 	FRichCurve* GetCurveData();
 private:
-	FVector SpawnLocation;	
+	FVector SpawnLocation;
+
+	FProjectileData Data;
 };

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ProjectSO/Library/SOItemStructLibrary.h"
 #include "ProjectSO/Library/SOWeaponStructLibrary.h"
 #include "ProjectSO/Library/SOItemStructLibrary.h"
 #include "Subsystems/GameInstanceSubsystem.h"
@@ -78,9 +79,9 @@ protected:
 	UPROPERTY()
 	uint32 TotalSpawnableItem;
 	
-	void ProcessWeaponDamageDataRows();
-	void InitializeWeaponDamageByBoneTable(const int32 InID , const FString& InBoneName, const FString& InPropertyValue);
+	//void ProcessWeaponDamageDataRows();
+	//void InitializeWeaponDamageByBoneTable(const int32 InID , const FString& InBoneName, const FString& InPropertyValue);
 
-	void LoadHitAreaDamageMap();
-	void LoadWeaponClassAreaDamageMap();
+	// void LoadHitAreaDamageMap();
+	// void LoadWeaponClassAreaDamageMap();
 };
