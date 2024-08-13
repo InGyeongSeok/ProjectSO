@@ -148,12 +148,7 @@ EALSOverlayState ASOGunBase::GetOverlayState() const
 void ASOGunBase::OnFire(ESOFireMode InFireMode)
 {	
 	if (!bIsEquipped) return;
-	if (bReloading || CurrentAmmoInClip <= 0)
-	{
-		Reload();
-		SO_LOG(LogSOGun, Log, TEXT("재장전"))
-		return;
-	}
+	
 	switch (InFireMode)
 	{
 	case ESOFireMode::Auto:
@@ -212,7 +207,13 @@ void ASOGunBase::FireSingle()
 
 void ASOGunBase::FireProjectile() //클라이언트 들어오는 함수 
 {
-
+	if (bReloading || CurrentAmmoInClip <= 0)
+	{
+		Reload();
+		SO_LOG(LogSOGun, Log, TEXT("재장전"))
+		return;
+	}
+	
 	//SO_LOG(LogSOTemp, Warning, TEXT("Begin"))
 	AController* OwnerController = OwningCharacter->GetController();
 	if (OwnerController == nullptr)
