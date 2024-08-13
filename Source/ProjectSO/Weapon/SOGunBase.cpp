@@ -432,6 +432,15 @@ void ASOGunBase::Reload()
 		return;
 	}
 
+	if(WeaponData.ReloadWeaponMontage)
+	{
+		PlayAnimMontage(WeaponData.ReloadWeaponMontage, WeaponMesh);
+	}
+
+	if(WeaponData.ReloadMontage)
+	{
+		PlayAnimMontage(WeaponData.ReloadMontage, OwningCharacter->GetMesh());
+	}
 	ServerRPCOnReload();
 
 	// 탄창 증가
@@ -712,6 +721,7 @@ void ASOGunBase::OnRep_FireStartTime()
 
 void ASOGunBase::OnRep_bReloading()
 {
+	if(OwningCharacter->IsLocallyControlled() && !OwningCharacter->HasAuthority()) return;
 	if(bReloading)
 	{
 		if(WeaponData.ReloadWeaponMontage)

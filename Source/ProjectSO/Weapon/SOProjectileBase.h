@@ -7,6 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "SOProjectileBase.generated.h"
 
+class USOProjectileHitEffectDataAsset;
 class USOGameSubsystem;
 class UProjectileMovementComponent;
 class UBoxComponent;
@@ -65,7 +66,16 @@ protected:
 	USOGameSubsystem* GetSOGameSubsystem();
 
 
+protected:
+	void PlayHitEffectBySurface(const FHitResult& SweepResult);
 
+	void SetProjectileSurfaceEffectData();
+
+	UPROPERTY(EditDefaultsOnly)
+	TMap<FName, UNiagaraSystem*> EffectBySurface;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<USOProjectileHitEffectDataAsset> ProjectileHitEffectDataAsset;
 	
 protected:
 	// Multi

@@ -3,6 +3,7 @@
 
 #include "SOProjectileBase.h"
 #include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Sound/SoundCue.h"
@@ -14,6 +15,7 @@
 #include "Projectile/SOProjectilePoolComponent.h"
 #include "ProjectSO/ProjectSO.h"
 #include "ProjectSO/Core/SOGameSubsystem.h"
+#include "ProjectSO/Library/SOProjectileHitEffectDataAsset.h"
 
 // Sets default values
 ASOProjectileBase::ASOProjectileBase()
@@ -53,7 +55,8 @@ ASOProjectileBase::ASOProjectileBase()
 void ASOProjectileBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	SetProjectileSurfaceEffectData();
 	HideStartTime = GetWorld()->GetTimeSeconds();
 	if (Tracer)
 	{
@@ -96,7 +99,7 @@ void ASOProjectileBase::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 	SO_LOG(LogSOProjectileBase, Warning, TEXT("OtherActor : %s"), *OtherActor->GetName())
 	
 	SO_LOG(LogSOProjectileBase, Warning, TEXT("SpawnedProjectile Owner : %s"), Owner == nullptr ? TEXT("Null") :  *Owner->GetName());
-
+	
 	// 사람에 맞았을때로 설정하기
 	if (FiringPawn && HasAuthority() && Cast<APawn>(OtherActor))
 	{
@@ -162,6 +165,10 @@ void ASOProjectileBase::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 			
 			UGameplayStatics::ApplyDamage(HitActor,Damage,FiringController,this,UDamageType::StaticClass());
 		}
+	}
+	else
+	{
+		PlayHitEffectBySurface(SweepResult);		
 	}
 	if (ImpactParticles)
 	{
@@ -321,6 +328,48 @@ USOGameSubsystem* ASOProjectileBase::GetSOGameSubsystem()
 		return nullptr;
 	}
 	return SOGameSubsystem;
+}
+
+void ASOProjectileBase::PlayHitEffectBySurface(const FHitResult& SweepResult)
+{
+	AActor* HitActor =  SweepResult.GetActor();
+	const FVector HitLocation = SweepResult.Location;
+	const FVector HitNormal = SweepResult.Normal;
+	const TArray<FName>& ActorTags = HitActor->Tags;
+
+	SO_LOG(LogSOProjectileBase, Log, TEXT("HitActor : %s"), *HitActor->GetName())
+	
+	for (const FName& Tag : ActorTags)
+	{
+		SO_LOG(LogSOProjectileBase, Log, TEXT("Tag : %s"), *Tag.ToString())
+		if (EffectBySurface.Contains(Tag))
+		{
+			UNiagaraSystem* SelectedEffect = EffectBySurface[Tag];
+			if(SelectedEffect)
+			{
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), SelectedEffect, HitLocation, HitNormal.Rotation());					
+				SO_LOG(LogSOProjectileBase, Log, TEXT("SelectedEffect : %s"), *SelectedEffect->GetName())
+			}
+			else
+			{
+				SO_LOG(LogSOProjectileBase, Log, TEXT("SelectedEffect is Null"))
+			}
+		}		
+		break;
+	}	
+}
+
+void ASOProjectileBase::SetProjectileSurfaceEffectData()
+{
+	SO_LOG(LogSOTemp,Log,TEXT("Begin"))
+
+	// 게임 인스턴스에서 서브시스템을 가져오기.
+	USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();	
+
+	ProjectileHitEffectDataAsset = SOGameSubsystem->GetProjectileHitEffectDataAsset();
+	EffectBySurface = ProjectileHitEffectDataAsset->EffectBySurface;
+	// EffectBySurface = ProjectileHitEffectDataAsset
+	
 }
 
 // 충돌했을 때 

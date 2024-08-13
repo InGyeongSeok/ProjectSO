@@ -4,6 +4,7 @@
 #include "Engine/DataTable.h"
 #include "NiagaraSystem.h"
 #include "SOWeaponEnumLibrary.h"
+#include "Library/ALSCharacterEnumLibrary.h"
 #include "SOWeaponStructLibrary.generated.h"
 
 

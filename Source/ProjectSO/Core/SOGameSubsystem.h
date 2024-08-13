@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "ProjectSO/Library/SOWeaponStructLibrary.h"
+#include "ProjectSO/Library/SOItemStructLibrary.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "ProjectSO/Library/SOProjectileHitEffectDataAsset.h"
 #include "SOGameSubsystem.generated.h"
 
 USTRUCT(BlueprintType)
@@ -16,7 +18,6 @@ struct FAreaDamageMap
 	TMap<FString, float> DamageMap;
 };
 
-struct FSOSpawnableItemClasses;
 /**
  * 
  */
@@ -39,6 +40,7 @@ public:
 	uint32 GetSpawnableItemCount() const {return TotalSpawnableItem; };
 	float GetHitAreaDamage(const FString& Area) const;
 	float GetWeaponClassAreaDamage(const FString& GunType, const FString& Area) const;
+	USOProjectileHitEffectDataAsset* GetProjectileHitEffectDataAsset() const; 
 
 protected:
 	UPROPERTY(BlueprintReadOnly)
@@ -70,6 +72,8 @@ protected:
 
 	//DT_SOWeaponDamageByBone
 
+	UPROPERTY()
+	TObjectPtr<USOProjectileHitEffectDataAsset> ProjectileHitEffectDataAsset;
 
 	UPROPERTY()
 	uint32 TotalSpawnableItem;

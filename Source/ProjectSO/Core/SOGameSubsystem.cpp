@@ -60,6 +60,14 @@ TEXT("/Script/Engine.DataTable'/Game/StellarObsidian/GameData/DT_SOHitAreaDamage
 	{
 		HitAreaDamageTable = HitAreaDamageRef.Object;
 	}
+
+	ConstructorHelpers::FObjectFinder<USOProjectileHitEffectDataAsset> ProjectileHitEffectDataAssetRef(
+TEXT("/Script/ProjectSO.SOProjectileHitEffectDataAsset'/Game/StellarObsidian/GameData/DataAsset/DA_SurfaceEffect.DA_SurfaceEffect'"));
+	if (ProjectileHitEffectDataAssetRef.Succeeded())
+	{
+		ProjectileHitEffectDataAsset = ProjectileHitEffectDataAssetRef.Object;
+	}
+	
 }
 
 void USOGameSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -217,6 +225,11 @@ float USOGameSubsystem::GetWeaponClassAreaDamage(const FString& GunType, const F
 		UE_LOG(LogTemp, Warning, TEXT("GunType '%s' not found in WeaponClassAreaDamageMap"), *GunType);
 		return -1.0f;
 	}
+}
+
+USOProjectileHitEffectDataAsset* USOGameSubsystem::GetProjectileHitEffectDataAsset() const
+{
+	return ProjectileHitEffectDataAsset;
 }
 
 //Initialize 에서 ProcessWeaponDamageDataRows 호출
