@@ -68,14 +68,14 @@ protected:
 	USOGameSubsystem* GetSOGameSubsystem();
 
 protected:
-	void PlayHitEffectBySurface(const FHitResult& SweepResult);
+	void PlayHitEffectBySurface(AActor* HitActor, const FVector& HitLocation, const FVector& HitNormal);
 
 	void SetProjectileSurfaceEffectData();
 
-	UPROPERTY(EditDefaultsOnly)
-	TMap<FName, UNiagaraSystem*> EffectBySurface;
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPCPlayHitEffectBySurface(AActor* HitActor, const FVector& HitLocation, const FVector& HitNormal);
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<USOProjectileHitEffectDataAsset> ProjectileHitEffectDataAsset;
 	
 protected:

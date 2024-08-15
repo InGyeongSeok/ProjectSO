@@ -171,8 +171,13 @@ void ASOProjectileBase::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 	}
 	else
 	{
-		PlayHitEffectBySurface(SweepResult);		
+		AActor* HitActor =  SweepResult.GetActor();
+		const FVector HitLocation = SweepResult.Location;
+		const FVector HitNormal = SweepResult.Normal;
+		MulticastRPCPlayHitEffectBySurface(HitActor, HitLocation, HitNormal);
+		// PlayHitEffectBySurface(HitActor, HitLocation, HitNormal);		
 	}
+	
 	if (ImpactParticles)
 	{
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticles, GetActorTransform());
@@ -276,7 +281,6 @@ void ASOProjectileBase::InitializeProjectile(const FProjectileData& InData)
 	Data = InData;
 	SpawnLocation = InData.Location;
 	SO_LOG(LogSOProjectileBase, Warning, TEXT("Owner : %s"), Owner == nullptr ? TEXT("Null") :  *Owner->GetName());
-	// SetOwner(InGun);
 	SO_LOG(LogSOProjectileBase, Warning, TEXT("Owner : %s"), Owner == nullptr ? TEXT("Null") :  *Owner->GetName());
 	SetActorLocationAndRotation(InData.Location, InData.Rotation);
 	SetProjectileActive(true);
@@ -321,11 +325,8 @@ USOGameSubsystem* ASOProjectileBase::GetSOGameSubsystem()
 	return SOGameSubsystem;
 }
 
-void ASOProjectileBase::PlayHitEffectBySurface(const FHitResult& SweepResult)
-{
-	AActor* HitActor =  SweepResult.GetActor();
-	const FVector HitLocation = SweepResult.Location;
-	const FVector HitNormal = SweepResult.Normal;
+void ASOProjectileBase::PlayHitEffectBySurface(AActor* HitActor, const FVector& HitLocation, const FVector& HitNormal)
+{	
 	const TArray<FName>& ActorTags = HitActor->Tags;
 
 	SO_LOG(LogSOProjectileBase, Log, TEXT("HitActor : %s"), *HitActor->GetName())
@@ -333,9 +334,9 @@ void ASOProjectileBase::PlayHitEffectBySurface(const FHitResult& SweepResult)
 	for (const FName& Tag : ActorTags)
 	{
 		SO_LOG(LogSOProjectileBase, Log, TEXT("Tag : %s"), *Tag.ToString())
-		if (EffectBySurface.Contains(Tag))
+		if (ProjectileHitEffectDataAsset->EffectBySurface.Contains(Tag))
 		{
-			UNiagaraSystem* SelectedEffect = EffectBySurface[Tag];
+			UNiagaraSystem* SelectedEffect = ProjectileHitEffectDataAsset->EffectBySurface[Tag];
 			if(SelectedEffect)
 			{
 				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), SelectedEffect, HitLocation, HitNormal.Rotation());					
@@ -358,9 +359,14 @@ void ASOProjectileBase::SetProjectileSurfaceEffectData()
 	USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();	
 
 	ProjectileHitEffectDataAsset = SOGameSubsystem->GetProjectileHitEffectDataAsset();
-	EffectBySurface = ProjectileHitEffectDataAsset->EffectBySurface;
 	// EffectBySurface = ProjectileHitEffectDataAsset
 	
+}
+
+void ASOProjectileBase::MulticastRPCPlayHitEffectBySurface_Implementation(AActor* HitActor, const FVector& HitLocation, const FVector& HitNormal)
+{
+	// Owner가 없어서 동기화가 안됨.
+	PlayHitEffectBySurface(HitActor, HitLocation, HitNormal);
 }
 
 // 메시 숨기기
