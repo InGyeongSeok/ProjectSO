@@ -299,7 +299,6 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponDamageDataAsset)
 	TObjectPtr<class USOWeaponDamageDataAsset> WeaponBoneDamageDataAsset;
-	
 };
 
 
