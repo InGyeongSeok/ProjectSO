@@ -66,22 +66,6 @@ protected:
 	TObjectPtr<UDataTable> HitAreaDamageTable;
 
 	UPROPERTY()
-	TMap<FString, float> HitAreaDamageMap;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TMap<FString, FAreaDamageMap> WeaponClassAreaDamageMap;
-
-	//DT_SOWeaponDamageByBone
-
-	UPROPERTY()
-	TObjectPtr<USOProjectileHitEffectDataAsset> ProjectileHitEffectDataAsset;
-
-	UPROPERTY()
 	uint32 TotalSpawnableItem;
-	
-	//void ProcessWeaponDamageDataRows();
-	//void InitializeWeaponDamageByBoneTable(const int32 InID , const FString& InBoneName, const FString& InPropertyValue);
 
-	// void LoadHitAreaDamageMap();
-	// void LoadWeaponClassAreaDamageMap();
 };

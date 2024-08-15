@@ -4,6 +4,7 @@
 #include "SOGameSubsystem.h"
 
 #include "ProjectSO/ProjectSO.h"
+#include "ProjectSO/Library/SOWeaponDamageDataAsset.h"
 #include "ProjectSO/Library/SOWeaponStructLibrary.h"
 
 
@@ -55,7 +56,7 @@ USOGameSubsystem::USOGameSubsystem()
 	}
 ///Script/Engine.DataTable'/Game/StellarObsidian/GameData/DT_SOWeaponClassAreaDamageData.DT_SOWeaponClassAreaDamageData'
 	ConstructorHelpers::FObjectFinder<UDataTable> HitAreaDamageRef(
-TEXT("/Script/Engine.DataTable'/Game/StellarObsidian/GameData/DT_SOHitAreaDamageData.DT_SOHitAreaDamageData'"));
+	TEXT("/Script/Engine.DataTable'/Game/StellarObsidian/GameData/DT_SOHitAreaDamageData.DT_SOHitAreaDamageData'"));
 	if (HitAreaDamageRef.Succeeded())
 	{
 		HitAreaDamageTable = HitAreaDamageRef.Object;
@@ -183,200 +184,52 @@ FSOSpawnableItemClasses* USOGameSubsystem::GetSpawnableItemData(const int32 InIn
 
 float USOGameSubsystem::GetHitAreaDamage(const FString& Area) const
 {
-	if (HitAreaDamageMap.IsEmpty())
+	if (!IsValid(HitAreaDamageTable))
 	{
 		// 에러 발생
 		return -1.0f;
 	}
-	if (const float* FoundValue = HitAreaDamageMap.Find(Area))
+	
+	FSOHitAreaDamageData* HitAreaDamageDataRow = HitAreaDamageTable->FindRow<FSOHitAreaDamageData>(
+		FName(*Area), "");
+
+	if(!HitAreaDamageDataRow)
 	{
-		return *FoundValue;
+		return -1.0f;
 	}
-	// 에러 발생
-	return -1.0f;
+
+	return HitAreaDamageDataRow->ReflectRate;
 }
 
-float USOGameSubsystem::GetWeaponClassAreaDamage(const FString& GunType, const FString& Area) const
+float USOGameSubsystem::GetWeaponClassAreaDamage(const FString& InGunType, const FString& InBoneName) 
 {
-	if (WeaponClassAreaDamageMap.IsEmpty())
+	if(!WeaponClassAreaDamageTable)
 	{
-		// 에러 발생
+		return -1.0f; 
+	}
+	FSOWeaponClassAreaDamageData* WeaponClassAreaDamage = WeaponClassAreaDamageTable->FindRow<FSOWeaponClassAreaDamageData>(FName(*InGunType), "");
+
+	if(!WeaponClassAreaDamage)
+	{
+		return -1.0f; 
+	}
+	//WeaponBoneDamageDataAsset
+	  const USOWeaponDamageDataAsset* DamageDataAsset = WeaponClassAreaDamage->WeaponBoneDamageDataAsset;
+
+	if(!DamageDataAsset)
+	{
 		return -1.0f;
 	}
-	// GunType으로 FAreaDamageMap 찾기
-	const FAreaDamageMap* AreaDamageMap = WeaponClassAreaDamageMap.Find(GunType);
-	if (AreaDamageMap)
-	{
-		// Area로 데미지 값 찾기
-		if (const float* FoundValue = AreaDamageMap->DamageMap.Find(Area))
-		{
-			return *FoundValue;
-		}
-		else
-		{
-			// Area가 존재하지 않음
-			UE_LOG(LogTemp, Warning, TEXT("Area '%s' not found for GunType '%s'"), *Area, *GunType);
-			return -1.0f;
-		}
-	}
-	else
-	{
-		// GunType이 존재하지 않음
-		UE_LOG(LogTemp, Warning, TEXT("GunType '%s' not found in WeaponClassAreaDamageMap"), *GunType);
-		return -1.0f;
-	}
+
+	UE_LOG(LogTemp,Log,TEXT("InGunType : %s"), *InGunType);
+	//SO_LOG(LogSONetwork,Log,TEXT("%s"),*InGunType);
+	UE_LOG(LogTemp,Log,TEXT("DamageByHitLocationMap : %f"), DamageDataAsset->DamageByHitLocationMap[InBoneName]);
+	
+	return  DamageDataAsset->DamageByHitLocationMap[InBoneName];
+	
 }
 
 USOProjectileHitEffectDataAsset* USOGameSubsystem::GetProjectileHitEffectDataAsset() const
 {
 	return ProjectileHitEffectDataAsset;
 }
-
-//Initialize 에서 ProcessWeaponDamageDataRows 호출
-//이 함수는 Weapon Damage by bone 에 대한 정보를 가져온다. (파싱?)
-// void USOGameSubsystem::ProcessWeaponDamageDataRows() 
-// {
-// 	if (!WeaponDamageTable)
-// 	{
-// 		UE_LOG(LogTemp, Warning, TEXT("No WeaponDamageTable found "));
-//
-// 		return;
-// 	}
-// 	TArray<FName> RowNames = WeaponDamageTable->GetRowNames();
-// 	int32 NumDamageDataRows = RowNames.Num();
-//
-// 	for (int32 ID = 0; ID < NumDamageDataRows; ++ID)
-// 	{
-// 		FSOWeaponDamageData* DamageDataTable = GetWeaponDamageData(ID); //행 가져오기 
-//
-// 		if (DamageDataTable)
-// 		{
-// 			for (TFieldIterator<FProperty> It(FSOWeaponDamageData::StaticStruct()); It; ++It)
-// 			{
-// 				FProperty* Property = *It;
-// 				FString PropertyName = Property->GetName();
-// 				FString PropertyValue;
-// 				// Property Value 값 넣어주기 
-// 				Property->ExportText_InContainer(0, PropertyValue, DamageDataTable, DamageDataTable, nullptr, PPF_None);
-// 				InitializeWeaponDamageByBoneTable( ID, PropertyName ,PropertyValue);
-// 			}
-// 		}
-// 	}
-// }
-//
-// //WeaponDamageByBoneTable에 실질적인 데이터 Setting 진행 
-// void USOGameSubsystem::InitializeWeaponDamageByBoneTable(const int32 InID , const FString& InBoneName, const FString& InDamageValue)
-// {
-// 	if(!WeaponDamageByBoneTable)
-// 	{
-// 		UE_LOG(LogTemp, Warning, TEXT("No WeaponDamageByBoneTable found "));
-// 		return ; 
-// 	}
-// 	
-// 	FString RowName = FString::Printf(TEXT("%d"), InID);
-//
-// 	FSOWeaponDamageByBone* WeaponDamageByBoneDataRow = WeaponDamageByBoneTable->FindRow<FSOWeaponDamageByBone>(
-// 		FName(*RowName), "");
-// 	if (WeaponDamageByBoneDataRow)
-// 	{
-// 		UE_LOG(LogTemp, Warning, TEXT("Found WeaponDamageByBoneTable for ID: %d"), InID);
-// 		float InDamageFloatValue = FCString::Atof(*InDamageValue);
-// 		WeaponDamageByBoneDataRow->DamageByHitLocationMap.Add(InBoneName,InDamageFloatValue);
-// 	}
-// 	else
-// 	{
-// 		UE_LOG(LogTemp, Warning, TEXT("No WeaponDamageByBoneTable found for ID: %d"), InID);
-// 	}
-// }
-
-// void USOGameSubsystem::LoadHitAreaDamageMap()
-// {
-// 	if(!HitAreaDamageTable)
-// 	{
-// 		return;
-// 	}
-// 	HitAreaDamageMap.Empty();
-// 	TArray<FName> RowNames = HitAreaDamageTable->GetRowNames();
-// 	int32 NumDamageDataRows = RowNames.Num();
-// 	
-// 	for (int32 ID = 0; ID < NumDamageDataRows; ++ID)
-// 	{
-// 		// 행의 데이터를 가져옴
-// 		FSOHitAreaDamageData* HitAreaDamageData = HitAreaDamageTable->FindRow<FSOHitAreaDamageData>(RowNames[ID], TEXT(""));
-//
-// 		if (HitAreaDamageData)
-// 		{
-// 			// 구조체의 모든 프로퍼티를 순회
-// 			for (TFieldIterator<FProperty> It(FSOHitAreaDamageData::StaticStruct()); It; ++It)
-// 			{
-// 				FProperty* Property = *It;
-// 				FString PropertyName = Property->GetName();
-// 				FString PropertyValue;
-//
-// 				// Property Value 값을 가져옴
-// 				Property->ExportText_InContainer(0, PropertyValue, HitAreaDamageData, HitAreaDamageData, nullptr, PPF_None);
-//
-// 				// Property Value를 float로 변환하고 HitAreaDamageMap에 추가
-// 				float DamageValue = FCString::Atof(*PropertyValue);
-// 				HitAreaDamageMap.Add(PropertyName, DamageValue);
-// 			}
-// 		}
-// 	}
-// 	for (const auto& Pair : HitAreaDamageMap)
-// 	{
-// 		UE_LOG(LogSOSubsystem, Log, TEXT("Bone: %s, Damage: %f"), *Pair.Key, Pair.Value);
-// 	}
-// }
-
-// void USOGameSubsystem::LoadWeaponClassAreaDamageMap()
-// {
-// 	if(!WeaponClassAreaDamageTable)
-// 	{
-// 		return;
-// 	}
-// 	WeaponClassAreaDamageMap.Empty();
-// 	TArray<FName> RowNames = WeaponClassAreaDamageTable->GetRowNames();
-// 	int32 NumDamageDataRows = RowNames.Num();
-// 	for (int32 ID = 0; ID < NumDamageDataRows; ++ID)
-// 	{
-// 		// 행의 데이터를 가져옴
-// 		FSOWeaponClassAreaDamageData* WeaponClassAreaDamageData = WeaponClassAreaDamageTable->FindRow<FSOWeaponClassAreaDamageData>(RowNames[ID], TEXT(""));
-//
-// 		if (WeaponClassAreaDamageData)
-// 		{
-// 			FAreaDamageMap AreaDamageMap;
-// 			// 구조체의 모든 프로퍼티를 순회
-// 			for (TFieldIterator<FProperty> It(FSOWeaponClassAreaDamageData::StaticStruct()); It; ++It)
-// 			{
-// 				FProperty* Property = *It;
-// 				FString PropertyName = Property->GetName();
-//
-// 				if (PropertyName == "WeaponType")
-// 				{
-// 					continue;
-// 				}
-//
-// 				FString PropertyValue;
-//
-// 				// Property Value 값을 가져옴
-// 				Property->ExportText_InContainer(0, PropertyValue, WeaponClassAreaDamageData, WeaponClassAreaDamageData, nullptr, PPF_None);
-//
-// 				// Property Value를 float로 변환하고 FAreaDamageMap에 추가
-// 				float DamageValue = FCString::Atof(*PropertyValue);
-// 				AreaDamageMap.DamageMap.Add(PropertyName, DamageValue);
-// 			}
-// 			// WeaponClass 이름으로 WeaponClassAreaDamageMap에 추가
-// 			FString WeaponClassName = UEnum::GetDisplayValueAsText(WeaponClassAreaDamageData->WeaponType).ToString();
-// 			WeaponClassAreaDamageMap.Add(WeaponClassName, AreaDamageMap);
-// 		}
-// 	}
-// 	// 확인을 위해 WeaponClassAreaDamageMap 출력
-// 	for (const auto& WeaponClassPair : WeaponClassAreaDamageMap)
-// 	{
-// 		UE_LOG(LogSOSubsystem, Log, TEXT("Weapon Class: %s"), *WeaponClassPair.Key);
-// 		for (const auto& DamagePair : WeaponClassPair.Value.DamageMap)
-// 		{
-// 			UE_LOG(LogSOSubsystem, Log, TEXT("  Bone: %s, Damage: %f"), *DamagePair.Key, DamagePair.Value);
-// 		}
-// 	}
-// }
