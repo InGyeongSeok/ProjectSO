@@ -221,3 +221,12 @@ void ASOCharacterBase::ApplyRecoil(const float InYawRecoil, const float InPitchR
 	AddControllerYawInput(RYaw);
 	AddControllerPitchInput(RPitch);
 }
+
+FString ASOCharacterBase::GetHitParentBone(const FName& InBoneString)
+{
+	UE_LOG(LogTemp,Log,TEXT("InBoneString : %s"), *InBoneString.ToString());
+
+	FName ParentBoneName = SkeletalMesh->GetParentBone(InBoneString);
+	UE_LOG(LogTemp,Log,TEXT("ParentBoneName : %s"),*ParentBoneName.ToString() );
+	return  ParentBoneName.ToString();
+}

@@ -60,6 +60,7 @@ protected:
 public:
 	//Apply Recoil 
 	void ApplyRecoil(const float InYawRecoil, const float InPitchRecil);
+	FString GetHitParentBone(const FName& InBoneString);
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "SO|Equip")
 	TObjectPtr<ASOGunBase> CurrentWeapon;

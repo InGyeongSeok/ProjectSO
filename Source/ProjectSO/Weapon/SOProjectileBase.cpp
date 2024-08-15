@@ -14,6 +14,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Projectile/SOProjectilePoolComponent.h"
 #include "ProjectSO/ProjectSO.h"
+#include "ProjectSO/Character/SOCharacterBase.h"
 #include "ProjectSO/Core/SOGameSubsystem.h"
 #include "ProjectSO/Library/SOProjectileHitEffectDataAsset.h"
 
@@ -146,24 +147,40 @@ void ASOProjectileBase::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 			// Hit area damage
 			FString StringBoneName = SweepResult.BoneName.ToString();
 			FString HitBoneArea = GetKeyByBonName(*StringBoneName);
-			float HitAreaDamage = SOGameSubsystem->GetHitAreaDamage(HitBoneArea) * PERCENT;
-			SO_LOG(LogSOProjectileBase, Warning, TEXT("Hitareadamage : %f"), HitAreaDamage)
-			
-			//Weapon class area damage
-			ESOWeaponType WeaponTypeEnum = ProjectileData.WeaponType;
-			//FString WeaponType = UEnum::GetDisplayValueAsText(WeaponTypeEnum).ToString();
-			//GetWeaponClassAreaDamage
-			//ProjectileData.WeaponType
-			FString WeaponTypeString = UEnum::GetValueAsString(ProjectileData.WeaponType);
-			float WeaponClassAreaDamage = SOGameSubsystem->GetWeaponClassAreaDamage(WeaponTypeString, HitBoneArea) * PERCENT;
-			SO_LOG(LogSOProjectileBase, Warning, TEXT("WeaponType : %s"), *WeaponTypeString)
-			SO_LOG(LogSOProjectileBase, Warning, TEXT("Weaponclassareadamage : %f"), WeaponClassAreaDamage)
 
+			if(true) // -1이 리턴된 경우? 
+			{
+				UE_LOG(LogTemp,Log,TEXT(" Bone Name  1  ::: %s"), *HitBoneArea );
+
+				ASOCharacterBase* CharacterBase = Cast<ASOCharacterBase>(OtherActor);
+				if(CharacterBase)
+				{
+					StringBoneName = CharacterBase->GetHitParentBone(SweepResult.BoneName);
+					UE_LOG(LogTemp,Log,TEXT(" Bone Name  2  ::: %s"), *StringBoneName );
+
+					HitBoneArea =  GetKeyByBonName(*StringBoneName);
+					//UE_LOG(LogTemp,Log,TEXT(" HitBoneArea ::: %s"),*HitBoneArea );
+				}
+			}
 			
-			Damage = BaseDamage * HitAreaDamage * WeaponClassAreaDamage * RangeModifier;
-			SO_LOG(LogSOProjectileBase, Warning, TEXT("Damage : %f"), Damage)
-			
-			UGameplayStatics::ApplyDamage(HitActor,Damage,FiringController,this,UDamageType::StaticClass());
+			// float HitAreaDamage = SOGameSubsystem->GetHitAreaDamage(HitBoneArea) * PERCENT;
+			// SO_LOG(LogSOProjectileBase, Warning, TEXT("Hitareadamage : %f"), HitAreaDamage)
+			//
+			// //Weapon class area damage
+			// ESOWeaponType WeaponTypeEnum = ProjectileData.WeaponType;
+			// //FString WeaponType = UEnum::GetDisplayValueAsText(WeaponTypeEnum).ToString();
+			// //GetWeaponClassAreaDamage
+			// //ProjectileData.WeaponType
+			// FString WeaponTypeString = UEnum::GetValueAsString(ProjectileData.WeaponType);
+			// float WeaponClassAreaDamage = SOGameSubsystem->GetWeaponClassAreaDamage(WeaponTypeString, HitBoneArea) * PERCENT;
+			// SO_LOG(LogSOProjectileBase, Warning, TEXT("WeaponType : %s"), *WeaponTypeString)
+			// SO_LOG(LogSOProjectileBase, Warning, TEXT("Weaponclassareadamage : %f"), WeaponClassAreaDamage)
+			//
+			//
+			// Damage = BaseDamage * HitAreaDamage * WeaponClassAreaDamage * RangeModifier;
+			// SO_LOG(LogSOProjectileBase, Warning, TEXT("Damage : %f"), Damage)
+			//
+			// UGameplayStatics::ApplyDamage(HitActor,Damage,FiringController,this,UDamageType::StaticClass());
 		}
 	}
 	else
