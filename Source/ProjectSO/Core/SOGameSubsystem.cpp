@@ -201,32 +201,33 @@ float USOGameSubsystem::GetHitAreaDamage(const FString& Area) const
 	return HitAreaDamageDataRow->ReflectRate;
 }
 
-float USOGameSubsystem::GetWeaponClassAreaDamage(const FString& InGunType, const FString& InBoneName) 
+float USOGameSubsystem::GetWeaponClassAreaDamage(const FString& InGunType, const FString& InBoneName) const
 {
-	if(!WeaponClassAreaDamageTable)
+	/*if(!WeaponClassAreaDamageTable)
 	{
 		return -1.0f; 
 	}
-	FSOWeaponClassAreaDamageData* WeaponClassAreaDamage = WeaponClassAreaDamageTable->FindRow<FSOWeaponClassAreaDamageData>(FName(*InGunType), "");
+	FSOWeaponClassAreaDamageData* WeaponClassAreaDamage = WeaponClassAreaDamageTable->FindRow<FSOWeaponClassAreaDamageData>(FName(InGunType), "");
 
 	if(!WeaponClassAreaDamage)
 	{
 		return -1.0f; 
 	}
 	//WeaponBoneDamageDataAsset
-	  const USOWeaponDamageDataAsset* DamageDataAsset = WeaponClassAreaDamage->WeaponBoneDamageDataAsset;
+	const USOWeaponDamageDataAsset DamageDataAsset = WeaponClassAreaDamage->WeaponBoneDamageDataAsset;
+		// WeaponClassAreaDamage->WeaponBoneDamageDataAsset;
 
 	if(!DamageDataAsset)
 	{
 		return -1.0f;
 	}
 
-	UE_LOG(LogTemp,Log,TEXT("InGunType : %s"), *InGunType);
-	//SO_LOG(LogSONetwork,Log,TEXT("%s"),*InGunType);
+	UE_LOG(LogTemp,Log,TEXT("InGunType : %s"), InGunType);
+	//SO_LOG(LogSONetwork,Log,TEXT("%s"),InGunType);
 	UE_LOG(LogTemp,Log,TEXT("DamageByHitLocationMap : %f"), DamageDataAsset->DamageByHitLocationMap[InBoneName]);
-	
-	return  DamageDataAsset->DamageByHitLocationMap[InBoneName];
-	
+
+	return  DamageDataAsset->DamageByHitLocationMap[InBoneName];*/
+	return -1;
 }
 
 USOProjectileHitEffectDataAsset* USOGameSubsystem::GetProjectileHitEffectDataAsset() const
