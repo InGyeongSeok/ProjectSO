@@ -6,17 +6,17 @@
 #include "SOGunFireEffect.h"
 #include "GameFramework/Actor.h"
 #include "Library/ALSCharacterEnumLibrary.h"
+#include "ProjectSO/Actor/SOItemActor.h"
 #include "ProjectSO/Library/SOWeaponEnumLibrary.h"
 #include "ProjectSO/Library/SOWeaponStructLibrary.h"
 #include "ProjectSO/Interface/SODamageableInterface.h"
-#include "ProjectSO/Interface/SOEquippableInterface.h"
 #include "SOGunBase.generated.h"
 
 class ASOCharacterBase;
 class USkeletalMeshComponent;
 
 UCLASS()
-class PROJECTSO_API ASOGunBase : public AActor, public ISODamageableInterface, public ISOEquippableInterface
+class PROJECTSO_API ASOGunBase : public ASOItemActor, public ISODamageableInterface
 {
 	GENERATED_BODY()
 	
@@ -42,10 +42,10 @@ public:
 	/** IEquippableInterface **/
 public:
 	virtual EALSOverlayState GetOverlayState() const override;
+	virtual void Equip() override;
 
 	/* Member Function */
 public:
-	virtual void Equip();
 	virtual void SetOwningCharacter(ASOCharacterBase* InOwningCharacter);
 	
 	// Fire Logic

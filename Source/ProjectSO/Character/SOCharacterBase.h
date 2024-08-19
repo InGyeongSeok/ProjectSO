@@ -8,6 +8,7 @@
 #include "ProjectSO/Interface/SOEquippableInterface.h"
 #include "SOCharacterBase.generated.h"
 
+class USOInventoryComponent;
 class USOHealthComponent;
 /**
  * 
@@ -29,7 +30,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	// 나중에 장착 가능한 것들만 모아서 하기
-	void EquipItem(ISOEquippableInterface* InEquipment);
+	void EquipItem(ASOItemActor* InEquipment);
 
 	/** Input */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "SO|Input")
@@ -48,9 +49,11 @@ public:
 
 public:
 	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastRPCEquipItem(ASOGunBase* Weapon);
+	void MulticastRPCEquipItem(ASOItemActor* Weapon);
 
-
+public:
+	FORCEINLINE USOHealthComponent* GetHealth() const { return HealthComponent; }
+	FORCEINLINE USOInventoryComponent* GetInventory() const { return InventoryComponent; }
 	
 	// Health
 protected:
@@ -69,4 +72,7 @@ protected:
 	UPROPERTY(EditAnywhere, Replicated, Category = "SO|Health")
 	TObjectPtr<USOHealthComponent> HealthComponent;
 
+	UPROPERTY(EditAnywhere, Replicated, Category = "SO|Inventory")
+	TObjectPtr<USOInventoryComponent> InventoryComponent;
+	
 };

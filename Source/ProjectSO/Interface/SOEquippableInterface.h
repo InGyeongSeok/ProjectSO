@@ -24,4 +24,5 @@ class PROJECTSO_API ISOEquippableInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	virtual EALSOverlayState GetOverlayState() const = 0;
+	virtual void Equip() = 0;
 };

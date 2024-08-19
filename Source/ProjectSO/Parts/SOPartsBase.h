@@ -4,11 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "ProjectSO/Interface/SOEquippableInterface.h"
+#include "ProjectSO/Actor/SOItemActor.h"
 #include "SOPartsBase.generated.h"
 
 UCLASS()
-class PROJECTSO_API ASOPartsBase : public AActor, public ISOEquippableInterface
+class PROJECTSO_API ASOPartsBase : public ASOItemActor
 {
 	GENERATED_BODY()
 	
@@ -24,12 +24,20 @@ protected:
 
 	UFUNCTION()
 	virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-	
+
+	/* ======================= Interface ======================= */
+public:
 	virtual EALSOverlayState GetOverlayState() const override;
+	virtual void Equip() override;
+
+	/* ======================= Function ======================= */
+public:
+	void AttachToWeapon();
+	
 	
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
-	TObjectPtr<class USkeletalMeshComponent> PartsMesh;
+	TObjectPtr<class UStaticMeshComponent> PartsMesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	TObjectPtr<class UCapsuleComponent> CollisionComp;

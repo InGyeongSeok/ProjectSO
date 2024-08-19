@@ -8,6 +8,7 @@
 #include "Net/UnrealNetwork.h"
 #include "ProjectSO/ProjectSO.h"
 #include "ProjectSO/Component/SOHealthComponent.h"
+#include "ProjectSO/Component/SOInventoryComponent.h"
 #include "ProjectSO/Weapon/SOGunBase.h"
 #include "ProjectSO/Weapon/SOMinigun.h"
 
@@ -15,7 +16,7 @@ ASOCharacterBase::ASOCharacterBase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	HealthComponent = CreateDefaultSubobject<USOHealthComponent>(TEXT("HealthComponent"));
-	
+	InventoryComponent = CreateDefaultSubobject<USOInventoryComponent>(TEXT("InventoryComponent"));
 }
 
 void ASOCharacterBase::BeginPlay()
@@ -46,13 +47,13 @@ void ASOCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(ASOCharacterBase, CurrentWeapon);
 }
 
-void ASOCharacterBase::EquipItem(ISOEquippableInterface* InEquipment)
+void ASOCharacterBase::EquipItem(ASOItemActor* InEquipment)
 {	
-	ASOGunBase* Weapon = Cast<ASOGunBase>(InEquipment);
+	// ASOGunBase* Weapon = Cast<ASOGunBase>(InEquipment);
 	
-	if(Weapon)
+	if(InEquipment)
 	{
-		MulticastRPCEquipItem(Weapon);		
+		MulticastRPCEquipItem(InEquipment);		
 	}
 }
 
@@ -137,15 +138,15 @@ void ASOCharacterBase::ReceiveDamage(AActor* DamagedActor, float Damage, const U
 	// 죽음 처리 
 }
 
-
-
-void ASOCharacterBase::MulticastRPCEquipItem_Implementation(ASOGunBase* Weapon)
+void ASOCharacterBase::MulticastRPCEquipItem_Implementation(ASOItemActor* InItem)
 {
-	OverlayState = Weapon->GetOverlayState();
-	CurrentWeapon = Weapon;
-	// CurrentWeapon->SetOwner(this);
+	OverlayState = InItem->GetOverlayState();
+	CurrentWeapon = Cast<ASOGunBase>(InItem);
 	CurrentWeapon->SetOwningCharacter(this);
 	CurrentWeapon->Equip();
+
+	// 파츠
+	// InItem->Equip();
 }
 
 void ASOCharacterBase::ChangeFireModeAction_Implementation(bool bValue)

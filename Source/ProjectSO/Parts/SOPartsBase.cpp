@@ -5,6 +5,7 @@
 
 #include "Components/CapsuleComponent.h"
 #include "ProjectSO/ProjectSO.h"
+#include "ProjectSO/Component/SOInventoryComponent.h"
 #include "ProjectSO/Character/SOCharacterBase.h"
 
 // Sets default values
@@ -14,7 +15,7 @@ ASOPartsBase::ASOPartsBase()
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
 
-	PartsMesh = CreateDefaultSubobject<USkeletalMeshComponent>(FName("PartsMesh"));
+	PartsMesh = CreateDefaultSubobject<UStaticMeshComponent>(FName("PartsMesh"));
 	PartsMesh->SetCollisionProfileName(TEXT("PartsMesh"));
 	PartsMesh->CastShadow = true;
 	PartsMesh->SetVisibility(true, false);
@@ -31,7 +32,7 @@ void ASOPartsBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ASOPartsBase::OnSphereBeginOverlap);
+	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ASOPartsBase::OnSphereBeginOverlap);
 	// CollisionComp->OnComponentEndOverlap.AddDynamic(this, &ASOPartsBase::OnSphereEndOverlap);
 }
 
@@ -50,7 +51,10 @@ void ASOPartsBase::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent
 		ASOCharacterBase* CharacterBase = Cast<ASOCharacterBase>(OtherActor);
 		if(CharacterBase)
 		{
-			CharacterBase->EquipItem(this);
+			USOInventoryComponent* Inven = CharacterBase->GetInventory();
+			// 인벤토리 컴포넌트 가져오기
+			Inven->AddToInventory(this);
+			// CharacterBase->EquipItem(this);
 		}
 	}
 }
@@ -63,6 +67,12 @@ EALSOverlayState ASOPartsBase::GetOverlayState() const
 {
 	return EALSOverlayState::Default;
 	// return WeaponData.OverlayState;
+}
+
+void ASOPartsBase::Equip()
+{
+	// 무기에 장착
+	
 }
 
 
