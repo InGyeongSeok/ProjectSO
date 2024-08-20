@@ -7,6 +7,8 @@
 #include "ProjectSO/Actor/SOItemActor.h"
 #include "SOPartsBase.generated.h"
 
+class ASOGunBase;
+
 UCLASS()
 class PROJECTSO_API ASOPartsBase : public ASOItemActor
 {
@@ -32,7 +34,7 @@ public:
 
 	/* ======================= Function ======================= */
 public:
-	void AttachToWeapon();
+	void AttachToWeapon(ASOGunBase* Weapon);
 	
 	
 public:
