@@ -56,7 +56,7 @@ void ASOPartsBase::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent
 			if(Inven)
 			{
 				// 인벤토리 컴포넌트 가져오기
-				Inven->AddToInventory(this);				
+				Inven->AddToInventory(this);
 			}
 			// CharacterBase->EquipItem(this);
 		}
@@ -87,14 +87,14 @@ EALSOverlayState ASOPartsBase::GetOverlayState() const
 void ASOPartsBase::Equip()
 {
 	AActor* OwnerActor = GetOwner();
-	if(OwnerActor)
+	/*if(OwnerActor)
 	{
 		SO_LOG(LogSONetwork, Log, TEXT("Owner : %s"), *OwnerActor->GetName())
 	}
 	else
 	{
 		SO_LOG(LogSONetwork, Log, TEXT("%s"), TEXT("No Owner"))
-	}
+	}*/
 	ASOGunBase* Weapon = Cast<ASOGunBase>(OwnerActor);	
 	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
 	this->AttachToComponent(Weapon->GetWeaponMesh(), AttachmentRules, Weapon->GetWeaponData()->MuzzleSocketName);

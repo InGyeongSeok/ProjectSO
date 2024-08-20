@@ -234,3 +234,24 @@ USOProjectileHitEffectDataAsset* USOGameSubsystem::GetProjectileHitEffectDataAss
 {
 	return ProjectileHitEffectDataAsset;
 }
+
+UNiagaraSystem* USOGameSubsystem::GetSurfaceEffect(const TArray<FName>& ActorTags)
+{
+	UNiagaraSystem* SelectedEffect;
+	for (const FName& Tag : ActorTags)
+	{
+		// SO_LOG(LogSOProjectileBase, Log, TEXT("Tag : %s"), *Tag.ToString())
+		if (ProjectileHitEffectDataAsset->EffectBySurface.Contains(Tag))
+		{
+			SelectedEffect = ProjectileHitEffectDataAsset->EffectBySurface[Tag];
+			if(SelectedEffect)
+			{
+				UE_LOG(LogTemp, Log, TEXT("SelectedEffect : %s"), *SelectedEffect->GetName())
+				return SelectedEffect;
+			}
+			UE_LOG(LogTemp, Log, TEXT("SelectedEffect is Null"))			
+		}		
+		break;
+	}
+	return nullptr;
+}

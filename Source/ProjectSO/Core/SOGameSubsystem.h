@@ -42,7 +42,9 @@ public:
 	float GetHitAreaDamage(const FString& Area) const;
 	float GetWeaponClassAreaDamage(const FString& InGunType, const FString& InBoneName)  const;
 	USOProjectileHitEffectDataAsset* GetProjectileHitEffectDataAsset() const; 
-
+	UNiagaraSystem* GetSurfaceEffect(const TArray<FName>& ActorTags);
+	
+	
 protected:
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<UDataTable> WeaponDataTable;

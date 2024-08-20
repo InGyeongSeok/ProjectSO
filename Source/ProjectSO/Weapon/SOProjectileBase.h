@@ -75,8 +75,8 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastRPCPlayHitEffectBySurface(AActor* HitActor, const FVector& HitLocation, const FVector& HitNormal);
 
-	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<USOProjectileHitEffectDataAsset> ProjectileHitEffectDataAsset;
+	// UPROPERTY(EditDefaultsOnly)
+	// TObjectPtr<USOProjectileHitEffectDataAsset> ProjectileHitEffectDataAsset;
 	
 protected:
 	// Multi

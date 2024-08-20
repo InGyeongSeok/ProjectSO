@@ -45,6 +45,8 @@ void USOInventoryComponent::AddToInventory(ASOItemActor* InItem)
 	// ClientRPCAddToInventory 호출 예정
 	// 원래는 인벤토리에 저장되는 기능이 있을 예정
 	// InItem->SetOwner();
+
+	// 
 	AActor* OwningActor = GetOwner();
 	ASOCharacterBase* SOCharacter = Cast<ASOCharacterBase>(OwningActor);
 	SOCharacter->EquipItem(InItem);	
