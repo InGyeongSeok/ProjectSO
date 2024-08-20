@@ -57,6 +57,12 @@ public:
 	
 	// Health
 protected:
+	//	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS|Component")
+	//	TObjectPtr<USkeletalMeshComponent> SkeletalMesh = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SO|MeshComponent")
+	TObjectPtr<USkeletalMeshComponent> CharacterMesh;
+	
+protected:
 	UFUNCTION()
 	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
 
@@ -74,5 +80,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, Replicated, Category = "SO|Inventory")
 	TObjectPtr<USOInventoryComponent> InventoryComponent;
+
+	
 	
 };

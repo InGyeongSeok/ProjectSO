@@ -148,7 +148,9 @@ void ASOProjectileBase::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 			FString StringBoneName = SweepResult.BoneName.ToString();
 			FString HitBoneArea = GetKeyByBonName(*StringBoneName);
 
-			if(true) // -1이 리턴된 경우? 
+			float HitAreaDamage = SOGameSubsystem->GetHitAreaDamage(HitBoneArea);
+
+			if(HitAreaDamage<0) // -1이 리턴된 경우? 
 			{
 				UE_LOG(LogTemp,Log,TEXT(" Bone Name  1  ::: %s"), *HitBoneArea );
 
@@ -159,28 +161,22 @@ void ASOProjectileBase::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 					UE_LOG(LogTemp,Log,TEXT(" Bone Name  2  ::: %s"), *StringBoneName );
 
 					HitBoneArea =  GetKeyByBonName(*StringBoneName);
-					//UE_LOG(LogTemp,Log,TEXT(" HitBoneArea ::: %s"),*HitBoneArea );
 				}
 			}
 			
-			// float HitAreaDamage = SOGameSubsystem->GetHitAreaDamage(HitBoneArea) * PERCENT;
-			// SO_LOG(LogSOProjectileBase, Warning, TEXT("Hitareadamage : %f"), HitAreaDamage)
-			//
-			// //Weapon class area damage
-			// ESOWeaponType WeaponTypeEnum = ProjectileData.WeaponType;
-			// //FString WeaponType = UEnum::GetDisplayValueAsText(WeaponTypeEnum).ToString();
-			// //GetWeaponClassAreaDamage
-			// //ProjectileData.WeaponType
-			// FString WeaponTypeString = UEnum::GetValueAsString(ProjectileData.WeaponType);
-			// float WeaponClassAreaDamage = SOGameSubsystem->GetWeaponClassAreaDamage(WeaponTypeString, HitBoneArea) * PERCENT;
-			// SO_LOG(LogSOProjectileBase, Warning, TEXT("WeaponType : %s"), *WeaponTypeString)
-			// SO_LOG(LogSOProjectileBase, Warning, TEXT("Weaponclassareadamage : %f"), WeaponClassAreaDamage)
-			//
-			//
-			// Damage = BaseDamage * HitAreaDamage * WeaponClassAreaDamage * RangeModifier;
-			// SO_LOG(LogSOProjectileBase, Warning, TEXT("Damage : %f"), Damage)
-			//
-			// UGameplayStatics::ApplyDamage(HitActor,Damage,FiringController,this,UDamageType::StaticClass());
+			SO_LOG(LogSOProjectileBase, Warning, TEXT("Hitareadamage : %f"), HitAreaDamage * PERCENT)
+			
+			ESOWeaponType WeaponTypeEnum = ProjectileData.WeaponType;
+			FString WeaponTypeString = UEnum::GetValueAsString(ProjectileData.WeaponType);
+			float WeaponClassAreaDamage = SOGameSubsystem->GetWeaponClassAreaDamage(WeaponTypeString, HitBoneArea) * PERCENT;
+			SO_LOG(LogSOProjectileBase, Warning, TEXT("WeaponType : %s"), *WeaponTypeString)
+			SO_LOG(LogSOProjectileBase, Warning, TEXT("Weaponclassareadamage : %f"), WeaponClassAreaDamage)
+			
+			
+			Damage = BaseDamage * HitAreaDamage * WeaponClassAreaDamage * RangeModifier;
+			SO_LOG(LogSOProjectileBase, Warning, TEXT("Damage : %f"), Damage)
+			
+			UGameplayStatics::ApplyDamage(HitActor,Damage,FiringController,this,UDamageType::StaticClass());
 		}
 	}
 	else

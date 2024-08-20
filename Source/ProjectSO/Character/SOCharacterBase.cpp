@@ -18,10 +18,13 @@ ASOCharacterBase::ASOCharacterBase(const FObjectInitializer& ObjectInitializer)
 {
 	HealthComponent = CreateDefaultSubobject<USOHealthComponent>(TEXT("HealthComponent"));
 	InventoryComponent = CreateDefaultSubobject<USOInventoryComponent>(TEXT("InventoryComponent"));
+	CharacterMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMeshComponent"));
+	CharacterMesh->SetupAttachment(GetMesh());
 }
 
 void ASOCharacterBase::BeginPlay()
 {
+	//this->GetMesh();
 	Super::BeginPlay();
 	
 	if (HasAuthority())
@@ -246,7 +249,7 @@ FString ASOCharacterBase::GetHitParentBone(const FName& InBoneString)
 {
 	UE_LOG(LogTemp,Log,TEXT("InBoneString : %s"), *InBoneString.ToString());
 
-	FName ParentBoneName = SkeletalMesh->GetParentBone(InBoneString);
+	FName ParentBoneName = CharacterMesh->GetParentBone(InBoneString);
 	UE_LOG(LogTemp,Log,TEXT("ParentBoneName : %s"),*ParentBoneName.ToString() );
 	return  ParentBoneName.ToString();
 }
