@@ -148,7 +148,9 @@ void ASOProjectileBase::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 			FString StringBoneName = SweepResult.BoneName.ToString();
 			FString HitBoneArea = GetKeyByBonName(*StringBoneName);
 
-			if(true) // -1이 리턴된 경우? 
+			float HitAreaDamage = SOGameSubsystem->GetHitAreaDamage(HitBoneArea);
+
+			if(HitAreaDamage<0) // -1이 리턴된 경우? 
 			{
 				UE_LOG(LogTemp,Log,TEXT(" Bone Name  1  ::: %s"), *HitBoneArea );
 
@@ -159,28 +161,22 @@ void ASOProjectileBase::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 					UE_LOG(LogTemp,Log,TEXT(" Bone Name  2  ::: %s"), *StringBoneName );
 
 					HitBoneArea =  GetKeyByBonName(*StringBoneName);
-					//UE_LOG(LogTemp,Log,TEXT(" HitBoneArea ::: %s"),*HitBoneArea );
 				}
 			}
 			
-			// float HitAreaDamage = SOGameSubsystem->GetHitAreaDamage(HitBoneArea) * PERCENT;
-			// SO_LOG(LogSOProjectileBase, Warning, TEXT("Hitareadamage : %f"), HitAreaDamage)
-			//
-			// //Weapon class area damage
-			// ESOWeaponType WeaponTypeEnum = ProjectileData.WeaponType;
-			// //FString WeaponType = UEnum::GetDisplayValueAsText(WeaponTypeEnum).ToString();
-			// //GetWeaponClassAreaDamage
-			// //ProjectileData.WeaponType
-			// FString WeaponTypeString = UEnum::GetValueAsString(ProjectileData.WeaponType);
-			// float WeaponClassAreaDamage = SOGameSubsystem->GetWeaponClassAreaDamage(WeaponTypeString, HitBoneArea) * PERCENT;
-			// SO_LOG(LogSOProjectileBase, Warning, TEXT("WeaponType : %s"), *WeaponTypeString)
-			// SO_LOG(LogSOProjectileBase, Warning, TEXT("Weaponclassareadamage : %f"), WeaponClassAreaDamage)
-			//
-			//
-			// Damage = BaseDamage * HitAreaDamage * WeaponClassAreaDamage * RangeModifier;
-			// SO_LOG(LogSOProjectileBase, Warning, TEXT("Damage : %f"), Damage)
-			//
-			// UGameplayStatics::ApplyDamage(HitActor,Damage,FiringController,this,UDamageType::StaticClass());
+			SO_LOG(LogSOProjectileBase, Warning, TEXT("Hitareadamage : %f"), HitAreaDamage * PERCENT)
+			
+			ESOWeaponType WeaponTypeEnum = ProjectileData.WeaponType;
+			FString WeaponTypeString = UEnum::GetValueAsString(ProjectileData.WeaponType);
+			float WeaponClassAreaDamage = SOGameSubsystem->GetWeaponClassAreaDamage(WeaponTypeString, HitBoneArea) * PERCENT;
+			SO_LOG(LogSOProjectileBase, Warning, TEXT("WeaponType : %s"), *WeaponTypeString)
+			SO_LOG(LogSOProjectileBase, Warning, TEXT("Weaponclassareadamage : %f"), WeaponClassAreaDamage)
+			
+			
+			Damage = BaseDamage * HitAreaDamage * WeaponClassAreaDamage * RangeModifier;
+			SO_LOG(LogSOProjectileBase, Warning, TEXT("Damage : %f"), Damage)
+			
+			UGameplayStatics::ApplyDamage(HitActor,Damage,FiringController,this,UDamageType::StaticClass());
 		}
 	}
 	else
@@ -342,10 +338,19 @@ USOGameSubsystem* ASOProjectileBase::GetSOGameSubsystem()
 void ASOProjectileBase::PlayHitEffectBySurface(AActor* HitActor, const FVector& HitLocation, const FVector& HitNormal)
 {	
 	const TArray<FName>& ActorTags = HitActor->Tags;
-
+	// 태그를 서브 시스템
+	// 나이아가라를 받아오기
+	// SubSystem::Nia* GetNia(FName Tag)
+	USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();
+	UNiagaraSystem* SelectedEffect = SOGameSubsystem->GetSurfaceEffect(ActorTags);
+	if(SelectedEffect)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), SelectedEffect, HitLocation, HitNormal.Rotation());		
+	}
+	
 	SO_LOG(LogSOProjectileBase, Log, TEXT("HitActor : %s"), *HitActor->GetName())
 	
-	for (const FName& Tag : ActorTags)
+	/*for (const FName& Tag : ActorTags)
 	{
 		SO_LOG(LogSOProjectileBase, Log, TEXT("Tag : %s"), *Tag.ToString())
 		if (ProjectileHitEffectDataAsset->EffectBySurface.Contains(Tag))
@@ -362,7 +367,7 @@ void ASOProjectileBase::PlayHitEffectBySurface(AActor* HitActor, const FVector& 
 			}
 		}		
 		break;
-	}	
+	}	*/
 }
 
 void ASOProjectileBase::SetProjectileSurfaceEffectData()
@@ -370,9 +375,9 @@ void ASOProjectileBase::SetProjectileSurfaceEffectData()
 	SO_LOG(LogSOTemp,Log,TEXT("Begin"))
 
 	// 게임 인스턴스에서 서브시스템을 가져오기.
-	USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();	
+	// USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();	
 
-	ProjectileHitEffectDataAsset = SOGameSubsystem->GetProjectileHitEffectDataAsset();
+	// ProjectileHitEffectDataAsset = SOGameSubsystem->GetProjectileHitEffectDataAsset();
 	// EffectBySurface = ProjectileHitEffectDataAsset
 	
 }

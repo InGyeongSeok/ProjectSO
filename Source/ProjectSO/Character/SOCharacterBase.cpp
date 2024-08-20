@@ -9,6 +9,7 @@
 #include "ProjectSO/ProjectSO.h"
 #include "ProjectSO/Component/SOHealthComponent.h"
 #include "ProjectSO/Component/SOInventoryComponent.h"
+#include "ProjectSO/Parts/SOPartsBase.h"
 #include "ProjectSO/Weapon/SOGunBase.h"
 #include "ProjectSO/Weapon/SOMinigun.h"
 
@@ -17,10 +18,13 @@ ASOCharacterBase::ASOCharacterBase(const FObjectInitializer& ObjectInitializer)
 {
 	HealthComponent = CreateDefaultSubobject<USOHealthComponent>(TEXT("HealthComponent"));
 	InventoryComponent = CreateDefaultSubobject<USOInventoryComponent>(TEXT("InventoryComponent"));
+	CharacterMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMeshComponent"));
+	CharacterMesh->SetupAttachment(GetMesh());
 }
 
 void ASOCharacterBase::BeginPlay()
 {
+	//this->GetMesh();
 	Super::BeginPlay();
 	
 	if (HasAuthority())
@@ -124,8 +128,7 @@ void ASOCharacterBase::UpdateCharacterMinigunMovement()
 	}
 }
 
-void ASOCharacterBase::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
-                                     AController* InstigatorController, AActor* DamageCauser)
+void ASOCharacterBase::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController, AActor* DamageCauser)
 {
 	// 이 부분 전부 HealthComponent에서 해도 될 듯.
 	float DamageToHealth = Damage;
@@ -140,13 +143,35 @@ void ASOCharacterBase::ReceiveDamage(AActor* DamagedActor, float Damage, const U
 
 void ASOCharacterBase::MulticastRPCEquipItem_Implementation(ASOItemActor* InItem)
 {
-	OverlayState = InItem->GetOverlayState();
-	CurrentWeapon = Cast<ASOGunBase>(InItem);
-	CurrentWeapon->SetOwningCharacter(this);
-	CurrentWeapon->Equip();
-
-	// 파츠
+	if (ASOGunBase* Weapon = Cast<ASOGunBase>(InItem))
+	{
+		CurrentWeapon = Weapon;
+		CurrentWeapon = Cast<ASOGunBase>(InItem);
+		// CurrentWeapon->SetOwner(this);
+		CurrentWeapon->SetOwningCharacter(this);
+		CurrentWeapon->Equip();
+	}
+	else if(ASOPartsBase* Parts = Cast<ASOPartsBase>(InItem))
+	{
+		if (CurrentWeapon) // 현재 장착 중인 총기가 있는 경우
+		{
+			if(Parts->GetOwner())
+			{
+				SO_LOG(LogSONetwork, Log, TEXT("Owner : %s"), *Parts->GetOwner()->GetName())
+			}
+			else
+			{
+				SO_LOG(LogSONetwork, Log, TEXT("%s"), TEXT("No Owner"))
+			}
+			Parts->SetOwner(CurrentWeapon);
+			Parts->Equip();
+		}
+	}
+	// InItem->SetOwner(this);
 	// InItem->Equip();
+	
+	// 파츠는 Owner총의 overlay를 따라간다. 
+	OverlayState = InItem->GetOverlayState();
 }
 
 void ASOCharacterBase::ChangeFireModeAction_Implementation(bool bValue)
@@ -227,7 +252,7 @@ FString ASOCharacterBase::GetHitParentBone(const FName& InBoneString)
 {
 	UE_LOG(LogTemp,Log,TEXT("InBoneString : %s"), *InBoneString.ToString());
 
-	FName ParentBoneName = SkeletalMesh->GetParentBone(InBoneString);
+	FName ParentBoneName = CharacterMesh->GetParentBone(InBoneString);
 	UE_LOG(LogTemp,Log,TEXT("ParentBoneName : %s"),*ParentBoneName.ToString() );
 	return  ParentBoneName.ToString();
 }

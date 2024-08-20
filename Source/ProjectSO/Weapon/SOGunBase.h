@@ -12,6 +12,7 @@
 #include "ProjectSO/Interface/SODamageableInterface.h"
 #include "SOGunBase.generated.h"
 
+enum class ESOGunPartsType;
 class ASOCharacterBase;
 class USkeletalMeshComponent;
 
@@ -136,7 +137,23 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
 	TObjectPtr<class UCameraComponent> ScopeCamera;
 
-	
+/*protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Parts")
+	TObjectPtr<class UStaticMeshComponent> Scope;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Parts")
+	TObjectPtr<class UStaticMeshComponent> MuzzleAttachment;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Parts")
+	TObjectPtr<class UStaticMeshComponent> Grip;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Parts")
+	TObjectPtr<class UStaticMeshComponent> Magazine;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Parts")
+	TObjectPtr<class UStaticMeshComponent> Stock;
+
+	TMap<ESOGunPartsType, UStaticMeshComponent> PartsMapping;*/
 	// Properties
 protected:
 	//여기 구조체 생각  
@@ -197,7 +214,7 @@ protected:
 public:
 	FSOWeaponStat* GetWeaponStat() { return &WeaponStat; }
 	FSOWeaponData* GetWeaponData() { return &WeaponData; }
-
+	USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh;}
 	
 	// Ammo
 protected:

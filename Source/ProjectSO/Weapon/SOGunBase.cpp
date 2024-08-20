@@ -15,6 +15,7 @@
 #include "ProjectSO/Character/SOCharacterBase.h"
 #include "Projectile/SOProjectilePoolComponent.h"
 #include "ProjectSO/ProjectSO.h"
+#include "ProjectSO/Component/SOInventoryComponent.h"
 #include "ProjectSO/Core/SOGameSubsystem.h"
 #include "ProjectSO/Library/SOWeaponMeshDataAsset.h"
 #include "ProjectSO/Library/SOWeaponStructLibrary.h"
@@ -121,11 +122,18 @@ void ASOGunBase::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, 
 
 	if (HasAuthority())
 	{
-		ASOCharacterBase* CharacterBase = Cast<ASOCharacterBase>(OtherActor);		
-		if (CharacterBase) // && !bIsEquipped)
+		ASOCharacterBase* CharacterBase = Cast<ASOCharacterBase>(OtherActor);
+		if(CharacterBase)
 		{
-			bIsEquipped = true;
-			CharacterBase->EquipItem(this);
+			USOInventoryComponent* Inven = CharacterBase->GetInventory();
+			if(Inven)
+			{
+				// 인벤토리 컴포넌트 가져오기
+				bIsEquipped = true;
+				Inven->AddToInventory(this);
+				// CharacterBase->EquipItem(this);
+			}
+			
 		}
 	}
 }
@@ -509,13 +517,30 @@ void ASOGunBase::Equip()
 	SO_LOG(LogSOTemp, Warning, TEXT("Equip"))
 
 	if (!bIsEquipped) return;
-
-	
-	// if (!bIsEquipped) return;
 	if(!IsValid(OwningCharacter)) return;
-	
+
+	AActor* OwnerActor = GetOwner();
+	if(OwnerActor)
+	{
+		SO_LOG(LogSONetwork, Log, TEXT("Owner : %s"), *OwnerActor->GetName())
+	}
+	else
+	{
+		SO_LOG(LogSONetwork, Log, TEXT("%s"), TEXT("No Owner"))
+	}
+
+	// OwningCharacter = OwnerActor;
 	// 이거 해줘야 ServerRPC 가능
-	SetOwner(OwningCharacter);
+	// SetOwner(OwningCharacter);
+	
+	if(OwnerActor)
+	{
+		SO_LOG(LogSONetwork, Log, TEXT("Owner : %s"), *OwnerActor->GetName())
+	}
+	else
+	{
+		SO_LOG(LogSONetwork, Log, TEXT("%s"), TEXT("No Owner"))
+	}
 
 	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
 	const USkeletalMeshSocket* HandSocket = OwningCharacter->GetMesh()->GetSocketByName(WeaponData.EquipSocketName);
