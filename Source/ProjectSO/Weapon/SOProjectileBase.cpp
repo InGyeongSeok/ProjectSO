@@ -338,10 +338,19 @@ USOGameSubsystem* ASOProjectileBase::GetSOGameSubsystem()
 void ASOProjectileBase::PlayHitEffectBySurface(AActor* HitActor, const FVector& HitLocation, const FVector& HitNormal)
 {	
 	const TArray<FName>& ActorTags = HitActor->Tags;
-
+	// 태그를 서브 시스템
+	// 나이아가라를 받아오기
+	// SubSystem::Nia* GetNia(FName Tag)
+	USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();
+	UNiagaraSystem* SelectedEffect = SOGameSubsystem->GetSurfaceEffect(ActorTags);
+	if(SelectedEffect)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), SelectedEffect, HitLocation, HitNormal.Rotation());		
+	}
+	
 	SO_LOG(LogSOProjectileBase, Log, TEXT("HitActor : %s"), *HitActor->GetName())
 	
-	for (const FName& Tag : ActorTags)
+	/*for (const FName& Tag : ActorTags)
 	{
 		SO_LOG(LogSOProjectileBase, Log, TEXT("Tag : %s"), *Tag.ToString())
 		if (ProjectileHitEffectDataAsset->EffectBySurface.Contains(Tag))
@@ -358,7 +367,7 @@ void ASOProjectileBase::PlayHitEffectBySurface(AActor* HitActor, const FVector& 
 			}
 		}		
 		break;
-	}	
+	}	*/
 }
 
 void ASOProjectileBase::SetProjectileSurfaceEffectData()
@@ -366,9 +375,9 @@ void ASOProjectileBase::SetProjectileSurfaceEffectData()
 	SO_LOG(LogSOTemp,Log,TEXT("Begin"))
 
 	// 게임 인스턴스에서 서브시스템을 가져오기.
-	USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();	
+	// USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();	
 
-	ProjectileHitEffectDataAsset = SOGameSubsystem->GetProjectileHitEffectDataAsset();
+	// ProjectileHitEffectDataAsset = SOGameSubsystem->GetProjectileHitEffectDataAsset();
 	// EffectBySurface = ProjectileHitEffectDataAsset
 	
 }

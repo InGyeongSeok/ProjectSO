@@ -167,6 +167,9 @@ void ASOCharacterBase::MulticastRPCEquipItem_Implementation(ASOItemActor* InItem
 			Parts->Equip();
 		}
 	}
+	// InItem->SetOwner(this);
+	// InItem->Equip();
+	
 	// 파츠는 Owner총의 overlay를 따라간다. 
 	OverlayState = InItem->GetOverlayState();
 }
