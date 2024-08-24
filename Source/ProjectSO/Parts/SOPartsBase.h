@@ -5,8 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "ProjectSO/Actor/SOItemActor.h"
+#include "ProjectSO/Library/SOGunPartsStructLibrary.h"
 #include "SOPartsBase.generated.h"
 
+
+enum class ESOGunPartsType;
 class ASOGunBase;
 
 UCLASS()
@@ -35,6 +38,9 @@ public:
 	/* ======================= Function ======================= */
 public:
 	void AttachToWeapon(ASOGunBase* Weapon);
+
+protected:
+	virtual void SetPartsData(const uint8 InID);
 	
 	
 public:
@@ -44,6 +50,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	TObjectPtr<class UCapsuleComponent> CollisionComp;
 
+public:
+	UPROPERTY(EditDefaultsOnly)
+	int32 ID;
+	
+	UPROPERTY(VisibleAnywhere)
+	FSOGunPartsBaseData PartsData;
 
 	
 };

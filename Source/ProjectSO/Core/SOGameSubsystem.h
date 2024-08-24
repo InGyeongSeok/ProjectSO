@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ProjectSO/Library/SOGunPartsStructLibrary.h"
 #include "ProjectSO/Library/SOItemStructLibrary.h"
 #include "ProjectSO/Library/SOWeaponStructLibrary.h"
 #include "ProjectSO/Library/SOItemStructLibrary.h"
@@ -38,7 +39,8 @@ public:
 	FSOWeaponData* GetWeaponData(const uint8 InID);
 	FSOWeaponDamageData* GetWeaponDamageData(const uint8 InID);
 	FSOSpawnableItemClasses* GetSpawnableItemData(const int32 InIndex);
-	uint32 GetSpawnableItemCount() const {return TotalSpawnableItem; };
+	FSOGunPartsBaseData* GetPartsData(const uint8 InID);
+	uint32 GetSpawnableItemCount() const {return TotalSpawnableItem; }
 	float GetHitAreaDamage(const FString& Area) const;
 	float GetWeaponClassAreaDamage(const FString& InGunType, const FString& InBoneName)  const;
 	USOProjectileHitEffectDataAsset* GetProjectileHitEffectDataAsset() const; 
@@ -66,6 +68,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<UDataTable> HitAreaDamageTable;
+
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<UDataTable> PartsDataTable;
 
 	UPROPERTY()
 	TObjectPtr<USOProjectileHitEffectDataAsset> ProjectileHitEffectDataAsset;

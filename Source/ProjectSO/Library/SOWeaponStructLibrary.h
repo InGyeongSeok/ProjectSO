@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
 #include "NiagaraSystem.h"
+#include "SOGunPartsEnumLibrary.h"
 #include "SOWeaponEnumLibrary.h"
 #include "Library/ALSCharacterEnumLibrary.h"
 #include "SOWeaponStructLibrary.generated.h"
@@ -129,7 +130,7 @@ public:
 			EquipSocketName= InOhterStat.EquipSocketName;
 			MuzzleSocketName= InOhterStat.MuzzleSocketName;
 			FireEffectSocketName= InOhterStat.FireEffectSocketName;
-
+			PartsSocketMap = InOhterStat.PartsSocketMap;
 		}
 		return *this;
 	}
@@ -181,7 +182,10 @@ public:
 	FName MuzzleSocketName;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Socket)
-	FName FireEffectSocketName; 
+	FName FireEffectSocketName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Socket|Parts")
+	TMap<ESOGunPartsType, FName> PartsSocketMap;	
 };
 
 

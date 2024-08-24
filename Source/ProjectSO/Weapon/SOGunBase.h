@@ -74,7 +74,7 @@ public:
 
 public:
 	uint8 GetScopeAim() { return bScopeAim; }
-	
+	FName GetPartsSocket(ESOGunPartsType InPartsType);
 	// Data Settings
 protected:
 	virtual void SetGunData(const uint8 InID);

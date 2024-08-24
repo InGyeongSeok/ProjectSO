@@ -586,6 +586,11 @@ void ASOGunBase::SetOwningCharacter(ASOCharacterBase* InOwningCharacter)
 	SO_LOG(LogSOTemp, Warning, TEXT("End"))
 }
 
+FName ASOGunBase::GetPartsSocket(ESOGunPartsType InPartsType)
+{
+	return GetWeaponData()->PartsSocketMap[InPartsType];
+}
+
 void ASOGunBase::SetGunData(const uint8 InID)
 {
 	UE_LOG(LogTemp, Log, TEXT("ASOGunBase : SetGunData"));

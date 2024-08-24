@@ -4,9 +4,11 @@
 #include "SOPartsBase.h"
 
 #include "Components/CapsuleComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "ProjectSO/ProjectSO.h"
 #include "ProjectSO/Component/SOInventoryComponent.h"
 #include "ProjectSO/Character/SOCharacterBase.h"
+#include "ProjectSO/Core/SOGameSubsystem.h"
 #include "ProjectSO/Library/SOWeaponMeshDataAsset.h"
 
 // Sets default values
@@ -32,7 +34,7 @@ ASOPartsBase::ASOPartsBase()
 void ASOPartsBase::BeginPlay()
 {
 	Super::BeginPlay();
-
+	SetPartsData(ID);
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ASOPartsBase::OnSphereBeginOverlap);
 	// CollisionComp->OnComponentEndOverlap.AddDynamic(this, &ASOPartsBase::OnSphereEndOverlap);
 }
@@ -55,7 +57,7 @@ void ASOPartsBase::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent
 			USOInventoryComponent* Inven = CharacterBase->GetInventory();
 			if(Inven)
 			{
-				// ÀÎº¥Åä¸® ÄÄÆ÷³ÍÆ® °¡Á®¿À±â
+				// ì¸ë²¤í† ë¦¬ ì»´í¬ë„ŒíŠ¸ ê°€ì ¸ì˜¤ê¸°
 				Inven->AddToInventory(this);
 			}
 			// CharacterBase->EquipItem(this);
@@ -79,7 +81,7 @@ EALSOverlayState ASOPartsBase::GetOverlayState() const
 	{
 		SO_LOG(LogSONetwork, Log, TEXT("%s"), TEXT("No Owner"))
 	}
-	// ÇöÀç ÃÑ »óÅÂ À¯Áö 
+	// í˜„ìž¬ ì´ ìƒíƒœ ìœ ì§€ 
 	return Weapon->GetOverlayState();
 	// return WeaponData.OverlayState;
 }
@@ -87,31 +89,66 @@ EALSOverlayState ASOPartsBase::GetOverlayState() const
 void ASOPartsBase::Equip()
 {
 	AActor* OwnerActor = GetOwner();
-	/*if(OwnerActor)
-	{
-		SO_LOG(LogSONetwork, Log, TEXT("Owner : %s"), *OwnerActor->GetName())
-	}
-	else
-	{
-		SO_LOG(LogSONetwork, Log, TEXT("%s"), TEXT("No Owner"))
-	}*/
+	
 	ASOGunBase* Weapon = Cast<ASOGunBase>(OwnerActor);	
 	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
-	this->AttachToComponent(Weapon->GetWeaponMesh(), AttachmentRules, Weapon->GetWeaponData()->MuzzleSocketName);
+
+	// Get PartsSocket Name by PartType from weapon
+	FName PartsSocket = Weapon->GetPartsSocket(PartsData.PartsType);
+	this->AttachToComponent(Weapon->GetWeaponMesh(), AttachmentRules, PartsSocket);
+	
+	// Apply Offset by weapon
+	SetActorRelativeTransform(PartsData.OffsetMapping[Weapon->GetWeaponStat()->WeaponName]);
+	PartsMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	CollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void ASOPartsBase::AttachToWeapon(ASOGunBase* Weapon)
 {
-	// µ¥ÀÌÅÍ Àü´Þ
+	/*// ë°ì´í„° ì „ë‹¬
 	SetOwner(Weapon);
-	// ¾Æ´Ô ±×³É ¼ÒÄÏ¿¡ ºÎÂø
-	// ¹«½¼ ÆÄÃ÷³Ä¿¡ µû¶ó Àú ¼ÒÄÏ ÀÌ¸§¸¸ ´Þ¶óÁö¸é µÉµí	
+	// ì•„ë‹˜ ê·¸ëƒ¥ ì†Œì¼“ì— ë¶€ì°©
+	// ë¬´ìŠ¨ íŒŒì¸ ëƒì— ë”°ë¼ ì € ì†Œì¼“ ì´ë¦„ë§Œ ë‹¬ë¼ì§€ë©´ ë ë“¯	
 	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
 	this->AttachToComponent(Weapon->GetWeaponMesh(), AttachmentRules, Weapon->GetWeaponData()->MuzzleSocketName);
 	CollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	// ¼Ó¼º°ªÀº ¾î¶»°Ô º¯°æ???
+	// ì†ì„±ê°’ì€ ì–´ë–»ê²Œ ë³€ê²½???*/
 	
+}
+
+void ASOPartsBase::SetPartsData(const uint8 InID)
+{
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("World is not available."))
+		return;
+	}
+
+	// ê²Œìž„ ì¸ìŠ¤í„´ìŠ¤ ê°€ì ¸ì˜¤ê¸°.
+	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(World);
+	if (!GameInstance)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GameInstance is not available."))
+		return;
+	}
+
+	// ê²Œìž„ ì¸ìŠ¤í„´ìŠ¤ì—ì„œ ì„œë¸Œì‹œìŠ¤í…œì„ ê°€ì ¸ì˜¤ê¸°.
+	USOGameSubsystem* SOGameSubsystem = GameInstance->GetSubsystem<USOGameSubsystem>();
+	if (!SOGameSubsystem)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SOGameSubsystem is not available."))
+		return;
+	}
+
+	// ì„œë¸Œì‹œìŠ¤í…œì—ì„œ ì›í•˜ëŠ” IDì˜ WeaponStatDataë¥¼ ê°€ì ¸ì˜¤ê¸°.
+	FSOGunPartsBaseData* SelectedPartsData = SOGameSubsystem->GetPartsData(InID);
+	if (SelectedPartsData)
+	{
+		PartsData = *SelectedPartsData;
+		PartsMesh->SetStaticMesh(PartsData.PartsMesh);
+		SO_LOG(LogSOTemp, Log, TEXT("SetStaticMesh"))
+	}
 }
 
 

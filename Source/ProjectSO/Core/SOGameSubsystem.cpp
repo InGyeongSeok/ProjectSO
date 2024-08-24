@@ -4,6 +4,7 @@
 #include "SOGameSubsystem.h"
 
 #include "ProjectSO/ProjectSO.h"
+#include "ProjectSO/Library/SOGunPartsStructLibrary.h"
 #include "ProjectSO/Library/SOWeaponDamageDataAsset.h"
 #include "ProjectSO/Library/SOWeaponStructLibrary.h"
 
@@ -67,6 +68,13 @@ TEXT("/Script/ProjectSO.SOProjectileHitEffectDataAsset'/Game/StellarObsidian/Gam
 	if (ProjectileHitEffectDataAssetRef.Succeeded())
 	{
 		ProjectileHitEffectDataAsset = ProjectileHitEffectDataAssetRef.Object;
+	}
+
+	ConstructorHelpers::FObjectFinder<UDataTable> PartsDataRef(
+		TEXT("/Script/Engine.DataTable'/Game/StellarObsidian/GameData/DT_PartsData.DT_PartsData'"));
+	if (PartsDataRef.Succeeded())
+	{
+		PartsDataTable = PartsDataRef.Object;
 	}
 	
 }
@@ -254,4 +262,26 @@ UNiagaraSystem* USOGameSubsystem::GetSurfaceEffect(const TArray<FName>& ActorTag
 		break;
 	}
 	return nullptr;
+}
+
+FSOGunPartsBaseData* USOGameSubsystem::GetPartsData(const uint8 InID)
+{
+	if (!PartsDataTable)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PartsDataTable is not assigned."));
+		return nullptr;
+	}
+
+	FString RowName = FString::Printf(TEXT("%d"), InID);
+
+	FSOGunPartsBaseData* PartsDataRow = PartsDataTable->FindRow<FSOGunPartsBaseData>(FName(*RowName), "");
+	if (PartsDataRow)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Found PartsDataTable for ID: %d"), InID);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No PartsDataTable found for ID: %d"), InID);
+	}
+	return PartsDataRow;
 }

@@ -11,22 +11,31 @@ USTRUCT(BlueprintType)
 struct FSOGunPartsBaseData : public FTableRowBase
 {
 	GENERATED_BODY()
-
+	
 public:
-	// FSOGunPartsBaseData();
+	FSOGunPartsBaseData& operator=(const FSOGunPartsBaseData& InOtherData)
+	{
+		if(this != &InOtherData)
+		{
+			ID = InOtherData.ID;
+			PartsType = InOtherData.PartsType;
+			PartsMesh = InOtherData.PartsMesh;
+			OffsetMapping = InOtherData.OffsetMapping;
+		}
+		return *this;
+	}
 
-	// FSOGunPartsBaseData& operator=(const FSOGunPartsBaseData& InOtherStat)
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = ID)
 	uint8 ID;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	FName PartsName;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Type)
 	ESOGunPartsType PartsType;
 
-	// ESO AvailableWeaponType;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Mesh)
+	TObjectPtr<UStaticMesh> PartsMesh; 
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Offset)
+	TMap<FName, FTransform> OffsetMapping;
 };
 
 USTRUCT(BlueprintType)
