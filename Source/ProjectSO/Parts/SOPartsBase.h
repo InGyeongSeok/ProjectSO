@@ -34,7 +34,7 @@ protected:
 public:
 	virtual EALSOverlayState GetOverlayState() const override;
 	virtual void Equip() override;
-
+	virtual void Interact(ASOCharacterBase* PlayerCharacter) override;
 	/* ======================= Function ======================= */
 public:
 	void AttachToWeapon(ASOGunBase* Weapon);

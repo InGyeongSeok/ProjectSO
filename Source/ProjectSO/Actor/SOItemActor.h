@@ -4,11 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "ProjectSO/Interface/SOInteractableInterface.h"
 #include "ProjectSO/Interface/SOEquippableInterface.h"
 #include "SOItemActor.generated.h"
 
 UCLASS()
-class PROJECTSO_API ASOItemActor : public AActor, public ISOEquippableInterface
+class PROJECTSO_API ASOItemActor : public AActor, public ISOEquippableInterface, public ISOInteractableInterface
 {
 	GENERATED_BODY()
 	
@@ -26,4 +27,6 @@ public:
 
 	virtual EALSOverlayState GetOverlayState() const override {return EALSOverlayState::Default;}
 	virtual void Equip() override {};
+	virtual void Interact(ASOCharacterBase* PlayerCharacter) override{};
+	
 };

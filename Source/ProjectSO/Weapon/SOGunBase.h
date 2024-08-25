@@ -7,6 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "Library/ALSCharacterEnumLibrary.h"
 #include "ProjectSO/Actor/SOItemActor.h"
+#include "ProjectSO/Interface/SOInteractableInterface.h"
 #include "ProjectSO/Library/SOWeaponEnumLibrary.h"
 #include "ProjectSO/Library/SOWeaponStructLibrary.h"
 #include "ProjectSO/Interface/SODamageableInterface.h"
@@ -45,6 +46,9 @@ public:
 	virtual EALSOverlayState GetOverlayState() const override;
 	virtual void Equip() override;
 
+	/** IInteractableInterface **/
+	virtual void Interact(ASOCharacterBase* PlayerCharacter) override;;
+	
 	/* Member Function */
 public:
 	virtual void SetOwningCharacter(ASOCharacterBase* InOwningCharacter);

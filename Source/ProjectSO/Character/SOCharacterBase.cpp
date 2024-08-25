@@ -114,6 +114,14 @@ void ASOCharacterBase::ReloadAction(bool bValue)
 	}
 }
 
+void ASOCharacterBase::BeginInteract(bool bValue)
+{
+	if (bValue)
+	{
+		ServerRPCInteract();
+	}
+}
+
 void ASOCharacterBase::UpdateCharacterMinigunMovement()
 {
 	if (MovementState == EALSMovementState::Grounded)
@@ -255,4 +263,66 @@ FString ASOCharacterBase::GetHitParentBone(const FName& InBoneString)
 	FName ParentBoneName = CharacterMesh->GetParentBone(InBoneString);
 	UE_LOG(LogTemp,Log,TEXT("ParentBoneName : %s"),*ParentBoneName.ToString() );
 	return  ParentBoneName.ToString();
+}
+
+void ASOCharacterBase::InteractionCheck(AActor* MyActor)
+{
+	if (MyActor->GetClass()->ImplementsInterface(USOInteractableInterface::StaticClass()))
+	{
+		FoundInteractable(MyActor);
+	}
+}
+
+void ASOCharacterBase::Interact()
+{
+	GetWorldTimerManager().ClearTimer(TimerHandle_Interaction);
+	if (IsValid(TargetInteractable.GetObject()))
+	{
+		TargetInteractable->Interact(this);
+	}
+}
+
+void ASOCharacterBase::EndInteract()
+{
+	GetWorldTimerManager().ClearTimer(TimerHandle_Interaction);
+}
+
+void ASOCharacterBase::FoundInteractable(AActor* NewInteractable)
+{
+	if (IsInteracting())
+	{
+		EndInteract();
+	}
+	if (InteractionData.CurrentInteractable) 
+	{
+		TargetInteractable = InteractionData.CurrentInteractable;
+	}
+	InteractionData.CurrentInteractable = NewInteractable;
+	TargetInteractable = NewInteractable;
+}
+
+
+void ASOCharacterBase::NoInteractableFound()
+{
+	if (IsInteracting())
+	{
+		GetWorldTimerManager().ClearTimer(TimerHandle_Interaction); 
+	}
+
+	// 초기화
+	InteractionData.CurrentInteractable = nullptr;
+	TargetInteractable = nullptr;
+}
+
+void ASOCharacterBase::ServerRPCInteract_Implementation()
+{
+	// SO_LOG(LogTemp, Warning, TEXT("ASOCharacterBase::ServerRPCInteract_Implementation()"));
+
+	if (InteractionData.CurrentInteractable)
+	{
+		if (IsValid(TargetInteractable.GetObject()))
+		{
+			Interact();
+		}
+	}
 }

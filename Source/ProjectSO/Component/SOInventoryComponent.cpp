@@ -42,8 +42,8 @@ void USOInventoryComponent::PickupItem()
 
 void USOInventoryComponent::AddToInventory(ASOItemActor* InItem)
 {
-	// ClientRPCAddToInventory È£Ãâ ¿¹Á¤
-	// ¿ø·¡´Â ÀÎº¥Åä¸®¿¡ ÀúÀåµÇ´Â ±â´ÉÀÌ ÀÖÀ» ¿¹Á¤
+	// ClientRPCAddToInventory í˜¸ì¶œ ì˜ˆì •
+	// ì›ëž˜ëŠ” ì¸ë²¤í† ë¦¬ì— ì €ìž¥ë˜ëŠ” ê¸°ëŠ¥ì´ ìžˆì„ ì˜ˆì •
 	// InItem->SetOwner();
 
 	// 

@@ -83,6 +83,9 @@ protected:
 
 	UFUNCTION()
 	void ReloadAction(const FInputActionValue& Value);
+
+	UFUNCTION()
+	void Interaction(const FInputActionValue& Value);
 	
 	// Debug actions
 	UFUNCTION()

@@ -54,12 +54,13 @@ void ASOPartsBase::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent
 		ASOCharacterBase* CharacterBase = Cast<ASOCharacterBase>(OtherActor);
 		if(CharacterBase)
 		{
-			USOInventoryComponent* Inven = CharacterBase->GetInventory();
-			if(Inven)
-			{
-				// 인벤토리 컴포넌트 가져오기
-				Inven->AddToInventory(this);
-			}
+			CharacterBase->InteractionCheck(this);
+			// USOInventoryComponent* Inven = CharacterBase->GetInventory();
+			// if(Inven)
+			// {
+			// 	// 인벤토리 컴포넌트 가져오기
+			// 	Inven->AddToInventory(this);
+			// }
 			// CharacterBase->EquipItem(this);
 		}
 	}
@@ -101,6 +102,17 @@ void ASOPartsBase::Equip()
 	SetActorRelativeTransform(PartsData.OffsetMapping[Weapon->GetWeaponStat()->WeaponName]);
 	PartsMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	CollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void ASOPartsBase::Interact(ASOCharacterBase* PlayerCharacter)
+{
+	// Super::Interact(PlayerCharacter);
+	USOInventoryComponent* Inven = PlayerCharacter->GetInventory();
+	if(Inven)
+	{
+		// 인벤토리 컴포넌트 가져오기
+		Inven->AddToInventory(this);
+	}
 }
 
 void ASOPartsBase::AttachToWeapon(ASOGunBase* Weapon)

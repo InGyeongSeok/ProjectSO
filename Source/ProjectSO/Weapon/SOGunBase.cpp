@@ -125,14 +125,16 @@ void ASOGunBase::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, 
 		ASOCharacterBase* CharacterBase = Cast<ASOCharacterBase>(OtherActor);
 		if(CharacterBase)
 		{
-			USOInventoryComponent* Inven = CharacterBase->GetInventory();
-			if(Inven)
-			{
-				// 인벤토리 컴포넌트 가져오기
-				bIsEquipped = true;
-				Inven->AddToInventory(this);
-				// CharacterBase->EquipItem(this);
-			}
+			CharacterBase->InteractionCheck(this);
+			
+			// USOInventoryComponent* Inven = CharacterBase->GetInventory();
+			// if(Inven)
+			// {
+			// 	// 인벤토리 컴포넌트 가져오기
+			// 	bIsEquipped = true;
+			// 	Inven->AddToInventory(this);
+			// 	// CharacterBase->EquipItem(this);
+			// }
 			
 		}
 	}
@@ -555,6 +557,19 @@ void ASOGunBase::Equip()
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	SO_LOG(LogSOTemp, Warning, TEXT("End"))
+}
+
+void ASOGunBase::Interact(ASOCharacterBase* PlayerCharacter)
+{
+	// Super::Interact(PlayerCharacter);
+	USOInventoryComponent* Inven = PlayerCharacter->GetInventory();
+	if(Inven)
+	{
+		// 인벤토리 컴포넌트 가져오기
+		bIsEquipped = true;
+		Inven->AddToInventory(this);
+		// CharacterBase->EquipItem(this);
+	}
 }
 
 void ASOGunBase::SetOwningCharacter(ASOCharacterBase* InOwningCharacter)
