@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "ProjectSO/Actor/SOItemActor.h"
 #include "ProjectSO/Library/SOGunPartsStructLibrary.h"
+#include "ProjectSO/Library/SOWeaponStructLibrary.h"
 #include "SOPartsBase.generated.h"
 
 
@@ -57,5 +58,6 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	FSOGunPartsBaseData PartsData;
 
-	
+	UPROPERTY(VisibleAnywhere)
+	FSOPartsStat PartsStat;	
 };

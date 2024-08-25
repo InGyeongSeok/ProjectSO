@@ -92,7 +92,12 @@ void ASOPartsBase::Equip()
 	
 	ASOGunBase* Weapon = Cast<ASOGunBase>(OwnerActor);	
 	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
-
+	
+	// 속성 반영
+	// PartsData : 다같이 있는 Data 테이블
+	// PartsStat : 종류별로 스텟 테이블
+	Weapon->SetModifierStat(PartsStat.ID, PartsData.PartsType);
+	
 	// Get PartsSocket Name by PartType from weapon
 	FName PartsSocket = Weapon->GetPartsSocket(PartsData.PartsType);
 	this->AttachToComponent(Weapon->GetWeaponMesh(), AttachmentRules, PartsSocket);
@@ -147,7 +152,6 @@ void ASOPartsBase::SetPartsData(const uint8 InID)
 	{
 		PartsData = *SelectedPartsData;
 		PartsMesh->SetStaticMesh(PartsData.PartsMesh);
-		SO_LOG(LogSOTemp, Log, TEXT("SetStaticMesh"))
 	}
 }
 

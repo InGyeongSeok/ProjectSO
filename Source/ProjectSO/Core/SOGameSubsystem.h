@@ -45,7 +45,8 @@ public:
 	float GetWeaponClassAreaDamage(const FString& InGunType, const FString& InBoneName)  const;
 	USOProjectileHitEffectDataAsset* GetProjectileHitEffectDataAsset() const; 
 	UNiagaraSystem* GetSurfaceEffect(const TArray<FName>& ActorTags);
-	
+
+	FSOWeaponStat* CalculateWeaponStat(FSOEquippedPartsInfo InPartsInfo, uint8 WeaponID);
 	
 protected:
 	UPROPERTY(BlueprintReadOnly)
@@ -71,6 +72,12 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<UDataTable> PartsDataTable;
+
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<UDataTable> PartsStatTable;
+
+	UPROPERTY(BlueprintReadOnly)
+	TArray<UDataTable*> PartsStatTables;
 
 	UPROPERTY()
 	TObjectPtr<USOProjectileHitEffectDataAsset> ProjectileHitEffectDataAsset;

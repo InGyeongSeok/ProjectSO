@@ -7,9 +7,11 @@
 #include "GameFramework/Actor.h"
 #include "Library/ALSCharacterEnumLibrary.h"
 #include "ProjectSO/Actor/SOItemActor.h"
+#include "ProjectSO/Core/SOGameSubsystem.h"
 #include "ProjectSO/Library/SOWeaponEnumLibrary.h"
 #include "ProjectSO/Library/SOWeaponStructLibrary.h"
 #include "ProjectSO/Interface/SODamageableInterface.h"
+#include "ProjectSO/Library/SOGunPartsStructLibrary.h"
 #include "SOGunBase.generated.h"
 
 enum class ESOGunPartsType;
@@ -77,6 +79,9 @@ public:
 	FName GetPartsSocket(ESOGunPartsType InPartsType);
 	// Data Settings
 protected:
+	//Subsystem
+	USOGameSubsystem* GetSOGameSubsystem();
+	
 	virtual void SetGunData(const uint8 InID);
 
 	// simulatePhysics
@@ -204,18 +209,27 @@ protected:
 	UPROPERTY(EditInstanceOnly)
 	int32 ID;
 	
+	// WeaponBaseStat
+	// WeaponModifierStat
+	// WeaponTotalStat
+
+	// WeaponTotalStat = WeaponBaseStat + WeaponModifierStat;
 	
 	UPROPERTY(VisibleAnywhere)
 	FSOWeaponStat WeaponStat;
-
+	
 	UPROPERTY(VisibleAnywhere)
 	FSOWeaponData WeaponData;
 
+	UPROPERTY(VisibleAnywhere)
+	FSOEquippedPartsInfo EquippedPartsInfo;
+	
 public:
 	FSOWeaponStat* GetWeaponStat() { return &WeaponStat; }
 	FSOWeaponData* GetWeaponData() { return &WeaponData; }
 	USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh;}
-	
+	void SetPartsInfo(uint8 InPartsID, ESOGunPartsType PartsType);
+	void SetModifierStat(uint8 InPartsID, ESOGunPartsType PartsType);
 	// Ammo
 protected:
 	UPROPERTY()

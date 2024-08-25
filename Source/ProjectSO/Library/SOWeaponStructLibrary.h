@@ -369,3 +369,29 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = ProjectileData)
 	FRuntimeFloatCurve DistanceDamageFalloff;
 };
+
+USTRUCT(BlueprintType)
+struct FSOEquippedPartsInfo
+{
+	GENERATED_BODY()
+	
+	// 각 파츠 enum 또는 ID?
+	UPROPERTY(EditDefaultsOnly)
+	TArray<uint8> PartsIDArray;
+	// 1 0 1 5 0
+
+	/*UPROPERTY(EditDefaultsOnly)
+	uint8 MuzzleID;
+
+	UPROPERTY(EditDefaultsOnly)
+	uint8 ScopeID;
+
+	UPROPERTY(EditDefaultsOnly)
+	uint8 GripID;
+
+	UPROPERTY(EditDefaultsOnly)
+	uint8 MagazineID;
+
+	UPROPERTY(EditDefaultsOnly)
+	uint8 StockID;*/	
+};

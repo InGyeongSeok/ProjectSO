@@ -238,7 +238,7 @@ void ASOGunBase::FireProjectile() //클라이언트 들어오는 함수
 	// Params.AddIgnoredActor(GetOwner());
 
 	//반동 코드 넣기 
-	//OwningCharacter->ApplyRecoil(WeaponStat.AimedRecoilYaw,WeaponStat.AimedRecoilPitch);
+	Recoil();
 
 
 	// 화면 중앙 LineTrace
@@ -419,6 +419,7 @@ float ASOGunBase::PlayAnimMontage(UAnimMontage* AnimMontage, USkeletalMeshCompon
 
 void ASOGunBase::Recoil()
 {
+	OwningCharacter->ApplyRecoil(WeaponStat.AimedRecoilYaw,WeaponStat.AimedRecoilPitch);
 }
 
 void ASOGunBase::Reload()
@@ -472,9 +473,7 @@ void ASOGunBase::Reload()
 	GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, [this]()
 	{
 		bReloading = false;		
-	}, 2.0f, false);
-	//TODO
-	// ReloadInterval 변수 추가하기
+	}, WeaponStat.ReloadInterval, false);
 }
 
 void ASOGunBase::Aim(bool bPressed)
@@ -591,15 +590,13 @@ FName ASOGunBase::GetPartsSocket(ESOGunPartsType InPartsType)
 	return GetWeaponData()->PartsSocketMap[InPartsType];
 }
 
-void ASOGunBase::SetGunData(const uint8 InID)
+USOGameSubsystem* ASOGunBase::GetSOGameSubsystem()
 {
-	UE_LOG(LogTemp, Log, TEXT("ASOGunBase : SetGunData"));
-
 	UWorld* World = GetWorld();
 	if (!World)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("World is not available."))
-		return;
+		return nullptr;
 	}
 
 	// 게임 인스턴스 가져오기.
@@ -607,7 +604,7 @@ void ASOGunBase::SetGunData(const uint8 InID)
 	if (!GameInstance)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("GameInstance is not available."))
-		return;
+		return nullptr;
 	}
 
 	// 게임 인스턴스에서 서브시스템을 가져오기.
@@ -615,10 +612,19 @@ void ASOGunBase::SetGunData(const uint8 InID)
 	if (!SOGameSubsystem)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("SOGameSubsystem is not available."))
-		return;
+		return nullptr;
 	}
+	return SOGameSubsystem;
+}
 
-	// 서브시스템에서 원하는 ID의 WeaponStatData를 가져오기.
+void ASOGunBase::SetGunData(const uint8 InID)
+{
+	UE_LOG(LogTemp, Log, TEXT("ASOGunBase : SetGunData"))
+	
+	// 게임 인스턴스에서 서브시스템을 가져오기
+	USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();
+
+	// 서브시스템에서 원하는 ID의 WeaponStatData를 가져오기
 	FSOWeaponStat* SelectedWeaponStat = SOGameSubsystem->GetWeaponStatData(InID);
 	if (SelectedWeaponStat)
 	{
@@ -733,6 +739,46 @@ FTransform ASOGunBase::GetSocketTransformByName(FName InSocketName, const USkele
 
 	return SocketTransform;
 }
+
+void ASOGunBase::SetPartsInfo(uint8 InPartsID, ESOGunPartsType PartsType)
+{
+	EquippedPartsInfo.PartsIDArray[static_cast<int32>(PartsType)] = InPartsID;
+	/*// 파츠 정보 갱신
+	switch (PartsType)
+	{
+	case ESOGunPartsType::MuzzleAttachment:
+		EquippedPartsInfo.MuzzleID = InPartsID;
+		break;
+	case ESOGunPartsType::Grip:
+		EquippedPartsInfo.GripID = InPartsID;
+		break;
+	case ESOGunPartsType::Magazine:
+		EquippedPartsInfo.MagazineID = InPartsID;
+		break;
+	case ESOGunPartsType::Scope:
+		EquippedPartsInfo.ScopeID = InPartsID;
+		break;
+	case ESOGunPartsType::Stock:
+		EquippedPartsInfo.StockID = InPartsID;
+		break;
+	default:
+		break;
+	}*/
+}
+
+void ASOGunBase::SetModifierStat(uint8 InPartsID, ESOGunPartsType PartsType)
+{
+	USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();
+
+	// 파츠 ID를 갱신
+	SetPartsInfo(InPartsID, PartsType);
+	// 
+	// 총의 파츠 ID정보, 총의 ID를 넘긴다.
+	// 변경된 총기 스탯을 받는다.
+	// TotalStat에 적용한다.
+	WeaponStat = *SOGameSubsystem->CalculateWeaponStat(EquippedPartsInfo, WeaponStat.ID);
+}
+
 
 
 //이펙트 동기화 

@@ -264,6 +264,27 @@ UNiagaraSystem* USOGameSubsystem::GetSurfaceEffect(const TArray<FName>& ActorTag
 	return nullptr;
 }
 
+FSOWeaponStat* USOGameSubsystem::CalculateWeaponStat(FSOEquippedPartsInfo InPartsInfo, uint8 WeaponID)
+{
+	// 모든 stat적용식
+	FSOWeaponStat* WeaponBaseStat = GetWeaponStatData(WeaponID);
+	// FSOWeaponStat* WeaponBaseStat = GetWeaponStatData(WeaponID);
+
+	// 파츠 데이터 테이블 순회돌기
+	for(uint8 idx : InPartsInfo.PartsIDArray)
+	{
+		FString RowName = FString::Printf(TEXT("%d"), idx);
+		// 파츠 스탯 뽑기
+		FSOPartsStat* PartsStatRow = PartsStatTables[idx]->FindRow<FSOPartsStat>(FName(*RowName), "");
+
+		// PartsStatRow->PitchRecoilReduction
+		
+	}
+	// WeaponBaseStat = WeaponBaseStat + Modi
+	
+	return nullptr;
+}
+
 FSOGunPartsBaseData* USOGameSubsystem::GetPartsData(const uint8 InID)
 {
 	if (!PartsDataTable)
