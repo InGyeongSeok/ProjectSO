@@ -36,6 +36,9 @@ public:
 	UFUNCTION()
 	virtual void OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	UFUNCTION()
+	virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	
 	/** IDamageable **/
 public:
 	virtual void PressLMB() override;
@@ -47,7 +50,7 @@ public:
 	virtual void Equip() override;
 
 	/** IInteractableInterface **/
-	virtual void Interact(ASOCharacterBase* PlayerCharacter) override;;
+	virtual void Interact(ASOCharacterBase* PlayerCharacter) override;
 	
 	/* Member Function */
 public:

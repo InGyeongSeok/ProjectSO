@@ -82,7 +82,7 @@ void ASOGunBase::BeginPlay()
 	}
 	
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ASOGunBase::OnSphereBeginOverlap);
-
+	CollisionComp->OnComponentEndOverlap.AddDynamic(this, &ASOGunBase::OnSphereEndOverlap);
 	//여기서 타이머
 	FTimerHandle TimerHandle;
 	GetWorldTimerManager().SetTimer(TimerHandle, this, &ASOGunBase::DisablePhysics, 2.0f, false);
@@ -136,6 +136,19 @@ void ASOGunBase::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, 
 			// 	// CharacterBase->EquipItem(this);
 			// }
 			
+		}
+	}
+}
+
+void ASOGunBase::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (HasAuthority())
+	{
+		ASOCharacterBase* CharacterBase = Cast<ASOCharacterBase>(OtherActor);
+		if(CharacterBase)
+		{
+			CharacterBase->NoInteractableFound();
 		}
 	}
 }

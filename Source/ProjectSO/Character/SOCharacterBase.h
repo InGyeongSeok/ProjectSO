@@ -114,18 +114,19 @@ protected:
 public:
 	UFUNCTION()
 	void InteractionCheck(AActor* MyActor);
+
+	UFUNCTION()
+	void NoInteractableFound();
+	
 protected:
 	UFUNCTION()
-	void Interact();
+	void InteractWithObject();
 	
 	UFUNCTION()
 	void EndInteract();
 	
 	UFUNCTION()
 	void FoundInteractable(AActor* NewInteractable);
-	
-	UFUNCTION()
-	void NoInteractableFound();
 
 	UFUNCTION(Server, Unreliable)
 	void ServerRPCInteract();

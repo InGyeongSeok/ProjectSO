@@ -36,7 +36,7 @@ void ASOPartsBase::BeginPlay()
 	Super::BeginPlay();
 	SetPartsData(ID);
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ASOPartsBase::OnSphereBeginOverlap);
-	// CollisionComp->OnComponentEndOverlap.AddDynamic(this, &ASOPartsBase::OnSphereEndOverlap);
+	CollisionComp->OnComponentEndOverlap.AddDynamic(this, &ASOPartsBase::OnSphereEndOverlap);
 }
 
 // Called every frame
@@ -68,6 +68,14 @@ void ASOPartsBase::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent
 
 void ASOPartsBase::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+	if(HasAuthority())
+	{
+		ASOCharacterBase* CharacterBase = Cast<ASOCharacterBase>(OtherActor);
+		if(CharacterBase)
+		{
+			CharacterBase->NoInteractableFound();
+		}
+	}
 }
 
 EALSOverlayState ASOPartsBase::GetOverlayState() const

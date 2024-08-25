@@ -273,7 +273,7 @@ void ASOCharacterBase::InteractionCheck(AActor* MyActor)
 	}
 }
 
-void ASOCharacterBase::Interact()
+void ASOCharacterBase::InteractWithObject()
 {
 	GetWorldTimerManager().ClearTimer(TimerHandle_Interaction);
 	if (IsValid(TargetInteractable.GetObject()))
@@ -322,7 +322,7 @@ void ASOCharacterBase::ServerRPCInteract_Implementation()
 	{
 		if (IsValid(TargetInteractable.GetObject()))
 		{
-			Interact();
+			InteractWithObject();
 		}
 	}
 }
