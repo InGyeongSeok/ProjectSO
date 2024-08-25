@@ -36,7 +36,7 @@ void ASOPartsBase::BeginPlay()
 	Super::BeginPlay();
 	SetPartsData(ID);
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ASOPartsBase::OnSphereBeginOverlap);
-	// CollisionComp->OnComponentEndOverlap.AddDynamic(this, &ASOPartsBase::OnSphereEndOverlap);
+	CollisionComp->OnComponentEndOverlap.AddDynamic(this, &ASOPartsBase::OnSphereEndOverlap);
 }
 
 // Called every frame
@@ -54,12 +54,13 @@ void ASOPartsBase::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent
 		ASOCharacterBase* CharacterBase = Cast<ASOCharacterBase>(OtherActor);
 		if(CharacterBase)
 		{
-			USOInventoryComponent* Inven = CharacterBase->GetInventory();
-			if(Inven)
-			{
-				// 인벤토리 컴포넌트 가져오기
-				Inven->AddToInventory(this);
-			}
+			CharacterBase->InteractionCheck(this);
+			// USOInventoryComponent* Inven = CharacterBase->GetInventory();
+			// if(Inven)
+			// {
+			// 	// 인벤토리 컴포넌트 가져오기
+			// 	Inven->AddToInventory(this);
+			// }
 			// CharacterBase->EquipItem(this);
 		}
 	}
@@ -67,6 +68,14 @@ void ASOPartsBase::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent
 
 void ASOPartsBase::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+	if(HasAuthority())
+	{
+		ASOCharacterBase* CharacterBase = Cast<ASOCharacterBase>(OtherActor);
+		if(CharacterBase)
+		{
+			CharacterBase->NoInteractableFound();
+		}
+	}
 }
 
 EALSOverlayState ASOPartsBase::GetOverlayState() const
@@ -106,6 +115,17 @@ void ASOPartsBase::Equip()
 	SetActorRelativeTransform(PartsData.OffsetMapping[Weapon->GetWeaponStat()->WeaponName]);
 	PartsMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	CollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void ASOPartsBase::Interact(ASOCharacterBase* PlayerCharacter)
+{
+	// Super::Interact(PlayerCharacter);
+	USOInventoryComponent* Inven = PlayerCharacter->GetInventory();
+	if(Inven)
+	{
+		// 인벤토리 컴포넌트 가져오기
+		Inven->AddToInventory(this);
+	}
 }
 
 void ASOPartsBase::AttachToWeapon(ASOGunBase* Weapon)

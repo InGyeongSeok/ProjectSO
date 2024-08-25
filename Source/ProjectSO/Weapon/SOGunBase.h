@@ -8,6 +8,7 @@
 #include "Library/ALSCharacterEnumLibrary.h"
 #include "ProjectSO/Actor/SOItemActor.h"
 #include "ProjectSO/Core/SOGameSubsystem.h"
+#include "ProjectSO/Interface/SOInteractableInterface.h"
 #include "ProjectSO/Library/SOWeaponEnumLibrary.h"
 #include "ProjectSO/Library/SOWeaponStructLibrary.h"
 #include "ProjectSO/Interface/SODamageableInterface.h"
@@ -37,6 +38,9 @@ public:
 	UFUNCTION()
 	virtual void OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	UFUNCTION()
+	virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	
 	/** IDamageable **/
 public:
 	virtual void PressLMB() override;
@@ -47,6 +51,9 @@ public:
 	virtual EALSOverlayState GetOverlayState() const override;
 	virtual void Equip() override;
 
+	/** IInteractableInterface **/
+	virtual void Interact(ASOCharacterBase* PlayerCharacter) override;
+	
 	/* Member Function */
 public:
 	virtual void SetOwningCharacter(ASOCharacterBase* InOwningCharacter);

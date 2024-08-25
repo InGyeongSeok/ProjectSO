@@ -6,6 +6,7 @@
 #include "Character/ALSCharacter.h"
 #include "ProjectSO/Weapon/SOGunBase.h"
 #include "ProjectSO/Interface/SOEquippableInterface.h"
+#include "ProjectSO/Interface/SOInteractableInterface.h"
 #include "SOCharacterBase.generated.h"
 
 class USOInventoryComponent;
@@ -13,6 +14,26 @@ class USOHealthComponent;
 /**
  * 
  */
+
+USTRUCT()
+struct FInteractionData
+{
+	GENERATED_USTRUCT_BODY()
+
+	FInteractionData() :
+		CurrentInteractable(nullptr),
+		LastInteractionCheckTime(0.0f)
+	{
+	};
+
+	UPROPERTY()
+	TObjectPtr<AActor> CurrentInteractable;
+
+	UPROPERTY()
+	float LastInteractionCheckTime;
+};
+
+
 UCLASS()
 class PROJECTSO_API ASOCharacterBase : public AALSCharacter
 {
@@ -44,6 +65,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "SO|Input")
 	void ReloadAction(bool bValue);
+
+	UFUNCTION(BlueprintCallable, Category = "SO|Input")
+	void BeginInteract(bool bValue);
 	
 	void UpdateCharacterMinigunMovement();
 
@@ -82,5 +106,31 @@ protected:
 	TObjectPtr<USOInventoryComponent> InventoryComponent;
 
 	
+	// Interact
+	FORCEINLINE bool IsInteracting() const { return GetWorldTimerManager().IsTimerActive(TimerHandle_Interaction); };
 	
+	UPROPERTY(VisibleAnywhere, Category = "SO| Interactable")
+	TScriptInterface<ISOInteractableInterface> TargetInteractable;
+public:
+	UFUNCTION()
+	void InteractionCheck(AActor* MyActor);
+
+	UFUNCTION()
+	void NoInteractableFound();
+	
+protected:
+	UFUNCTION()
+	void InteractWithObject();
+	
+	UFUNCTION()
+	void EndInteract();
+	
+	UFUNCTION()
+	void FoundInteractable(AActor* NewInteractable);
+
+	UFUNCTION(Server, Unreliable)
+	void ServerRPCInteract();
+	
+	FTimerHandle TimerHandle_Interaction;
+	FInteractionData InteractionData;
 };

@@ -82,7 +82,7 @@ void ASOGunBase::BeginPlay()
 	}
 	
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ASOGunBase::OnSphereBeginOverlap);
-
+	CollisionComp->OnComponentEndOverlap.AddDynamic(this, &ASOGunBase::OnSphereEndOverlap);
 	//여기서 타이머
 	FTimerHandle TimerHandle;
 	GetWorldTimerManager().SetTimer(TimerHandle, this, &ASOGunBase::DisablePhysics, 2.0f, false);
@@ -125,15 +125,30 @@ void ASOGunBase::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, 
 		ASOCharacterBase* CharacterBase = Cast<ASOCharacterBase>(OtherActor);
 		if(CharacterBase)
 		{
-			USOInventoryComponent* Inven = CharacterBase->GetInventory();
-			if(Inven)
-			{
-				// 인벤토리 컴포넌트 가져오기
-				bIsEquipped = true;
-				Inven->AddToInventory(this);
-				// CharacterBase->EquipItem(this);
-			}
+			CharacterBase->InteractionCheck(this);
 			
+			// USOInventoryComponent* Inven = CharacterBase->GetInventory();
+			// if(Inven)
+			// {
+			// 	// 인벤토리 컴포넌트 가져오기
+			// 	bIsEquipped = true;
+			// 	Inven->AddToInventory(this);
+			// 	// CharacterBase->EquipItem(this);
+			// }
+			
+		}
+	}
+}
+
+void ASOGunBase::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (HasAuthority())
+	{
+		ASOCharacterBase* CharacterBase = Cast<ASOCharacterBase>(OtherActor);
+		if(CharacterBase)
+		{
+			CharacterBase->NoInteractableFound();
 		}
 	}
 }
@@ -554,6 +569,19 @@ void ASOGunBase::Equip()
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	SO_LOG(LogSOTemp, Warning, TEXT("End"))
+}
+
+void ASOGunBase::Interact(ASOCharacterBase* PlayerCharacter)
+{
+	// Super::Interact(PlayerCharacter);
+	USOInventoryComponent* Inven = PlayerCharacter->GetInventory();
+	if(Inven)
+	{
+		// 인벤토리 컴포넌트 가져오기
+		bIsEquipped = true;
+		Inven->AddToInventory(this);
+		// CharacterBase->EquipItem(this);
+	}
 }
 
 void ASOGunBase::SetOwningCharacter(ASOCharacterBase* InOwningCharacter)

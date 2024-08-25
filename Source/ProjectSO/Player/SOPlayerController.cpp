@@ -265,6 +265,15 @@ void ASOPlayerController::ReloadAction(const FInputActionValue& Value)
 	}
 }
 
+void ASOPlayerController::Interaction(const FInputActionValue& Value)
+{
+	if (PossessedCharacter)
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("ASOPlayerController::Interaction"));
+		PossessedCharacter->BeginInteract(Value.Get<bool>());
+	}
+}
+
 void ASOPlayerController::DebugToggleHudAction(const FInputActionValue& Value)
 {
 	if (PossessedCharacter && Value.Get<bool>())
