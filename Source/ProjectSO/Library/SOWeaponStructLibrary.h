@@ -48,6 +48,7 @@ public:
 			ClipSize = InOhterStat.ClipSize;
 			LargeClipSize = InOhterStat.LargeClipSize;
 			Damage = InOhterStat.Damage;
+			AimingTime = InOhterStat.AimingTime;
 		}
 		return *this;
 	}
@@ -101,6 +102,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
 	float Damage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
+	float AimingTime;
 
 };
 

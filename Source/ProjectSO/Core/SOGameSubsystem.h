@@ -40,6 +40,7 @@ public:
 	FSOWeaponDamageData* GetWeaponDamageData(const uint8 InID);
 	FSOSpawnableItemClasses* GetSpawnableItemData(const int32 InIndex);
 	FSOGunPartsBaseData* GetPartsData(const uint8 InID);
+	FSOPartsStat* GetPartsStat(const uint8 InID, ESOGunPartsType PartsType);
 	uint32 GetSpawnableItemCount() const {return TotalSpawnableItem; }
 	float GetHitAreaDamage(const FString& Area) const;
 	float GetWeaponClassAreaDamage(const FString& InGunType, const FString& InBoneName)  const;
@@ -73,8 +74,8 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<UDataTable> PartsDataTable;
 
-	UPROPERTY(BlueprintReadOnly)
-	TObjectPtr<UDataTable> PartsStatTable;
+	// UPROPERTY(BlueprintReadOnly)
+	// TObjectPtr<UDataTable> PartsStatTable;
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<UDataTable*> PartsStatTables;

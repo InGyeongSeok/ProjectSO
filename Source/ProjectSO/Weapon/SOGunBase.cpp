@@ -507,7 +507,7 @@ void ASOGunBase::Aim(bool bPressed)
 			// Lens->SetVisibility(false);
 			if(ASOPlayerController* PlayerController = CastChecked<ASOPlayerController>(OwningCharacter->GetController()))
 			{
-				PlayerController->SetViewTargetWithBlend(OwningCharacter,0.2);	
+				PlayerController->SetViewTargetWithBlend(OwningCharacter,WeaponStat.AimingTime);	
 			}
 			return;
 		}
@@ -520,7 +520,7 @@ void ASOGunBase::Aim(bool bPressed)
 			// Lens->SetVisibility(true);
 			if(ASOPlayerController* PlayerController = CastChecked<ASOPlayerController>(OwningCharacter->GetController()))
 			{
-				PlayerController->SetViewTargetWithBlend(this,0.2);	
+				PlayerController->SetViewTargetWithBlend(this,WeaponStat.AimingTime);	
 			}
 		}
 	}
@@ -771,31 +771,13 @@ FTransform ASOGunBase::GetSocketTransformByName(FName InSocketName, const USkele
 void ASOGunBase::SetPartsInfo(uint8 InPartsID, ESOGunPartsType PartsType)
 {
 	EquippedPartsInfo.PartsIDArray[static_cast<int32>(PartsType)] = InPartsID;
-
+	SO_LOG(LogSOTemp, Log, TEXT("PartsType : %d"), static_cast<int32>(PartsType))
+	SO_LOG(LogSOTemp, Log, TEXT("InPartsID : %d"), InPartsID)
 	
-	/*// 파츠 정보 갱신
-	switch (PartsType)
+	for(auto i : EquippedPartsInfo.PartsIDArray)
 	{
-	case ESOGunPartsType::MuzzleAttachment:
-		EquippedPartsInfo.MuzzleID = InPartsID;
-		break;
-	case ESOGunPartsType::Grip:
-		EquippedPartsInfo.GripID = InPartsID;
-		break;
-	case ESOGunPartsType::Magazine:
-		EquippedPartsInfo.MagazineID = InPartsID;
-		break;
-	case ESOGunPartsType::Scope:
-		EquippedPartsInfo.ScopeID = InPartsID;
-		break;
-	case ESOGunPartsType::Stock:
-		EquippedPartsInfo.StockID = InPartsID;
-		break;
-	default:
-		break;
-	}*/
-
-	
+		SO_LOG(LogSOTemp, Log, TEXT("PartsIDArray : %d"),i)
+	}	
 }
 
 void ASOGunBase::SetModifierStat(uint8 InPartsID, ESOGunPartsType PartsType)

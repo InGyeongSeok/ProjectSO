@@ -312,8 +312,11 @@ FSOWeaponStat* USOGameSubsystem::CalculateWeaponStat(FSOEquippedPartsInfo InPart
 		FString RowName = FString::Printf(TEXT("%d"), idx);
 		// 파츠 스탯 뽑기
 		FSOPartsStat* PartsStatRow = PartsStatTables[idx]->FindRow<FSOPartsStat>(FName(*RowName), "");
+		
+		WeaponBaseStat->AimedRecoilPitch = WeaponBaseStat->AimedRecoilPitch * (100-PartsStatRow->PitchRecoilReduction) * 0.01f;
+		WeaponBaseStat->AimedRecoilYaw = WeaponBaseStat->AimedRecoilYaw * (100-PartsStatRow->YawRecoilReduction) * 0.01f; 
 
-		// PartsStatRow->PitchRecoilReduction
+		
 		
 	}
 	// WeaponBaseStat = WeaponBaseStat + Modi
@@ -341,4 +344,36 @@ FSOGunPartsBaseData* USOGameSubsystem::GetPartsData(const uint8 InID)
 		UE_LOG(LogTemp, Warning, TEXT("No PartsDataTable found for ID: %d"), InID);
 	}
 	return PartsDataRow;
+}
+
+FSOPartsStat* USOGameSubsystem::GetPartsStat(const uint8 InID, ESOGunPartsType PartsType)
+{
+	// PartsStatTables
+	// 어떤 타입인지 받아서 - 테이블 참조
+
+	// push_back한 순서 
+	// PartsType
+	UE_LOG(LogTemp, Warning, TEXT("PartsType : %d"), static_cast<int32>(PartsType))
+	UDataTable* PartsStatTable = PartsStatTables[static_cast<int32>(PartsType)];
+	// PartsStatTable.FindRow<>()
+	// PartsStat
+
+	if (!PartsStatTable)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PartsStatTable is not assigned."));
+		return nullptr;
+	}
+
+	FString RowName = FString::Printf(TEXT("%d"), InID);
+	FSOPartsStat* PartsStatRow = PartsStatTable->FindRow<FSOPartsStat>(FName(*RowName), "");
+	
+	if (PartsStatRow)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Found PartsStatTable for ID: %d"), InID);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No PartsStatTable found for ID: %d"), InID);
+	}
+	return PartsStatRow;
 }

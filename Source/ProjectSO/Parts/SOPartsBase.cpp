@@ -35,6 +35,7 @@ void ASOPartsBase::BeginPlay()
 {
 	Super::BeginPlay();
 	SetPartsData(ID);
+	SetPartsStat(ID, PartsData.PartsType);
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ASOPartsBase::OnSphereBeginOverlap);
 	CollisionComp->OnComponentEndOverlap.AddDynamic(this, &ASOPartsBase::OnSphereEndOverlap);
 }
@@ -172,6 +173,39 @@ void ASOPartsBase::SetPartsData(const uint8 InID)
 	{
 		PartsData = *SelectedPartsData;
 		PartsMesh->SetStaticMesh(PartsData.PartsMesh);
+	}
+}
+
+void ASOPartsBase::SetPartsStat(const uint8 InID, ESOGunPartsType PartsType)
+{
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("World is not available."))
+		return;
+	}
+
+	// 게임 인스턴스 가져오기.
+	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(World);
+	if (!GameInstance)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GameInstance is not available."))
+		return;
+	}
+
+	// 게임 인스턴스에서 서브시스템을 가져오기.
+	USOGameSubsystem* SOGameSubsystem = GameInstance->GetSubsystem<USOGameSubsystem>();
+	if (!SOGameSubsystem)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SOGameSubsystem is not available."))
+		return;
+	}
+
+	// 서브시스템에서 원하는 ID와 타입을 보내서 PartsStat 가져오기
+	FSOPartsStat* SelectedPartsStat = SOGameSubsystem->GetPartsStat(InID, PartsType);
+	if (SelectedPartsStat)
+	{
+		PartsStat = *SelectedPartsStat;		
 	}
 }
 

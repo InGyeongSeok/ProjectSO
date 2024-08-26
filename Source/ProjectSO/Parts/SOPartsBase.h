@@ -42,6 +42,7 @@ public:
 
 protected:
 	virtual void SetPartsData(const uint8 InID);
+	virtual void SetPartsStat(const uint8 InID, ESOGunPartsType PartsType);
 	
 	
 public:
