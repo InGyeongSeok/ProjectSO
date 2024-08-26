@@ -71,10 +71,46 @@ TEXT("/Script/ProjectSO.SOProjectileHitEffectDataAsset'/Game/StellarObsidian/Gam
 	}
 
 	ConstructorHelpers::FObjectFinder<UDataTable> PartsDataRef(
-		TEXT("/Script/Engine.DataTable'/Game/StellarObsidian/GameData/DT_PartsData.DT_PartsData'"));
+		TEXT("/Script/Engine.DataTable'/Game/StellarObsidian/GameData/Parts/DT_PartsData.DT_PartsData'"));
 	if (PartsDataRef.Succeeded())
 	{
 		PartsDataTable = PartsDataRef.Object;
+	}
+
+	// ==========================================
+	ConstructorHelpers::FObjectFinder<UDataTable> GripStatRef(
+		TEXT("/Script/Engine.DataTable'/Game/StellarObsidian/GameData/Parts/DT_GripStat.DT_GripStat'"));
+	if (GripStatRef.Succeeded())
+	{
+		PartsStatTables.Push(GripStatRef.Object);		
+	}
+
+	ConstructorHelpers::FObjectFinder<UDataTable> MagazineStatRef(
+		TEXT("/Script/Engine.DataTable'/Game/StellarObsidian/GameData/Parts/DT_MagazineStat.DT_MagazineStat'"));
+	if (MagazineStatRef.Succeeded())
+	{
+		PartsStatTables.Push(MagazineStatRef.Object);		
+	}
+
+	ConstructorHelpers::FObjectFinder<UDataTable> MuzzleStatRef(
+		TEXT("/Script/Engine.DataTable'/Game/StellarObsidian/GameData/Parts/DT_MuzzleStat.DT_MuzzleStat'"));
+	if (MuzzleStatRef.Succeeded())
+	{
+		PartsStatTables.Push(MuzzleStatRef.Object);		
+	}
+	
+	ConstructorHelpers::FObjectFinder<UDataTable> ScopeStatRef(
+		TEXT("/Script/Engine.DataTable'/Game/StellarObsidian/GameData/Parts/DT_ScopeStat.DT_ScopeStat'"));
+	if (ScopeStatRef.Succeeded())
+	{
+		PartsStatTables.Push(ScopeStatRef.Object);		
+	}
+
+	ConstructorHelpers::FObjectFinder<UDataTable> StockStatRef(
+		TEXT("/Script/Engine.DataTable'/Game/StellarObsidian/GameData/Parts/DT_StockStat.DT_StockStat'"));
+	if (StockStatRef.Succeeded())
+	{
+		PartsStatTables.Push(StockStatRef.Object);		
 	}
 	
 }
@@ -282,7 +318,7 @@ FSOWeaponStat* USOGameSubsystem::CalculateWeaponStat(FSOEquippedPartsInfo InPart
 	}
 	// WeaponBaseStat = WeaponBaseStat + Modi
 	
-	return nullptr;
+	return WeaponBaseStat;
 }
 
 FSOGunPartsBaseData* USOGameSubsystem::GetPartsData(const uint8 InID)

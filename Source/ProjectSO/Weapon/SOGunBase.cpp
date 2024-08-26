@@ -771,6 +771,8 @@ FTransform ASOGunBase::GetSocketTransformByName(FName InSocketName, const USkele
 void ASOGunBase::SetPartsInfo(uint8 InPartsID, ESOGunPartsType PartsType)
 {
 	EquippedPartsInfo.PartsIDArray[static_cast<int32>(PartsType)] = InPartsID;
+
+	
 	/*// 파츠 정보 갱신
 	switch (PartsType)
 	{
@@ -792,6 +794,8 @@ void ASOGunBase::SetPartsInfo(uint8 InPartsID, ESOGunPartsType PartsType)
 	default:
 		break;
 	}*/
+
+	
 }
 
 void ASOGunBase::SetModifierStat(uint8 InPartsID, ESOGunPartsType PartsType)

@@ -1,0 +1,13 @@
+﻿Name,ID,PartsName,HideMuzzleFlash,YawRecoilReduction,PitchRecoilReduction,AimingRate,FOV,bZoomInOut,ReloadRate,bLargeClip,AmmoType
+0,0,Extended_556,0,0,0,0,0,FALSE,0,TRUE,Ammo5_56
+1,1,Quickdraw_556,0,0,0,0,0,FALSE,60,FALSE,Ammo5_56
+2,2,ExtendedQuickdraw_556,0,0,0,0,0,FALSE,60,TRUE,Ammo5_56
+3,3,Extended_762,0,0,0,0,0,FALSE,0,TRUE,Ammo7_62
+4,4,Quickdraw_762,0,0,0,0,0,FALSE,60,FALSE,Ammo7_62
+5,5,ExtendedQuickdraw_762,0,0,0,0,0,FALSE,60,TRUE,Ammo7_62
+6,6,Extended_12,0,0,0,0,0,FALSE,0,TRUE,Ammo12
+7,7,Quickdraw_12,0,0,0,0,0,FALSE,60,FALSE,Ammo12
+8,8,ExtendedQuickdraw_12,0,0,0,0,0,FALSE,60,TRUE,Ammo12
+9,9,Extended_9,0,0,0,0,0,FALSE,0,TRUE,Ammo9
+10,10,Quickdraw_9,0,0,0,0,0,FALSE,60,FALSE,Ammo9
+11,11,ExtendedQuickdraw_9,0,0,0,0,0,FALSE,60,TRUE,Ammo9

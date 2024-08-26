@@ -1,0 +1,4 @@
+﻿Name,ID,PartsName,HideMuzzleFlash,YawRecoilReduction,PitchRecoilReduction,AimingRate,FOV,bZoomInOut,ReloadRate,bLargeClip,AmmoType
+0,0,RedDotSight,0,0,0,20,70,TRUE,0,FALSE,None
+1,1,Scope4x,0,0,0,0,30,FALSE,0,FALSE,None
+2,2,Scope8x,0,0,0,25,30,FALSE,0,FALSE,None

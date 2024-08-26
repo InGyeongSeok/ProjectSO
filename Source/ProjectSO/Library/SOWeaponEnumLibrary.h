@@ -25,3 +25,13 @@ enum class ESOFireMode : uint8
 	
 	Max    = 1 << 7	UMETA(Hidden),   // 1000 0000
 };
+
+UENUM(BlueprintType)
+enum class ESOAmmoType
+{
+	None,
+	Ammo5_56,
+	Ammo7_62,
+	Ammo9,
+	Ammo12,	
+};

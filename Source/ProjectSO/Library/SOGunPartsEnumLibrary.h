@@ -11,7 +11,8 @@ enum class ESOGunPartsType
 	MuzzleAttachment,
 	Grip,
 	Magazine,
-	Stock	
+	Stock,
+	MAX UMETA(Hidden)
 };
 
 /*UENUM(BlueprintType)

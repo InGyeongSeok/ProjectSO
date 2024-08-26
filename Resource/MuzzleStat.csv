@@ -1,0 +1,4 @@
+﻿Name,ID,PartsName,HideMuzzleFlash,YawRecoilReduction,PitchRecoilReduction,AimingRate,FOV,bZoomInOut,ReloadRate,bLargeClip,AmmoType
+0,0,Compensator,0,10,15,20,70,TRUE,0,FALSE,None
+1,1,Suppressor,100,0,0,0,30,FALSE,0,FALSE,None
+2,2,FlashSuppressor,50,10,10,25,30,FALSE,0,FALSE,None

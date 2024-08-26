@@ -17,7 +17,8 @@ struct FSOWeaponStat : public FTableRowBase
 	GENERATED_BODY()
 
 public:
-	FSOWeaponStat(): WeaponType(ESOWeaponType::Pistol), FireMode(0), AmmoType(0), FireInterval(0), ReloadInterval(0), QuickReloadInterval(0),
+	FSOWeaponStat(): WeaponType(ESOWeaponType::Pistol), FireMode(0), AmmoType(
+		ESOAmmoType::None), FireInterval(0), ReloadInterval(0), QuickReloadInterval(0),
 					 Speed(0),
 					 MaxRange(0),
 					 AimedRecoilYaw(0), AimedRecoilPitch(0),
@@ -63,7 +64,7 @@ public:
 	int FireMode;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
-	int AmmoType;
+	ESOAmmoType AmmoType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
 	float FireInterval;
@@ -327,8 +328,6 @@ public:
 	float ReflectRate;
 };
 
-
-
 USTRUCT(BlueprintType)
 struct FProjectileData
 {
@@ -374,7 +373,13 @@ USTRUCT(BlueprintType)
 struct FSOEquippedPartsInfo
 {
 	GENERATED_BODY()
-	
+
+public:
+	FSOEquippedPartsInfo()
+	{
+		int32 NumGunParts = static_cast<int32>(ESOGunPartsType::MAX);
+		PartsIDArray.SetNum(NumGunParts);
+	}
 	// 각 파츠 enum 또는 ID?
 	UPROPERTY(EditDefaultsOnly)
 	TArray<uint8> PartsIDArray;

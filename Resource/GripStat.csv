@@ -1,0 +1,3 @@
+﻿Name,ID,PartsName,HideMuzzleFlash,YawRecoilReduction,PitchRecoilReduction,AimingRate,FOV,bZoomInOut,ReloadRate,bLargeClip,AmmoType
+0,0,AngledGrip,0,25,0,10,0,FALSE,0,FALSE,None
+1,1,VerticalGrip,0,0,15,0,0,FALSE,0,FALSE,None

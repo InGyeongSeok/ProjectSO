@@ -57,7 +57,7 @@ void ASOProjectileBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SetProjectileSurfaceEffectData();
+	// SetProjectileSurfaceEffectData();
 	if (Tracer)
 	{
 		TracerComponent = UGameplayStatics::SpawnEmitterAttached
