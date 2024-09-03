@@ -106,13 +106,14 @@ void ASOProjectileBase::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 		{
 			FVector HitLocation = SweepResult.ImpactPoint;
 			float RangeModifier = GetDistanceDamageFactor(HitLocation);
-				
+			SO_LOG(LogSOProjectileBase, Warning, TEXT("RangeModifier : %f"), RangeModifier)
+			
 			AController* FiringController = ProjectileData.FiringPawn->GetController();
 			if (FiringController)
 			{
 				AActor* HitActor = OtherActor;
 		
-				// Damage = Base damage × Hit area damage × Weapon class area damage
+				// Damage = Base damage × Hit area damage × Weapon class area damage *  RangeModifier * PERCENT;
 			
 				// Base Damage
 				float BaseDamage = ProjectileData.Damage;
@@ -120,14 +121,16 @@ void ASOProjectileBase::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 			
 				// Hit area damage
 				ASOCharacterBase* CharacterBase = Cast<ASOCharacterBase>(OtherActor);
-				float HitAreaDamage = GetHitAreaDamageFactor(SweepResult.BoneName, CharacterBase);			
+				float HitAreaDamage = GetHitAreaDamageFactor(SweepResult.BoneName, CharacterBase);
+				SO_LOG(LogSOProjectileBase, Warning, TEXT("HitAreaDamage : %f"), HitAreaDamage)
 
 				// Weapon Class Area Damage
 				float WeaponClassAreaDamage = GetWeaponClassAreaDamage(SweepResult.BoneName);
-
+				SO_LOG(LogSOProjectileBase, Warning, TEXT("WeaponClassAreaDamage : %f"), WeaponClassAreaDamage)
+				
 				float TotalDamage = 0.f;
-				TotalDamage = BaseDamage * HitAreaDamage * WeaponClassAreaDamage * RangeModifier;
-				SO_LOG(LogSOProjectileBase, Warning, TEXT("Damage : %f"), TotalDamage)
+				TotalDamage = BaseDamage * HitAreaDamage * WeaponClassAreaDamage * RangeModifier * PERCENT;
+				SO_LOG(LogSOProjectileBase, Warning, TEXT("TotalDamage : %f"), TotalDamage)
 			
 				UGameplayStatics::ApplyDamage(HitActor, TotalDamage, FiringController,this,UDamageType::StaticClass());
 			}
@@ -245,11 +248,11 @@ float ASOProjectileBase::GetHitAreaDamageFactor(const FName& InBoneName, ASOChar
 			CurrentBoneName = HitCharacter->GetHitParentBone(CurrentBoneName);
 			HitBoneArea = GetKeyByBoneName(*CurrentBoneName.ToString());
 			HitAreaDamage = SOGameSubsystem->GetHitAreaDamage(HitBoneArea);
-			SO_LOG(LogSOProjectileBase, Log, TEXT("%d CurrentBoneName : %s"), cnt, *CurrentBoneName.ToString())
+			// SO_LOG(LogSOProjectileBase, Log, TEXT("%d CurrentBoneName : %s"), cnt, *CurrentBoneName.ToString())
 		}
 	}
 			
-	SO_LOG(LogSOProjectileBase, Warning, TEXT("HitAreaDamage : %f"), HitAreaDamage * PERCENT)
+	// SO_LOG(LogSOProjectileBase, Warning, TEXT("HitAreaDamage : %f"), HitAreaDamage * PERCENT)
 	
 	return HitAreaDamage;
 }
@@ -269,8 +272,8 @@ float ASOProjectileBase::GetWeaponClassAreaDamage(const FName& InBoneName)
 	FString WeaponTypeString = UEnum::GetValueAsString(WeaponTypeEnum);
 	float WeaponClassAreaDamage = SOGameSubsystem->GetWeaponClassAreaDamage(WeaponTypeString, HitBoneArea) * PERCENT;
 	
-	SO_LOG(LogSOProjectileBase, Warning, TEXT("WeaponType : %s"), *WeaponTypeString)
-	SO_LOG(LogSOProjectileBase, Warning, TEXT("Weaponclassareadamage : %f"), WeaponClassAreaDamage)
+	// SO_LOG(LogSOProjectileBase, Warning, TEXT("WeaponType : %s"), *WeaponTypeString)
+	// SO_LOG(LogSOProjectileBase, Warning, TEXT("Weaponclassareadamage : %f"), WeaponClassAreaDamage)
 	
 	return WeaponClassAreaDamage;
 }
