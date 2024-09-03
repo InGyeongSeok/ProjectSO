@@ -790,7 +790,10 @@ void ASOGunBase::SetModifierStat(uint8 InPartsID, ESOGunPartsType PartsType)
 	// 총의 파츠 ID정보, 총의 ID를 넘긴다.
 	// 변경된 총기 스탯을 받는다.
 	// TotalStat에 적용한다.
-	WeaponStat = *SOGameSubsystem->CalculateWeaponStat(EquippedPartsInfo, WeaponStat.ID);
+	// WeaponStat = *SOGameSubsystem->CalculateWeaponStat(EquippedPartsInfo, WeaponStat.ID);
+	WeaponStat = *CalculateWeaponStat(EquippedPartsInfo, WeaponStat.ID);
+	// oop적으로 봤을 때, 총에서 계산을 해야 한다.
+	// 그래서 데이터는 가져오되 계산은 총에서	
 }
 
 
@@ -806,7 +809,7 @@ void ASOGunBase::OnRep_FireStartTime()
 	FRotator FireEffectRotation = FireEffectSocketTransform.GetRotation().Rotator();
 	FRotator EjectRotation = AmmoEjectSocketTransform.GetRotation().Rotator();
 	PlayMuzzleEffect(FireEffectSocketTransform.GetLocation(), FireEffectRotation);
-	PlayEjectAmmoEffect(AmmoEjectSocketTransform.GetLocation(), EjectRotation);		
+	PlayEjectAmmoEffect(AmmoEjectSocketTransform.GetLocation(), EjectRotation);
 }
 
 void ASOGunBase::OnRep_bReloading()
@@ -824,4 +827,25 @@ void ASOGunBase::OnRep_bReloading()
 			PlayAnimMontage(WeaponData.ReloadMontage, OwningCharacter->GetMesh());
 		}
 	}	
+}
+
+FSOWeaponStat* ASOGunBase::CalculateWeaponStat(FSOEquippedPartsInfo InPartsInfo, uint8 WeaponID)
+{
+	USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();
+	// 모든 stat적용식
+	FSOWeaponStat* WeaponBaseStat = SOGameSubsystem->GetWeaponStatData(WeaponID);
+
+	// 파츠 데이터 테이블 순회돌기
+	for(uint8 idx : InPartsInfo.PartsIDArray)
+	{
+		FString RowName = FString::Printf(TEXT("%d"), idx);
+		// 파츠 스탯 뽑기
+		FSOPartsStat* PartsStatRow = SOGameSubsystem->GetPartsStatTable(idx)->FindRow<FSOPartsStat>(FName(*RowName), "");
+		
+		WeaponBaseStat->AimedRecoilPitch = WeaponBaseStat->AimedRecoilPitch * (100-PartsStatRow->PitchRecoilReduction) * 0.01f;
+		WeaponBaseStat->AimedRecoilYaw = WeaponBaseStat->AimedRecoilYaw * (100-PartsStatRow->YawRecoilReduction) * 0.01f; 		
+	}
+	// WeaponBaseStat = WeaponBaseStat + Modi
+	
+	return WeaponBaseStat;
 }

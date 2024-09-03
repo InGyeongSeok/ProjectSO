@@ -48,7 +48,6 @@ ASOProjectileBase::ASOProjectileBase()
 	HideStartTime = 0.0f;
 	ShowStartTime = 0.0f;
 	
-	// NeullCullDistance 
 	// NetCullDistanceSquared = FLT_MAX; 
 }
 
@@ -95,93 +94,48 @@ void ASOProjectileBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 }
 
 void ASOProjectileBase::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	// 사람에 맞았을때로 설정하기
-	if (ProjectileData.FiringPawn && HasAuthority() && Cast<APawn>(OtherActor))
+{			
+	SO_LOG(LogSOProjectileBase, Warning, TEXT("SweepResult.BoneName.ToString(): %s"), *SweepResult.BoneName.ToString())
+	SO_LOG(LogSOProjectileBase, Warning, TEXT("OtherComp: %s"), *OtherComp->GetName())
+	SO_LOG(LogSOProjectileBase, Warning, TEXT("GetKeyByName: %s"), *SweepResult.BoneName.ToString())
+		
+	if(Cast<APawn>(OtherActor) && Cast<USkeletalMeshComponent>(OtherComp) && HasAuthority())
 	{
-		// ASOGunBase* GunBase = Cast<ASOGunBase>(Owner);
-		
-		FRuntimeFloatCurve DistanceDamageFalloff = ProjectileData.DistanceDamageFalloff;
-	
-		FVector HitLocation = SweepResult.ImpactPoint; 
-		float Dist = FVector::Dist(ProjectileData.Location, HitLocation);  
-		const FRichCurve* Curve = DistanceDamageFalloff.GetRichCurveConst();	
-		SO_LOG(LogSOProjectileBase, Warning, TEXT("Dist : %f"), Dist)
-	
-		// 거리에 데미지 영향주는 변수
-		float RangeModifier = 1.0f;
-		check(Curve);
-		if(Curve)
+		// 사람에 맞았을때로 설정하기
+		if (ProjectileData.FiringPawn)
 		{
-			RangeModifier = Curve->HasAnyData() ? Curve->Eval(Dist) : 1.0f;
-			RangeModifier *= PERCENT;
-			SO_LOG(LogSOProjectileBase, Warning, TEXT("RangeModifier : %f"), RangeModifier)
-		}
-		else
-		{
-			SO_LOG(LogSOProjectileBase, Error, TEXT("Curve is null"))
-		}
-
-		
-		AController* FiringController = ProjectileData.FiringPawn->GetController();
-		if (FiringController)
-		{
-			AActor* HitActor = OtherActor;
-			float Damage = 0.f;
-			
-			// SO_LOG(LogSOProjectileBase, Warning, TEXT("SweepResult.BoneName.ToString(): %s"), *SweepResult.BoneName.ToString())
-			// SO_LOG(LogSOProjectileBase, Warning, TEXT("OtherComp: %s"), *OtherComp->GetName())
-			// SO_LOG(LogSOProjectileBase, Warning, TEXT("GetKeyByName: %s"), *GetKeyByBonName( SweepResult.BoneName.ToString()))
-
-			//FString test = "Head";
-			
-			// Damage = Base damage × Hit area damage × Weapon class area damage
-			// PERCENT 매크로 사용하자
-			// Base Damage
-			float BaseDamage = ProjectileData.Damage;
-			SO_LOG(LogSOProjectileBase, Warning, TEXT("BaseDamage : %f"), BaseDamage)
-			
-			// subsystem 가지고 오기
-			USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();
-		
-			// Hit area damage
-			FString StringBoneName = SweepResult.BoneName.ToString();
-			FString HitBoneArea = GetKeyByBonName(*StringBoneName);
-
-			float HitAreaDamage = SOGameSubsystem->GetHitAreaDamage(HitBoneArea);
-
-			if(HitAreaDamage<0) // -1이 리턴된 경우? 
+			FVector HitLocation = SweepResult.ImpactPoint;
+			float RangeModifier = GetDistanceDamageFactor(HitLocation);
+				
+			AController* FiringController = ProjectileData.FiringPawn->GetController();
+			if (FiringController)
 			{
-				UE_LOG(LogTemp,Log,TEXT(" Bone Name  1  ::: %s"), *HitBoneArea );
-
+				AActor* HitActor = OtherActor;
+		
+				// Damage = Base damage × Hit area damage × Weapon class area damage
+			
+				// Base Damage
+				float BaseDamage = ProjectileData.Damage;
+				SO_LOG(LogSOProjectileBase, Warning, TEXT("BaseDamage : %f"), BaseDamage)
+			
+				// Hit area damage
 				ASOCharacterBase* CharacterBase = Cast<ASOCharacterBase>(OtherActor);
-				if(CharacterBase)
-				{
-					StringBoneName = CharacterBase->GetHitParentBone(SweepResult.BoneName);
-					UE_LOG(LogTemp,Log,TEXT(" Bone Name  2  ::: %s"), *StringBoneName );
+				float HitAreaDamage = GetHitAreaDamageFactor(SweepResult.BoneName, CharacterBase);			
 
-					HitBoneArea =  GetKeyByBonName(*StringBoneName);
-				}
+				// Weapon Class Area Damage
+				float WeaponClassAreaDamage = GetWeaponClassAreaDamage(SweepResult.BoneName);
+
+				float TotalDamage = 0.f;
+				TotalDamage = BaseDamage * HitAreaDamage * WeaponClassAreaDamage * RangeModifier;
+				SO_LOG(LogSOProjectileBase, Warning, TEXT("Damage : %f"), TotalDamage)
+			
+				UGameplayStatics::ApplyDamage(HitActor, TotalDamage, FiringController,this,UDamageType::StaticClass());
 			}
-			
-			SO_LOG(LogSOProjectileBase, Warning, TEXT("Hitareadamage : %f"), HitAreaDamage * PERCENT)
-			
-			ESOWeaponType WeaponTypeEnum = ProjectileData.WeaponType;
-			FString WeaponTypeString = UEnum::GetValueAsString(ProjectileData.WeaponType);
-			float WeaponClassAreaDamage = SOGameSubsystem->GetWeaponClassAreaDamage(WeaponTypeString, HitBoneArea) * PERCENT;
-			SO_LOG(LogSOProjectileBase, Warning, TEXT("WeaponType : %s"), *WeaponTypeString)
-			SO_LOG(LogSOProjectileBase, Warning, TEXT("Weaponclassareadamage : %f"), WeaponClassAreaDamage)
-			
-			
-			Damage = BaseDamage * HitAreaDamage * WeaponClassAreaDamage * RangeModifier;
-			SO_LOG(LogSOProjectileBase, Warning, TEXT("Damage : %f"), Damage)
-			
-			UGameplayStatics::ApplyDamage(HitActor,Damage,FiringController,this,UDamageType::StaticClass());
 		}
-	}
+	}	
 	else
 	{
-		AActor* HitActor =  SweepResult.GetActor();
+		AActor* HitActor = SweepResult.GetActor();
 		const FVector HitLocation = SweepResult.Location;
 		const FVector HitNormal = SweepResult.Normal;
 		MulticastRPCPlayHitEffectBySurface(HitActor, HitLocation, HitNormal);
@@ -240,10 +194,87 @@ void ASOProjectileBase::StartDestroyTimer()
 		DestroyTime
 	);
 }
+
 void ASOProjectileBase::DestroyTimerFinished()
 {
 	Destroy();
 }
+
+float ASOProjectileBase::GetDistanceDamageFactor(const FVector& HitLocation)
+{
+	FRuntimeFloatCurve DistanceDamageFalloff = ProjectileData.DistanceDamageFalloff;
+	float Dist = FVector::Dist(ProjectileData.Location, HitLocation);  
+	const FRichCurve* Curve = DistanceDamageFalloff.GetRichCurveConst();	
+	SO_LOG(LogSOProjectileBase, Warning, TEXT("Dist : %f"), Dist)
+	
+	// 거리에 데미지 영향주는 변수
+	float RangeModifier = 1.0f;
+	check(Curve);
+	if(Curve)
+	{
+		RangeModifier = Curve->HasAnyData() ? Curve->Eval(Dist) : 1.0f;
+		RangeModifier *= PERCENT;
+		SO_LOG(LogSOProjectileBase, Warning, TEXT("RangeModifier : %f"), RangeModifier)
+	}
+	else
+	{
+		SO_LOG(LogSOProjectileBase, Error, TEXT("Curve is null"))
+	}
+	return RangeModifier;
+}
+
+float ASOProjectileBase::GetHitAreaDamageFactor(const FName& InBoneName, ASOCharacterBase* HitCharacter)
+{
+	USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();
+	FName CurrentBoneName = InBoneName;
+	FString HitBoneArea = GetKeyByBoneName(*CurrentBoneName.ToString());
+
+	if(HitBoneArea == "None")
+	{
+		SO_LOG(LogSOProjectileBase, Warning, TEXT("No Bone"))
+		return 0.f;
+	}
+
+	float HitAreaDamage = SOGameSubsystem->GetHitAreaDamage(HitBoneArea);
+	int cnt = 0;
+	while(HitAreaDamage < 0)
+	{		
+		if(HitCharacter)
+		{
+			// 존재하는 뼈일때까지 
+			CurrentBoneName = HitCharacter->GetHitParentBone(CurrentBoneName);
+			HitBoneArea = GetKeyByBoneName(*CurrentBoneName.ToString());
+			HitAreaDamage = SOGameSubsystem->GetHitAreaDamage(HitBoneArea);
+			SO_LOG(LogSOProjectileBase, Log, TEXT("%d CurrentBoneName : %s"), cnt, *CurrentBoneName.ToString())
+		}
+	}
+			
+	SO_LOG(LogSOProjectileBase, Warning, TEXT("HitAreaDamage : %f"), HitAreaDamage * PERCENT)
+	
+	return HitAreaDamage;
+}
+
+float ASOProjectileBase::GetWeaponClassAreaDamage(const FName& InBoneName)
+{
+	FString HitBoneArea = GetKeyByBoneName(*InBoneName.ToString());
+	if(HitBoneArea == "None")
+	{
+		SO_LOG(LogSOProjectileBase, Warning, TEXT("No Bone"))
+		return 0.f;
+	}
+	
+	USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();
+	
+	ESOWeaponType WeaponTypeEnum = ProjectileData.WeaponType;
+	FString WeaponTypeString = UEnum::GetValueAsString(WeaponTypeEnum);
+	float WeaponClassAreaDamage = SOGameSubsystem->GetWeaponClassAreaDamage(WeaponTypeString, HitBoneArea) * PERCENT;
+	
+	SO_LOG(LogSOProjectileBase, Warning, TEXT("WeaponType : %s"), *WeaponTypeString)
+	SO_LOG(LogSOProjectileBase, Warning, TEXT("Weaponclassareadamage : %f"), WeaponClassAreaDamage)
+	
+	return WeaponClassAreaDamage;
+}
+
 void ASOProjectileBase::SetProjectileActive(bool IsActive)
 {
 	// 액터 전체 충돌 관리
@@ -290,15 +321,15 @@ void ASOProjectileBase::InitializeProjectile(const FProjectileData& InData)
 {
 	ProjectileData = InData;
 	//SpawnLocation = InData.Location;
-	SO_LOG(LogSOProjectileBase, Warning, TEXT("Owner : %s"), Owner == nullptr ? TEXT("Null") :  *Owner->GetName());
-	SO_LOG(LogSOProjectileBase, Warning, TEXT("Owner : %s"), Owner == nullptr ? TEXT("Null") :  *Owner->GetName());
+	// SO_LOG(LogSOProjectileBase, Warning, TEXT("Owner : %s"), Owner == nullptr ? TEXT("Null") :  *Owner->GetName());
+	// SO_LOG(LogSOProjectileBase, Warning, TEXT("Owner : %s"), Owner == nullptr ? TEXT("Null") :  *Owner->GetName());
 	SetActorLocationAndRotation(ProjectileData.Location, ProjectileData.Rotation);
 	SetProjectileActive(true);
 	//FiringPawn = InData.FiringPawn;
 	SetLifeSpanToPool();
 }
 
-FString ASOProjectileBase::GetKeyByBonName(const FString& InBoneName)
+FString ASOProjectileBase::GetKeyByBoneName(const FString& InBoneName)
 {
 	int32 UnderscoreIndex;
 	if (InBoneName.FindChar(TEXT('_'), UnderscoreIndex))
@@ -348,7 +379,7 @@ void ASOProjectileBase::PlayHitEffectBySurface(AActor* HitActor, const FVector& 
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), SelectedEffect, HitLocation, HitNormal.Rotation());		
 	}
 	
-	SO_LOG(LogSOProjectileBase, Log, TEXT("HitActor : %s"), *HitActor->GetName())
+	// SO_LOG(LogSOProjectileBase, Log, TEXT("HitActor : %s"), *HitActor->GetName())
 	
 	/*for (const FName& Tag : ActorTags)
 	{
@@ -368,6 +399,7 @@ void ASOProjectileBase::PlayHitEffectBySurface(AActor* HitActor, const FVector& 
 		}		
 		break;
 	}	*/
+	
 }
 
 void ASOProjectileBase::SetProjectileSurfaceEffectData()

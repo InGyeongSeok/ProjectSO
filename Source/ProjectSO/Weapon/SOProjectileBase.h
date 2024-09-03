@@ -45,6 +45,9 @@ protected:
 	void StartDestroyTimer();
 	void DestroyTimerFinished();
 
+	float GetDistanceDamageFactor(const FVector& HitLocation);
+	float GetHitAreaDamageFactor(const FName& InBoneName, ASOCharacterBase* HitCharacter);
+	float GetWeaponClassAreaDamage(const FName& InBoneName);
 	// ProjectilePool 
 public:	
 	UFUNCTION()
@@ -62,7 +65,7 @@ public:
 
 	
 protected:
-	FString GetKeyByBonName(const FString& InBoneName);
+	FString GetKeyByBoneName(const FString& InBoneName);
 	
 	//Subsystem
 	USOGameSubsystem* GetSOGameSubsystem();

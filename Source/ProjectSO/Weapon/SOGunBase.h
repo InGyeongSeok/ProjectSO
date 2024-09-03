@@ -107,7 +107,10 @@ protected:
 	void OnRep_FireStartTime();
 
 	UFUNCTION()
-	void OnRep_bReloading();	
+	void OnRep_bReloading();
+	
+public:
+	virtual FSOWeaponStat* CalculateWeaponStat(FSOEquippedPartsInfo InPartsInfo, uint8 WeaponID);
 	
 public:
 	uint8 GetAvailableFireMode() const {return WeaponStat.FireMode;}

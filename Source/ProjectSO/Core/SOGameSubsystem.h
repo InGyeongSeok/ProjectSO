@@ -48,6 +48,8 @@ public:
 	UNiagaraSystem* GetSurfaceEffect(const TArray<FName>& ActorTags);
 
 	FSOWeaponStat* CalculateWeaponStat(FSOEquippedPartsInfo InPartsInfo, uint8 WeaponID);
+
+	UDataTable* GetPartsStatTable(int32 idx);
 	
 protected:
 	UPROPERTY(BlueprintReadOnly)

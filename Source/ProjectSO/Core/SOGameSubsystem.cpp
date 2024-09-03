@@ -237,6 +237,7 @@ float USOGameSubsystem::GetHitAreaDamage(const FString& Area) const
 	FSOHitAreaDamageData* HitAreaDamageDataRow = HitAreaDamageTable->FindRow<FSOHitAreaDamageData>(
 		FName(*Area), "");
 
+	// 일치하는 Row가 없음
 	if(!HitAreaDamageDataRow)
 	{
 		return -1.0f;
@@ -259,7 +260,6 @@ float USOGameSubsystem::GetWeaponClassAreaDamage(const FString& InGunType, const
 	}
 	//WeaponBoneDamageDataAsset
 	const USOWeaponDamageDataAsset* DamageDataAsset = WeaponClassAreaDamage->WeaponBoneDamageDataAsset;
-		// WeaponClassAreaDamage->WeaponBoneDamageDataAsset;
 
 	if(!DamageDataAsset)
 	{
@@ -270,7 +270,7 @@ float USOGameSubsystem::GetWeaponClassAreaDamage(const FString& InGunType, const
 	//SO_LOG(LogSONetwork,Log,TEXT("%s"),InGunType);
 	UE_LOG(LogTemp,Log,TEXT("DamageByHitLocationMap : %f"), DamageDataAsset->DamageByHitLocationMap[InBoneName]);
 
-	return  DamageDataAsset->DamageByHitLocationMap[InBoneName];
+	return DamageDataAsset->DamageByHitLocationMap[InBoneName];
 	//return -1;
 }
 
@@ -306,7 +306,7 @@ FSOWeaponStat* USOGameSubsystem::CalculateWeaponStat(FSOEquippedPartsInfo InPart
 	FSOWeaponStat* WeaponBaseStat = GetWeaponStatData(WeaponID);
 	// FSOWeaponStat* WeaponBaseStat = GetWeaponStatData(WeaponID);
 
-	// 파츠 데이터 테이블 순회돌기
+	/*// 파츠 데이터 테이블 순회돌기
 	for(uint8 idx : InPartsInfo.PartsIDArray)
 	{
 		FString RowName = FString::Printf(TEXT("%d"), idx);
@@ -314,14 +314,15 @@ FSOWeaponStat* USOGameSubsystem::CalculateWeaponStat(FSOEquippedPartsInfo InPart
 		FSOPartsStat* PartsStatRow = PartsStatTables[idx]->FindRow<FSOPartsStat>(FName(*RowName), "");
 		
 		WeaponBaseStat->AimedRecoilPitch = WeaponBaseStat->AimedRecoilPitch * (100-PartsStatRow->PitchRecoilReduction) * 0.01f;
-		WeaponBaseStat->AimedRecoilYaw = WeaponBaseStat->AimedRecoilYaw * (100-PartsStatRow->YawRecoilReduction) * 0.01f; 
-
-		
-		
-	}
-	// WeaponBaseStat = WeaponBaseStat + Modi
+		WeaponBaseStat->AimedRecoilYaw = WeaponBaseStat->AimedRecoilYaw * (100-PartsStatRow->YawRecoilReduction) * 0.01f; 		
+	}*/
 	
 	return WeaponBaseStat;
+}
+
+UDataTable* USOGameSubsystem::GetPartsStatTable(int32 idx)
+{
+	return PartsStatTables[idx];
 }
 
 FSOGunPartsBaseData* USOGameSubsystem::GetPartsData(const uint8 InID)

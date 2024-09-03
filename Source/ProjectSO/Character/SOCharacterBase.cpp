@@ -256,13 +256,13 @@ void ASOCharacterBase::ApplyRecoil(const float InYawRecoil, const float InPitchR
 	AddControllerPitchInput(RPitch);
 }
 
-FString ASOCharacterBase::GetHitParentBone(const FName& InBoneString)
+FName ASOCharacterBase::GetHitParentBone(const FName& InBoneString)
 {
 	UE_LOG(LogTemp,Log,TEXT("InBoneString : %s"), *InBoneString.ToString());
 
 	FName ParentBoneName = CharacterMesh->GetParentBone(InBoneString);
-	UE_LOG(LogTemp,Log,TEXT("ParentBoneName : %s"),*ParentBoneName.ToString() );
-	return  ParentBoneName.ToString();
+	// UE_LOG(LogTemp,Log,TEXT("ParentBoneName : %s"),*ParentBoneName.ToString())
+	return ParentBoneName;
 }
 
 void ASOCharacterBase::InteractionCheck(AActor* MyActor)
