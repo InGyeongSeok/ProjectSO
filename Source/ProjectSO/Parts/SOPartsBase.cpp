@@ -34,8 +34,10 @@ ASOPartsBase::ASOPartsBase()
 void ASOPartsBase::BeginPlay()
 {
 	Super::BeginPlay();
-	SetPartsData(ID);
-	SetPartsStat(ID, PartsData.PartsType);
+	// SetPartsData(ID);
+	SetPartsData(PartsName);
+	SetPartsStat(PartsName, PartsData.PartsType);
+	// SetPartsStat(ID, PartsData.PartsType);
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ASOPartsBase::OnSphereBeginOverlap);
 	CollisionComp->OnComponentEndOverlap.AddDynamic(this, &ASOPartsBase::OnSphereEndOverlap);
 }
@@ -98,15 +100,18 @@ EALSOverlayState ASOPartsBase::GetOverlayState() const
 
 void ASOPartsBase::Equip()
 {
+	// 호출 전에 장착 가능 여부 따지기
 	AActor* OwnerActor = GetOwner();
 	
 	ASOGunBase* Weapon = Cast<ASOGunBase>(OwnerActor);	
 	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
+
 	
 	// 속성 반영
 	// PartsData : 다같이 있는 Data 테이블
 	// PartsStat : 종류별로 스텟 테이블
-	Weapon->SetModifierStat(PartsStat.ID, PartsData.PartsType);
+	// Weapon->SetModifierStat(PartsStat.ID, PartsData.PartsType);
+	Weapon->SetModifierStat(PartsName, PartsData.PartsType);
 	
 	// Get PartsSocket Name by PartType from weapon
 	FName PartsSocket = Weapon->GetPartsSocket(PartsData.PartsType);
@@ -144,28 +149,7 @@ void ASOPartsBase::AttachToWeapon(ASOGunBase* Weapon)
 
 void ASOPartsBase::SetPartsData(const uint8 InID)
 {
-	UWorld* World = GetWorld();
-	if (!World)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("World is not available."))
-		return;
-	}
-
-	// 게임 인스턴스 가져오기.
-	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(World);
-	if (!GameInstance)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("GameInstance is not available."))
-		return;
-	}
-
-	// 게임 인스턴스에서 서브시스템을 가져오기.
-	USOGameSubsystem* SOGameSubsystem = GameInstance->GetSubsystem<USOGameSubsystem>();
-	if (!SOGameSubsystem)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("SOGameSubsystem is not available."))
-		return;
-	}
+	USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();
 
 	// 서브시스템에서 원하는 ID의 WeaponStatData를 가져오기.
 	FSOGunPartsBaseData* SelectedPartsData = SOGameSubsystem->GetPartsData(InID);
@@ -176,30 +160,20 @@ void ASOPartsBase::SetPartsData(const uint8 InID)
 	}
 }
 
+void ASOPartsBase::SetPartsData(const ESOGunPartsName InPartsName)
+{
+	USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();
+	FSOGunPartsBaseData* SelectedPartsData = SOGameSubsystem->GetPartsData(InPartsName);
+	if (SelectedPartsData)
+	{
+		PartsData = *SelectedPartsData;
+		PartsMesh->SetStaticMesh(PartsData.PartsMesh);
+	}
+}
+
 void ASOPartsBase::SetPartsStat(const uint8 InID, ESOGunPartsType PartsType)
 {
-	UWorld* World = GetWorld();
-	if (!World)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("World is not available."))
-		return;
-	}
-
-	// 게임 인스턴스 가져오기.
-	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(World);
-	if (!GameInstance)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("GameInstance is not available."))
-		return;
-	}
-
-	// 게임 인스턴스에서 서브시스템을 가져오기.
-	USOGameSubsystem* SOGameSubsystem = GameInstance->GetSubsystem<USOGameSubsystem>();
-	if (!SOGameSubsystem)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("SOGameSubsystem is not available."))
-		return;
-	}
+	USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();
 
 	// 서브시스템에서 원하는 ID와 타입을 보내서 PartsStat 가져오기
 	FSOPartsStat* SelectedPartsStat = SOGameSubsystem->GetPartsStat(InID, PartsType);
@@ -207,6 +181,45 @@ void ASOPartsBase::SetPartsStat(const uint8 InID, ESOGunPartsType PartsType)
 	{
 		PartsStat = *SelectedPartsStat;		
 	}
+}
+
+void ASOPartsBase::SetPartsStat(const ESOGunPartsName InPartsName, ESOGunPartsType PartsType)
+{
+	USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();
+
+	// 서브시스템에서 원하는 ID와 타입을 보내서 PartsStat 가져오기
+	FSOPartsStat* SelectedPartsStat = SOGameSubsystem->GetPartsStat(InPartsName, PartsType);
+	if (SelectedPartsStat)
+	{
+		PartsStat = *SelectedPartsStat;		
+	}
+}
+
+USOGameSubsystem* ASOPartsBase::GetSOGameSubsystem()
+{
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("World is not available."))
+		return nullptr;
+	}
+
+	// 게임 인스턴스 가져오기.
+	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(World);
+	if (!GameInstance)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GameInstance is not available."))
+		return nullptr;
+	}
+
+	// 게임 인스턴스에서 서브시스템을 가져오기.
+	USOGameSubsystem* SOGameSubsystem = GameInstance->GetSubsystem<USOGameSubsystem>();
+	if (!SOGameSubsystem)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SOGameSubsystem is not available."))
+		return nullptr;
+	}
+	return SOGameSubsystem;
 }
 
 

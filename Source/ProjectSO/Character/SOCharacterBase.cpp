@@ -172,6 +172,8 @@ void ASOCharacterBase::MulticastRPCEquipItem_Implementation(ASOItemActor* InItem
 				SO_LOG(LogSONetwork, Log, TEXT("%s"), TEXT("No Owner"))
 			}
 			Parts->SetOwner(CurrentWeapon);
+			// 나중에 획득으로 바뀔 예정
+			// 장착 가능 여부 따지는 로직 필요
 			Parts->Equip();
 		}
 	}

@@ -15,6 +15,35 @@ enum class ESOGunPartsType
 	MAX UMETA(Hidden)
 };
 
+UENUM(BlueprintType)
+enum class ESOGunPartsName : uint8
+{
+	RedDotSight,
+	Scope4x,
+	Scope8x,
+	
+	Compensator,
+	Suppressor,
+	FlashSuppressor,
+	
+	AngledGrip,
+	VerticalGrip,
+	
+	Extended_556,
+	Quickdraw_556,
+	ExtendedQuickdraw_556,
+	Extended_762,
+	Quickdraw_762,
+	ExtendedQuickdraw_762,
+	Extended_12,
+	Quickdraw_12,
+	ExtendedQuickdraw_12,
+	Extended_9,
+	Quickdraw_9,
+	ExtendedQuickdraw_9,
+	MAX UMETA(Hidden)
+};
+
 /*UENUM(BlueprintType)
 enum class ESOMuzzle
 {

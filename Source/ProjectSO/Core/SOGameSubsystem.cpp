@@ -78,6 +78,20 @@ TEXT("/Script/ProjectSO.SOProjectileHitEffectDataAsset'/Game/StellarObsidian/Gam
 	}
 
 	// ==========================================
+	ConstructorHelpers::FObjectFinder<UDataTable> ScopeStatRef(
+		TEXT("/Script/Engine.DataTable'/Game/StellarObsidian/GameData/Parts/DT_ScopeStat.DT_ScopeStat'"));
+	if (ScopeStatRef.Succeeded())
+	{
+		PartsStatTables.Push(ScopeStatRef.Object);		
+	}
+
+	ConstructorHelpers::FObjectFinder<UDataTable> MuzzleStatRef(
+		TEXT("/Script/Engine.DataTable'/Game/StellarObsidian/GameData/Parts/DT_MuzzleStat.DT_MuzzleStat'"));
+	if (MuzzleStatRef.Succeeded())
+	{
+		PartsStatTables.Push(MuzzleStatRef.Object);		
+	}
+	
 	ConstructorHelpers::FObjectFinder<UDataTable> GripStatRef(
 		TEXT("/Script/Engine.DataTable'/Game/StellarObsidian/GameData/Parts/DT_GripStat.DT_GripStat'"));
 	if (GripStatRef.Succeeded())
@@ -92,27 +106,12 @@ TEXT("/Script/ProjectSO.SOProjectileHitEffectDataAsset'/Game/StellarObsidian/Gam
 		PartsStatTables.Push(MagazineStatRef.Object);		
 	}
 
-	ConstructorHelpers::FObjectFinder<UDataTable> MuzzleStatRef(
-		TEXT("/Script/Engine.DataTable'/Game/StellarObsidian/GameData/Parts/DT_MuzzleStat.DT_MuzzleStat'"));
-	if (MuzzleStatRef.Succeeded())
-	{
-		PartsStatTables.Push(MuzzleStatRef.Object);		
-	}
-	
-	ConstructorHelpers::FObjectFinder<UDataTable> ScopeStatRef(
-		TEXT("/Script/Engine.DataTable'/Game/StellarObsidian/GameData/Parts/DT_ScopeStat.DT_ScopeStat'"));
-	if (ScopeStatRef.Succeeded())
-	{
-		PartsStatTables.Push(ScopeStatRef.Object);		
-	}
-
 	ConstructorHelpers::FObjectFinder<UDataTable> StockStatRef(
 		TEXT("/Script/Engine.DataTable'/Game/StellarObsidian/GameData/Parts/DT_StockStat.DT_StockStat'"));
 	if (StockStatRef.Succeeded())
 	{
 		PartsStatTables.Push(StockStatRef.Object);		
-	}
-	
+	}	
 }
 
 void USOGameSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -332,7 +331,6 @@ FSOGunPartsBaseData* USOGameSubsystem::GetPartsData(const uint8 InID)
 		UE_LOG(LogTemp, Warning, TEXT("PartsDataTable is not assigned."));
 		return nullptr;
 	}
-
 	FString RowName = FString::Printf(TEXT("%d"), InID);
 
 	FSOGunPartsBaseData* PartsDataRow = PartsDataTable->FindRow<FSOGunPartsBaseData>(FName(*RowName), "");
@@ -343,6 +341,32 @@ FSOGunPartsBaseData* USOGameSubsystem::GetPartsData(const uint8 InID)
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("No PartsDataTable found for ID: %d"), InID);
+	}
+	return PartsDataRow;
+}
+
+FSOGunPartsBaseData* USOGameSubsystem::GetPartsData(const ESOGunPartsName InPartsName)
+{
+	if (!PartsDataTable)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PartsDataTable is not assigned."));
+		return nullptr;
+	}
+	FString EnumAsString = UEnum::GetValueAsString<ESOGunPartsName>(InPartsName);
+	// "ESOGunPartsName::" 부분 제거
+	FString CleanedEnumAsString;
+	EnumAsString.Split(TEXT("::"), nullptr, &CleanedEnumAsString);
+	
+	FString RowName = FString::Printf(TEXT("%s"), *CleanedEnumAsString);
+
+	FSOGunPartsBaseData* PartsDataRow = PartsDataTable->FindRow<FSOGunPartsBaseData>(FName(*RowName), "");
+	if (PartsDataRow)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Found PartsDataTable for PartsName: %s"), *CleanedEnumAsString);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No PartsDataTable found for PartsName: %s"), *CleanedEnumAsString);
 	}
 	return PartsDataRow;
 }
@@ -375,6 +399,35 @@ FSOPartsStat* USOGameSubsystem::GetPartsStat(const uint8 InID, ESOGunPartsType P
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("No PartsStatTable found for ID: %d"), InID);
+	}
+	return PartsStatRow;
+}
+
+FSOPartsStat* USOGameSubsystem::GetPartsStat(const ESOGunPartsName InPartsName, ESOGunPartsType PartsType)
+{
+	UE_LOG(LogTemp, Warning, TEXT("PartsType : %d"), static_cast<int32>(PartsType))
+	UDataTable* PartsStatTable = PartsStatTables[static_cast<int32>(PartsType)];
+
+	if (!PartsStatTable)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PartsStatTable is not assigned."));
+		return nullptr;
+	}
+	
+	FString EnumAsString = UEnum::GetValueAsString<ESOGunPartsName>(InPartsName);
+	
+	FString CleanedEnumAsString;
+	EnumAsString.Split(TEXT("::"), nullptr, &CleanedEnumAsString);
+	FString RowName = FString::Printf(TEXT("%s"), *CleanedEnumAsString);
+	FSOPartsStat* PartsStatRow = PartsStatTable->FindRow<FSOPartsStat>(FName(*RowName), "");
+	
+	if (PartsStatRow)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Found PartsStatTable for PartsName: %s"), *CleanedEnumAsString);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No PartsStatTable found for PartsName: %s"), *CleanedEnumAsString);
 	}
 	return PartsStatRow;
 }

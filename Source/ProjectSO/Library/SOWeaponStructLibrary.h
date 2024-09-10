@@ -21,9 +21,9 @@ public:
 		ESOAmmoType::None), FireInterval(0), ReloadInterval(0), QuickReloadInterval(0),
 					 Speed(0),
 					 MaxRange(0),
-					 AimedRecoilYaw(0), AimedRecoilPitch(0),
-					 ClipSize(0),
-					 LargeClipSize(0)
+					 AimedRecoilYaw(0), AimedRecoilPitch(0),bLargeClip(false), ClipSize(0),
+					 NormalClipSize(0),
+					 LargeClipSize(0), Damage(0), AimingTime(0), MuzzleFlashScale(1)
 	{
 	}
 
@@ -45,10 +45,13 @@ public:
 			RecoilPitch = InOhterStat.RecoilPitch;
 			AimedRecoilYaw = InOhterStat.AimedRecoilYaw;
 			AimedRecoilPitch = InOhterStat.AimedRecoilPitch;
+			bLargeClip = InOhterStat.bLargeClip;
 			ClipSize = InOhterStat.ClipSize;
+			NormalClipSize = InOhterStat.NormalClipSize;
 			LargeClipSize = InOhterStat.LargeClipSize;
 			Damage = InOhterStat.Damage;
 			AimingTime = InOhterStat.AimingTime;
+			MuzzleFlashScale = InOhterStat.MuzzleFlashScale;
 		}
 		return *this;
 	}
@@ -95,7 +98,13 @@ public:
 	float AimedRecoilPitch;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
+	uint8 bLargeClip : 1;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
 	int ClipSize;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
+	int NormalClipSize;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
 	int LargeClipSize;
@@ -106,6 +115,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
 	float AimingTime;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
+	float MuzzleFlashScale;
 };
 
 
@@ -386,7 +397,7 @@ public:
 	}
 	// 각 파츠 enum 또는 ID?
 	UPROPERTY(EditDefaultsOnly)
-	TArray<uint8> PartsIDArray;
+	TArray<ESOGunPartsName> PartsIDArray;
 	// 1 0 1 5 0
 
 	/*UPROPERTY(EditDefaultsOnly)

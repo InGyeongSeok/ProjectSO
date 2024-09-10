@@ -74,6 +74,7 @@ void ASOGunBase::BeginPlay()
 	//Gun Data Setting
 	//삭제 필요 ID 
 	SetGunData(ID);
+	WeaponStat.ClipSize = WeaponStat.NormalClipSize; 
 	CurrentAmmoInClip = WeaponStat.ClipSize;
 	//Object Pool
 	if (HasAuthority())
@@ -373,13 +374,12 @@ void ASOGunBase::PlayMuzzleEffect(const FVector& MuzzleLocation, FRotator& Muzzl
 {
 	if (WeaponData.MuzzleFlashEffect)
 	{
-		//FVector MuzzleFlashScale = FVector(0.3f, 0.3f, 0.3f);
-		
 		UGameplayStatics::SpawnEmitterAtLocation(
 			GetWorld(),
 			WeaponData.MuzzleFlashEffect,
 			MuzzleLocation,
-			MuzzleRotation
+			MuzzleRotation,
+			FVector(WeaponStat.MuzzleFlashScale)
 		);
 	}
 }
@@ -770,33 +770,46 @@ FTransform ASOGunBase::GetSocketTransformByName(FName InSocketName, const USkele
 
 void ASOGunBase::SetPartsInfo(uint8 InPartsID, ESOGunPartsType PartsType)
 {
-	EquippedPartsInfo.PartsIDArray[static_cast<int32>(PartsType)] = InPartsID;
-	SO_LOG(LogSOTemp, Log, TEXT("PartsType : %d"), static_cast<int32>(PartsType))
-	SO_LOG(LogSOTemp, Log, TEXT("InPartsID : %d"), InPartsID)
+	// EquippedPartsInfo.PartsIDArray[static_cast<int32>(PartsType)] = InPartsID;
+	/*SO_LOG(LogSOGun, Log, TEXT("PartsType : %d"), static_cast<int32>(PartsType))
+	SO_LOG(LogSOGun, Log, TEXT("InPartsID : %d"), InPartsID)
 	
 	for(auto i : EquippedPartsInfo.PartsIDArray)
 	{
-		SO_LOG(LogSOTemp, Log, TEXT("PartsIDArray : %d"),i)
-	}	
+		SO_LOG(LogSOGun, Log, TEXT("PartsIDArray : %d"),i)
+	}*/	
 }
 
 void ASOGunBase::SetModifierStat(uint8 InPartsID, ESOGunPartsType PartsType)
 {
 	USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();
 
+	// 장착 가능한지 여부를 미리 따져야 함
+	// 보낸 파츠의 데이터를 가져와서 따지기
+	// 애초에 여기서 하면 안되긴 함
+	// FString RowName = FString::Printf(TEXT("%d"), InPartsID);
+	/*FSOPartsStat* PartsStatRow = SOGameSubsystem->GetPartsStatTable(InPartsID)->FindRow<FSOPartsStat>(FName(*RowName), "");
+	
+	// 총기 탄약과 탄창 탄약 타입 비교. 같아야 장착 가능
+	if(PartsStatRow->AmmoType != ESOAmmoType::None && WeaponStat.AmmoType != PartsStatRow->AmmoType)
+	{
+		SO_LOG(LogSOGun, Log, TEXT("Incorrect AmmoType"))
+		return;
+	}*/
+	
 	// 파츠 ID를 갱신
 	SetPartsInfo(InPartsID, PartsType);
-	// 
-	// 총의 파츠 ID정보, 총의 ID를 넘긴다.
-	// 변경된 총기 스탯을 받는다.
-	// TotalStat에 적용한다.
-	// WeaponStat = *SOGameSubsystem->CalculateWeaponStat(EquippedPartsInfo, WeaponStat.ID);
+
+	// TotalStat에 적용
 	WeaponStat = *CalculateWeaponStat(EquippedPartsInfo, WeaponStat.ID);
-	// oop적으로 봤을 때, 총에서 계산을 해야 한다.
-	// 그래서 데이터는 가져오되 계산은 총에서	
 }
 
+void ASOGunBase::SetModifierStat(ESOGunPartsName InPartsName, ESOGunPartsType PartsType)
+{
+	EquippedPartsInfo.PartsIDArray[static_cast<int32>(PartsType)] = InPartsName;
 
+	WeaponStat = *CalculateWeaponStat(EquippedPartsInfo, WeaponStat.ID);
+}
 
 //이펙트 동기화 
 void ASOGunBase::OnRep_FireStartTime()
@@ -835,17 +848,95 @@ FSOWeaponStat* ASOGunBase::CalculateWeaponStat(FSOEquippedPartsInfo InPartsInfo,
 	// 모든 stat적용식
 	FSOWeaponStat* WeaponBaseStat = SOGameSubsystem->GetWeaponStatData(WeaponID);
 
-	// 파츠 데이터 테이블 순회돌기
-	for(uint8 idx : InPartsInfo.PartsIDArray)
+	float AccumulatedPitchRecoilReduction = 0;
+	float AccumulatedYawRecoilReduction = 0;
+	float AccumulatedAimingRate = 0;
+	float AccumulatedReloadRate = 0;
+	float AccumulatedHideMuzzleFlash = 0;
+	for(int TypeIdx = 0; TypeIdx < InPartsInfo.PartsIDArray.Num(); TypeIdx++)
 	{
-		FString RowName = FString::Printf(TEXT("%d"), idx);
-		// 파츠 스탯 뽑기
-		FSOPartsStat* PartsStatRow = SOGameSubsystem->GetPartsStatTable(idx)->FindRow<FSOPartsStat>(FName(*RowName), "");
+		FString EnumAsString = UEnum::GetValueAsString<ESOGunPartsName>(InPartsInfo.PartsIDArray[TypeIdx]);
+	
+		FString CleanedEnumAsString;
+		EnumAsString.Split(TEXT("::"), nullptr, &CleanedEnumAsString);
+		FString RowName = FString::Printf(TEXT("%s"), *CleanedEnumAsString);
+		FSOPartsStat* PartsStatRow = SOGameSubsystem->GetPartsStatTable(TypeIdx)->FindRow<FSOPartsStat>(FName(*RowName), "");
+
+		if(!PartsStatRow) continue;
+		// 총구 효과 감쇠
+		AccumulatedHideMuzzleFlash += PartsStatRow->HideMuzzleFlash;
 		
-		WeaponBaseStat->AimedRecoilPitch = WeaponBaseStat->AimedRecoilPitch * (100-PartsStatRow->PitchRecoilReduction) * 0.01f;
-		WeaponBaseStat->AimedRecoilYaw = WeaponBaseStat->AimedRecoilYaw * (100-PartsStatRow->YawRecoilReduction) * 0.01f; 		
+		// 반동 누적합
+		AccumulatedPitchRecoilReduction += PartsStatRow->PitchRecoilReduction;
+		AccumulatedYawRecoilReduction += PartsStatRow->YawRecoilReduction;		
+
+		// 조준 속도
+		AccumulatedAimingRate += PartsStatRow->AimingRate;		
+		
+		// FOV는 총기에 부여되는 건 아님...
+		// 해당 파츠 속성만 적용
+		AccumulatedReloadRate += PartsStatRow->ReloadRate;
+
+		// 적어도 하나가 true이면 true
+		WeaponBaseStat->bLargeClip += PartsStatRow->bLargeClip;	
 	}
-	// WeaponBaseStat = WeaponBaseStat + Modi
+	// 파츠
+	// 0 2 0 0 0
+	// 각 파츠 데이터 테이블 순회돌기
+	// idx = 파츠 타입에 해당 번호
+	// 소염기 = 총구 파츠의 3번째(idx = 2)파츠
+	// RowName은 FlashSuppressor. 어떻게 가져올것인가
+	/*for(ESOGunPartsName PartsName : InPartsInfo.PartsIDArray)
+	{
+		FString RowName = FString::Printf(TEXT("%d"), PartsName);
+		SO_LOG(LogSOGun, Log, TEXT("RowName : %s"), *RowName)
+		// 파츠 스탯 뽑기
+		// 해당하는 파츠 타입의 데이터 테이블에서 파츠 정보 인덱스에 맞는 Row를 가져온다.
+
+		// 예를 들어 InPartsInfo.PartsIDArray가 0 2 0 0 0이면
+		// idx = 1일 때, PartsIDArray[1] = 2 이므로
+		// 총구 타입 데이터 테이블을 가져와서 그 테이블의 RowName(= 2)와 일치하는
+		// 소염기 데이터를 가져온다.
+		FSOPartsStat* PartsStatRow = SOGameSubsystem->GetPartsStatTable(타입)->FindRow<FSOPartsStat>(FName(*RowName), "");
+
+		if(!PartsStatRow) continue;
+		// 총구 효과 감쇠
+		AccumulatedHideMuzzleFlash += PartsStatRow->HideMuzzleFlash;
+		
+		// 반동 누적합
+		AccumulatedPitchRecoilReduction += PartsStatRow->PitchRecoilReduction;
+		AccumulatedYawRecoilReduction += PartsStatRow->YawRecoilReduction;		
+
+		// 조준 속도
+		AccumulatedAimingRate += PartsStatRow->AimingRate;		
+		
+		// FOV는 총기에 부여되는 건 아님...
+		// 해당 파츠 속성만 적용
+		AccumulatedReloadRate += PartsStatRow->ReloadRate;
+
+		// 적어도 하나가 true이면 true
+		WeaponBaseStat->bLargeClip += PartsStatRow->bLargeClip;		
+	}*/
+	// 총구 효과 감쇠
+	WeaponBaseStat->MuzzleFlashScale = WeaponBaseStat->MuzzleFlashScale * (100 - AccumulatedHideMuzzleFlash) * 0.01f;
+	
+	// 반동
+	WeaponBaseStat->AimedRecoilPitch = WeaponBaseStat->AimedRecoilPitch * (100 - AccumulatedPitchRecoilReduction) * 0.01f;
+	WeaponBaseStat->AimedRecoilYaw = WeaponBaseStat->AimedRecoilYaw * (100 - AccumulatedYawRecoilReduction) * 0.01f;
+
+	// 조준 속도
+	WeaponBaseStat->AimingTime = WeaponBaseStat->AimingTime * (100 - AccumulatedAimingRate) * 0.01f;
+	// 재장전 속도
+	WeaponBaseStat->ReloadInterval = WeaponBaseStat->ReloadInterval * (100 - AccumulatedReloadRate) * 0.01f;
+
+	if(WeaponBaseStat->bLargeClip)
+	{
+		WeaponBaseStat->ClipSize = WeaponBaseStat->LargeClipSize;			
+	}
+	else
+	{
+		WeaponBaseStat->ClipSize = WeaponBaseStat->NormalClipSize;
+	}
 	
 	return WeaponBaseStat;
 }

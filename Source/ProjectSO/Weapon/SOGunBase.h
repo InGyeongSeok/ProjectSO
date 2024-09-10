@@ -240,6 +240,7 @@ public:
 	USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh;}
 	void SetPartsInfo(uint8 InPartsID, ESOGunPartsType PartsType);
 	void SetModifierStat(uint8 InPartsID, ESOGunPartsType PartsType);
+	void SetModifierStat(ESOGunPartsName InPartsName, ESOGunPartsType PartsType);
 	// Ammo
 protected:
 	UPROPERTY()

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "ProjectSO/Actor/SOItemActor.h"
+#include "ProjectSO/Core/SOGameSubsystem.h"
 #include "ProjectSO/Library/SOGunPartsStructLibrary.h"
 #include "ProjectSO/Library/SOWeaponStructLibrary.h"
 #include "SOPartsBase.generated.h"
@@ -42,8 +43,11 @@ public:
 
 protected:
 	virtual void SetPartsData(const uint8 InID);
+	virtual void SetPartsData(const ESOGunPartsName InPartsName);
 	virtual void SetPartsStat(const uint8 InID, ESOGunPartsType PartsType);
-	
+	virtual void SetPartsStat(const ESOGunPartsName InPartsName, ESOGunPartsType PartsType);
+	//Subsystem
+	USOGameSubsystem* GetSOGameSubsystem();
 	
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
@@ -53,8 +57,11 @@ public:
 	TObjectPtr<class UCapsuleComponent> CollisionComp;
 
 public:
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(BlueprintReadOnly)
 	int32 ID;
+
+	UPROPERTY(EditInstanceOnly)
+	ESOGunPartsName PartsName;
 	
 	UPROPERTY(VisibleAnywhere)
 	FSOGunPartsBaseData PartsData;

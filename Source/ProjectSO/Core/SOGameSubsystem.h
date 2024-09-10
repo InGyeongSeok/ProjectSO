@@ -40,7 +40,10 @@ public:
 	FSOWeaponDamageData* GetWeaponDamageData(const uint8 InID);
 	FSOSpawnableItemClasses* GetSpawnableItemData(const int32 InIndex);
 	FSOGunPartsBaseData* GetPartsData(const uint8 InID);
+	FSOGunPartsBaseData* GetPartsData(const ESOGunPartsName InPartsName);
+	
 	FSOPartsStat* GetPartsStat(const uint8 InID, ESOGunPartsType PartsType);
+	FSOPartsStat* GetPartsStat(const ESOGunPartsName InPartsName, ESOGunPartsType PartsType);
 	uint32 GetSpawnableItemCount() const {return TotalSpawnableItem; }
 	float GetHitAreaDamage(const FString& Area) const;
 	float GetWeaponClassAreaDamage(const FString& InGunType, const FString& InBoneName)  const;
