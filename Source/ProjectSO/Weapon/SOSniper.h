@@ -54,12 +54,12 @@ protected:
 	virtual void Aim(bool bPressed) override;
 
 	
-public:
+/*public:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UStaticMeshComponent> Lens;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
-	TObjectPtr<USceneCaptureComponent2D> CaptureCamera;
+	TObjectPtr<USceneCaptureComponent2D> CaptureCamera;*/
 
 	
 };

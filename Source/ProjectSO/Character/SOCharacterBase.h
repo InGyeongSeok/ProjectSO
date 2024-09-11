@@ -68,6 +68,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "SO|Input")
 	void BeginInteract(bool bValue);
+
+	UFUNCTION(BlueprintCallable, Category = "SO|Input")
+	void ZoomInOutAction(float value);
 	
 	void UpdateCharacterMinigunMovement();
 

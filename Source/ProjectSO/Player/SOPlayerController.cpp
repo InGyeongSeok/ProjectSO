@@ -274,6 +274,14 @@ void ASOPlayerController::Interaction(const FInputActionValue& Value)
 	}
 }
 
+void ASOPlayerController::ZoomInOutAction(const FInputActionValue& Value)
+{
+	if(PossessedCharacter)
+	{
+		PossessedCharacter->ZoomInOutAction(Value.GetMagnitude());
+	}
+}
+
 void ASOPlayerController::DebugToggleHudAction(const FInputActionValue& Value)
 {
 	if (PossessedCharacter && Value.Get<bool>())

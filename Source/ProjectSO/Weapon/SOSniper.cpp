@@ -12,7 +12,7 @@ class ASOPlayerController;
 
 ASOSniper::ASOSniper()
 {
-	CaptureCamera = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("CaptureCamera"));
+	/*CaptureCamera = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("CaptureCamera"));
 	CaptureCamera->SetupAttachment(WeaponMesh);	
 	
 	Lens = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Lens"));
@@ -23,7 +23,7 @@ ASOSniper::ASOSniper()
 
 	PressedTime = 0;
 	ReleasedTime = 0;
-	HoldThreshold = 0.5f;
+	HoldThreshold = 0.5f;*/
 	
 }
 
@@ -85,7 +85,7 @@ void ASOSniper::PressLMB()
 void ASOSniper::Equip()
 {
 	Super::Equip();
-	Lens->SetVisibility(false);
+	// Lens->SetVisibility(false);
 	
 }
 
@@ -102,9 +102,9 @@ void ASOSniper::Reload()
 
 void ASOSniper::Aim(bool bPressed)
 {
-	// Super::Aim(bPressed);
+	Super::Aim(bPressed);
 
-	if(bPressed)
+	/*if(bPressed)
 	{
 		PressedTime = GetWorld()->GetTimeSeconds();
 		// 꾹 누르고 있는 경우엔 그냥 조준 모션만 취하기
@@ -134,6 +134,6 @@ void ASOSniper::Aim(bool bPressed)
 				PlayerController->SetViewTargetWithBlend(this,0.2);	
 			}
 		}
-	}
+	}*/
 	
 }

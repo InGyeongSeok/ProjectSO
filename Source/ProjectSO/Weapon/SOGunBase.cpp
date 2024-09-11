@@ -11,6 +11,7 @@
 
 #include "SOProjectileBase.h"
 #include "Camera/CameraComponent.h"
+#include "Components/SceneCaptureComponent2D.h"
 #include "EntitySystem/MovieSceneEntitySystemRunner.h"
 #include "ProjectSO/Character/SOCharacterBase.h"
 #include "Projectile/SOProjectilePoolComponent.h"
@@ -50,8 +51,18 @@ ASOGunBase::ASOGunBase()
 	ScopeCamera->SetupAttachment(WeaponMesh);	
 	ScopeCamera->bUsePawnControlRotation = true;
 
+	CaptureCamera = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("CaptureCamera"));
+	CaptureCamera->SetupAttachment(WeaponMesh);	
+	
+	Lens = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Lens"));
+	Lens->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Lens->SetupAttachment(WeaponMesh);
+	Lens->CastShadow = true;
+	Lens->SetVisibility(false);
+	
 	ProjectilePoolComponent = CreateDefaultSubobject<USOProjectilePoolComponent>(TEXT("ProjectilePool"));
 
+	
 	// 초기 CurrentFireMode 설정
 	CurrentFireMode = ESOFireMode::None;
 	
@@ -64,6 +75,8 @@ ASOGunBase::ASOGunBase()
 	HoldThreshold = 0.2f;
 	bScopeAim = false;
 	
+	PressedTime = 0;
+	ReleasedTime = 0;
 }
 
 // Called when the game starts or when spawned
@@ -504,7 +517,10 @@ void ASOGunBase::Aim(bool bPressed)
 		if(bScopeAim)
 		{
 			bScopeAim = false;
-			// Lens->SetVisibility(false);
+			if(WeaponStat.bCanLensAim)
+			{
+				Lens->SetVisibility(false);				
+			}
 			if(ASOPlayerController* PlayerController = CastChecked<ASOPlayerController>(OwningCharacter->GetController()))
 			{
 				PlayerController->SetViewTargetWithBlend(OwningCharacter,WeaponStat.AimingTime);	
@@ -517,13 +533,32 @@ void ASOGunBase::Aim(bool bPressed)
 		{
 			bScopeAim = true;
 			// Short click action
-			// Lens->SetVisibility(true);
+			if(WeaponStat.bCanLensAim)
+			{
+				Lens->SetVisibility(true);
+			}
 			if(ASOPlayerController* PlayerController = CastChecked<ASOPlayerController>(OwningCharacter->GetController()))
 			{
 				PlayerController->SetViewTargetWithBlend(this,WeaponStat.AimingTime);	
 			}
 		}
 	}
+}
+
+void ASOGunBase::ScopeAimZoomInOut(float value)
+{
+	if(!bScopeAim)
+	{
+		return;
+	}
+	float FOV = CaptureCamera->FOVAngle;
+	FOV += value;
+	
+	// 더한 값이 범위를 초과하면 return
+	if(FOV < WeaponStat.MinFOV || FOV > WeaponStat.MaxFOV) return;
+
+	// 반영
+	CaptureCamera->FOVAngle = FOV;	
 }
 
 void ASOGunBase::Equip()
@@ -567,7 +602,7 @@ void ASOGunBase::Equip()
 
 	CollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
+	Lens->SetVisibility(false);
 	SO_LOG(LogSOTemp, Warning, TEXT("End"))
 }
 
@@ -806,6 +841,13 @@ void ASOGunBase::SetModifierStat(uint8 InPartsID, ESOGunPartsType PartsType)
 
 void ASOGunBase::SetModifierStat(ESOGunPartsName InPartsName, ESOGunPartsType PartsType)
 {
+	// EquippedPartsInfo.PartsIDArray[static_cast<int32>(PartsType)] = InPartsName;
+
+	WeaponStat = *CalculateWeaponStat(EquippedPartsInfo, WeaponStat.ID);
+}
+
+void ASOGunBase::SetModifierStat(FName InPartsName, ESOGunPartsType PartsType)
+{
 	EquippedPartsInfo.PartsIDArray[static_cast<int32>(PartsType)] = InPartsName;
 
 	WeaponStat = *CalculateWeaponStat(EquippedPartsInfo, WeaponStat.ID);
@@ -853,14 +895,13 @@ FSOWeaponStat* ASOGunBase::CalculateWeaponStat(FSOEquippedPartsInfo InPartsInfo,
 	float AccumulatedAimingRate = 0;
 	float AccumulatedReloadRate = 0;
 	float AccumulatedHideMuzzleFlash = 0;
-	for(int TypeIdx = 0; TypeIdx < InPartsInfo.PartsIDArray.Num(); TypeIdx++)
-	{
-		FString EnumAsString = UEnum::GetValueAsString<ESOGunPartsName>(InPartsInfo.PartsIDArray[TypeIdx]);
+	float AccumulatedLensMinFOV = 0;
+	float AccumulatedLensMaxFOV = 0;
+	uint8 AccumulatedCanLensAim = false;
 	
-		FString CleanedEnumAsString;
-		EnumAsString.Split(TEXT("::"), nullptr, &CleanedEnumAsString);
-		FString RowName = FString::Printf(TEXT("%s"), *CleanedEnumAsString);
-		FSOPartsStat* PartsStatRow = SOGameSubsystem->GetPartsStatTable(TypeIdx)->FindRow<FSOPartsStat>(FName(*RowName), "");
+	for(int TypeIdx = 0; TypeIdx < InPartsInfo.PartsIDArray.Num(); TypeIdx++)
+	{		
+		FSOPartsStat* PartsStatRow = SOGameSubsystem->GetPartsStatTable(TypeIdx)->FindRow<FSOPartsStat>(InPartsInfo.PartsIDArray[TypeIdx], "");
 
 		if(!PartsStatRow) continue;
 		// 총구 효과 감쇠
@@ -869,54 +910,30 @@ FSOWeaponStat* ASOGunBase::CalculateWeaponStat(FSOEquippedPartsInfo InPartsInfo,
 		// 반동 누적합
 		AccumulatedPitchRecoilReduction += PartsStatRow->PitchRecoilReduction;
 		AccumulatedYawRecoilReduction += PartsStatRow->YawRecoilReduction;		
-
+		
 		// 조준 속도
 		AccumulatedAimingRate += PartsStatRow->AimingRate;		
 		
-		// FOV는 총기에 부여되는 건 아님...
+		// 렌즈 여부
+		AccumulatedCanLensAim &= PartsStatRow->bCanLensAim;
+
+		// 조절 가능 여부는 Min, Max에 의해 결정
+		// 범위가 있으면 조절 가능 		
+		// 렌즈가 있다면 씬 캡쳐 FOV 설정
+		AccumulatedLensMinFOV += PartsStatRow->MinFOV;
+		AccumulatedLensMaxFOV += PartsStatRow->MaxFOV;
+		
 		// 해당 파츠 속성만 적용
 		AccumulatedReloadRate += PartsStatRow->ReloadRate;
 
 		// 적어도 하나가 true이면 true
-		WeaponBaseStat->bLargeClip += PartsStatRow->bLargeClip;	
+		WeaponBaseStat->bLargeClip &= PartsStatRow->bLargeClip;	
 	}
 	// 파츠
 	// 0 2 0 0 0
 	// 각 파츠 데이터 테이블 순회돌기
 	// idx = 파츠 타입에 해당 번호
-	// 소염기 = 총구 파츠의 3번째(idx = 2)파츠
-	// RowName은 FlashSuppressor. 어떻게 가져올것인가
-	/*for(ESOGunPartsName PartsName : InPartsInfo.PartsIDArray)
-	{
-		FString RowName = FString::Printf(TEXT("%d"), PartsName);
-		SO_LOG(LogSOGun, Log, TEXT("RowName : %s"), *RowName)
-		// 파츠 스탯 뽑기
-		// 해당하는 파츠 타입의 데이터 테이블에서 파츠 정보 인덱스에 맞는 Row를 가져온다.
-
-		// 예를 들어 InPartsInfo.PartsIDArray가 0 2 0 0 0이면
-		// idx = 1일 때, PartsIDArray[1] = 2 이므로
-		// 총구 타입 데이터 테이블을 가져와서 그 테이블의 RowName(= 2)와 일치하는
-		// 소염기 데이터를 가져온다.
-		FSOPartsStat* PartsStatRow = SOGameSubsystem->GetPartsStatTable(타입)->FindRow<FSOPartsStat>(FName(*RowName), "");
-
-		if(!PartsStatRow) continue;
-		// 총구 효과 감쇠
-		AccumulatedHideMuzzleFlash += PartsStatRow->HideMuzzleFlash;
-		
-		// 반동 누적합
-		AccumulatedPitchRecoilReduction += PartsStatRow->PitchRecoilReduction;
-		AccumulatedYawRecoilReduction += PartsStatRow->YawRecoilReduction;		
-
-		// 조준 속도
-		AccumulatedAimingRate += PartsStatRow->AimingRate;		
-		
-		// FOV는 총기에 부여되는 건 아님...
-		// 해당 파츠 속성만 적용
-		AccumulatedReloadRate += PartsStatRow->ReloadRate;
-
-		// 적어도 하나가 true이면 true
-		WeaponBaseStat->bLargeClip += PartsStatRow->bLargeClip;		
-	}*/
+	
 	// 총구 효과 감쇠
 	WeaponBaseStat->MuzzleFlashScale = WeaponBaseStat->MuzzleFlashScale * (100 - AccumulatedHideMuzzleFlash) * 0.01f;
 	
@@ -926,9 +943,40 @@ FSOWeaponStat* ASOGunBase::CalculateWeaponStat(FSOEquippedPartsInfo InPartsInfo,
 
 	// 조준 속도
 	WeaponBaseStat->AimingTime = WeaponBaseStat->AimingTime * (100 - AccumulatedAimingRate) * 0.01f;
+	
 	// 재장전 속도
 	WeaponBaseStat->ReloadInterval = WeaponBaseStat->ReloadInterval * (100 - AccumulatedReloadRate) * 0.01f;
 
+	// 렌즈 활성화 여부
+	WeaponBaseStat->bCanLensAim = AccumulatedCanLensAim;
+	
+
+	// FOV
+	if(WeaponBaseStat->bCanLensAim)
+	{
+		WeaponBaseStat->MinFOV = AccumulatedLensMinFOV;
+		
+		if(AccumulatedLensMaxFOV < AccumulatedLensMinFOV)
+		{
+			WeaponBaseStat->MaxFOV = AccumulatedLensMinFOV;
+			WeaponBaseStat->bCanZoomInOut = false;
+		}
+		else
+		{
+			WeaponBaseStat->MaxFOV = AccumulatedLensMaxFOV;
+			WeaponBaseStat->bCanZoomInOut = true;
+		}
+		
+		// TODO 만약 이 컴포넌트가 없다면 이 함수는 깨질텐데 괜찮은걸까?
+		if(CaptureCamera)
+		{
+			CaptureCamera->FOVAngle = WeaponBaseStat->MinFOV;
+		}
+	}
+	Lens->SetVisibility(WeaponBaseStat->bCanLensAim);
+	
+
+	// 대탄 여부
 	if(WeaponBaseStat->bLargeClip)
 	{
 		WeaponBaseStat->ClipSize = WeaponBaseStat->LargeClipSize;			

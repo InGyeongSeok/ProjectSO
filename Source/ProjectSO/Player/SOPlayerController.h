@@ -86,6 +86,10 @@ protected:
 
 	UFUNCTION()
 	void Interaction(const FInputActionValue& Value);
+
+	UFUNCTION()
+	void ZoomInOutAction(const FInputActionValue& Value);
+	
 	
 	// Debug actions
 	UFUNCTION()

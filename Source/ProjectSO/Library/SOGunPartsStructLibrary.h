@@ -70,13 +70,15 @@ struct FSOPartsStat : public FTableRowBase
 	float AimingRate;
 
 	/* Scope */
-	// 배율
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Stat|Aim")
-	float FOV;
+	uint8 bCanLensAim : 1;
 
-	// 가변 배율 여부
+	// 배율	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Stat|Aim")
-	uint8 bZoomInOut;
+	float MinFOV;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Stat|Aim")
+	float MaxFOV;
 	
 	/* Magazine */
 	// 재장전 속도
@@ -85,7 +87,7 @@ struct FSOPartsStat : public FTableRowBase
 	
 	// 대탄 여부
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Stat|Reload")
-	uint8 bLargeClip;
+	uint8 bLargeClip : 1;
 
 	// 탄알 타입
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat|Reload")

@@ -105,7 +105,6 @@ void ASOPartsBase::Equip()
 	
 	ASOGunBase* Weapon = Cast<ASOGunBase>(OwnerActor);	
 	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
-
 	
 	// 속성 반영
 	// PartsData : 다같이 있는 Data 테이블
@@ -171,6 +170,17 @@ void ASOPartsBase::SetPartsData(const ESOGunPartsName InPartsName)
 	}
 }
 
+void ASOPartsBase::SetPartsData(const FName InPartsName)
+{
+	USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();
+	FSOGunPartsBaseData* SelectedPartsData = SOGameSubsystem->GetPartsData(InPartsName);
+	if (SelectedPartsData)
+	{
+		PartsData = *SelectedPartsData;
+		PartsMesh->SetStaticMesh(PartsData.PartsMesh);
+	}
+}
+
 void ASOPartsBase::SetPartsStat(const uint8 InID, ESOGunPartsType PartsType)
 {
 	USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();
@@ -184,6 +194,18 @@ void ASOPartsBase::SetPartsStat(const uint8 InID, ESOGunPartsType PartsType)
 }
 
 void ASOPartsBase::SetPartsStat(const ESOGunPartsName InPartsName, ESOGunPartsType PartsType)
+{
+	USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();
+
+	// 서브시스템에서 원하는 ID와 타입을 보내서 PartsStat 가져오기
+	FSOPartsStat* SelectedPartsStat = SOGameSubsystem->GetPartsStat(InPartsName, PartsType);
+	if (SelectedPartsStat)
+	{
+		PartsStat = *SelectedPartsStat;		
+	}
+}
+
+void ASOPartsBase::SetPartsStat(const FName InPartsName, ESOGunPartsType PartsType)
 {
 	USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();
 

@@ -371,6 +371,26 @@ FSOGunPartsBaseData* USOGameSubsystem::GetPartsData(const ESOGunPartsName InPart
 	return PartsDataRow;
 }
 
+FSOGunPartsBaseData* USOGameSubsystem::GetPartsData(const FName InPartsName)
+{
+	if (!PartsDataTable)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PartsDataTable is not assigned."));
+		return nullptr;
+	}
+
+	FSOGunPartsBaseData* PartsDataRow = PartsDataTable->FindRow<FSOGunPartsBaseData>(InPartsName, "");
+	if (PartsDataRow)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Found PartsDataTable for Name: %s"), *InPartsName.ToString());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No PartsDataTable found for Name: %s"), *InPartsName.ToString());
+	}
+	return PartsDataRow;
+}
+
 FSOPartsStat* USOGameSubsystem::GetPartsStat(const uint8 InID, ESOGunPartsType PartsType)
 {
 	// PartsStatTables
@@ -428,6 +448,30 @@ FSOPartsStat* USOGameSubsystem::GetPartsStat(const ESOGunPartsName InPartsName, 
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("No PartsStatTable found for PartsName: %s"), *CleanedEnumAsString);
+	}
+	return PartsStatRow;
+}
+
+FSOPartsStat* USOGameSubsystem::GetPartsStat(const FName InPartsName, ESOGunPartsType PartsType)
+{
+	UE_LOG(LogTemp, Warning, TEXT("PartsType : %d"), static_cast<int32>(PartsType))
+	UDataTable* PartsStatTable = PartsStatTables[static_cast<int32>(PartsType)];
+
+	if (!PartsStatTable)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PartsStatTable is not assigned."));
+		return nullptr;
+	}
+
+	FSOPartsStat* PartsStatRow = PartsStatTable->FindRow<FSOPartsStat>(InPartsName, "");
+	
+	if (PartsStatRow)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Found PartsStatTable for Name: %s"), *InPartsName.ToString());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No PartsStatTable found for ID: %s"), *InPartsName.ToString());
 	}
 	return PartsStatRow;
 }

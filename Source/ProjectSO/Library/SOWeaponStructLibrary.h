@@ -45,6 +45,10 @@ public:
 			RecoilPitch = InOhterStat.RecoilPitch;
 			AimedRecoilYaw = InOhterStat.AimedRecoilYaw;
 			AimedRecoilPitch = InOhterStat.AimedRecoilPitch;
+			bCanLensAim = InOhterStat.bCanLensAim;
+			bCanZoomInOut = InOhterStat.bCanZoomInOut;
+			MinFOV = InOhterStat.MinFOV;
+			MaxFOV = InOhterStat.MaxFOV;
 			bLargeClip = InOhterStat.bLargeClip;
 			ClipSize = InOhterStat.ClipSize;
 			NormalClipSize = InOhterStat.NormalClipSize;
@@ -98,6 +102,18 @@ public:
 	float AimedRecoilPitch;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
+	uint8 bCanLensAim : 1;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
+	uint8 bCanZoomInOut : 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
+	float MinFOV;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
+	float MaxFOV;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
 	uint8 bLargeClip : 1;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
@@ -116,7 +132,7 @@ public:
 	float AimingTime;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
-	float MuzzleFlashScale;
+	float MuzzleFlashScale;	
 };
 
 
@@ -397,7 +413,7 @@ public:
 	}
 	// 각 파츠 enum 또는 ID?
 	UPROPERTY(EditDefaultsOnly)
-	TArray<ESOGunPartsName> PartsIDArray;
+	TArray<FName> PartsIDArray;
 	// 1 0 1 5 0
 
 	/*UPROPERTY(EditDefaultsOnly)

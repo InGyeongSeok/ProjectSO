@@ -122,6 +122,15 @@ void ASOCharacterBase::BeginInteract(bool bValue)
 	}
 }
 
+void ASOCharacterBase::ZoomInOutAction(float value)
+{
+	// SceneCapture의 FOV 조절
+	if(CurrentWeapon && CurrentWeapon->GetWeaponStat()->bCanZoomInOut)
+	{
+		CurrentWeapon->ScopeAimZoomInOut(value);
+	}
+}
+
 void ASOCharacterBase::UpdateCharacterMinigunMovement()
 {
 	if (MovementState == EALSMovementState::Grounded)

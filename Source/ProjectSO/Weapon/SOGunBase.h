@@ -80,6 +80,7 @@ protected:
 public:
 	virtual void Reload();
 	virtual void Aim(bool bPressed);
+	virtual void ScopeAimZoomInOut(float value);
 
 public:
 	uint8 GetScopeAim() { return bScopeAim; }
@@ -152,6 +153,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
 	TObjectPtr<class UCameraComponent> ScopeCamera;
 
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UStaticMeshComponent> Lens;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
+	TObjectPtr<USceneCaptureComponent2D> CaptureCamera;
 /*protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Parts")
 	TObjectPtr<class UStaticMeshComponent> Scope;
@@ -241,6 +247,7 @@ public:
 	void SetPartsInfo(uint8 InPartsID, ESOGunPartsType PartsType);
 	void SetModifierStat(uint8 InPartsID, ESOGunPartsType PartsType);
 	void SetModifierStat(ESOGunPartsName InPartsName, ESOGunPartsType PartsType);
+	void SetModifierStat(FName InPartsName, ESOGunPartsType PartsType);
 	// Ammo
 protected:
 	UPROPERTY()

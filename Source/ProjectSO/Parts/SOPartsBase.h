@@ -44,8 +44,10 @@ public:
 protected:
 	virtual void SetPartsData(const uint8 InID);
 	virtual void SetPartsData(const ESOGunPartsName InPartsName);
+	virtual void SetPartsData(const FName InPartsName);
 	virtual void SetPartsStat(const uint8 InID, ESOGunPartsType PartsType);
 	virtual void SetPartsStat(const ESOGunPartsName InPartsName, ESOGunPartsType PartsType);
+	virtual void SetPartsStat(const FName InPartsName, ESOGunPartsType PartsType);
 	//Subsystem
 	USOGameSubsystem* GetSOGameSubsystem();
 	
@@ -57,11 +59,14 @@ public:
 	TObjectPtr<class UCapsuleComponent> CollisionComp;
 
 public:
-	UPROPERTY(BlueprintReadOnly)
-	int32 ID;
+	// UPROPERTY(BlueprintReadOnly)
+	// int32 ID;
+
+	// UPROPERTY(EditInstanceOnly)
+	// ESOGunPartsName PartsName;
 
 	UPROPERTY(EditInstanceOnly)
-	ESOGunPartsName PartsName;
+	FName PartsName;
 	
 	UPROPERTY(VisibleAnywhere)
 	FSOGunPartsBaseData PartsData;
