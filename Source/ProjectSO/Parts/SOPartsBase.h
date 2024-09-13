@@ -69,7 +69,7 @@ public:
 	FName PartsName;
 	
 	UPROPERTY(VisibleAnywhere)
-	FSOGunPartsBaseData PartsData;
+	FSOPartsData PartsData;
 
 	UPROPERTY(VisibleAnywhere)
 	FSOPartsStat PartsStat;	

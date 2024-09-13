@@ -159,13 +159,15 @@ void ASOCharacterBase::ReceiveDamage(AActor* DamagedActor, float Damage, const U
 }
 
 void ASOCharacterBase::MulticastRPCEquipItem_Implementation(ASOItemActor* InItem)
-{
+{	
 	if (ASOGunBase* Weapon = Cast<ASOGunBase>(InItem))
 	{
 		CurrentWeapon = Weapon;
 		CurrentWeapon = Cast<ASOGunBase>(InItem);
 		// CurrentWeapon->SetOwner(this);
 		CurrentWeapon->SetOwningCharacter(this);
+		// 파츠는 Owner총의 overlay를 따라간다. 
+		OverlayState = InItem->GetOverlayState();
 		CurrentWeapon->Equip();
 	}
 	else if(ASOPartsBase* Parts = Cast<ASOPartsBase>(InItem))
@@ -183,14 +185,13 @@ void ASOCharacterBase::MulticastRPCEquipItem_Implementation(ASOItemActor* InItem
 			Parts->SetOwner(CurrentWeapon);
 			// 나중에 획득으로 바뀔 예정
 			// 장착 가능 여부 따지는 로직 필요
+			// 파츠는 Owner총의 overlay를 따라간다. 
+			OverlayState = InItem->GetOverlayState();
 			Parts->Equip();
 		}
 	}
 	// InItem->SetOwner(this);
 	// InItem->Equip();
-	
-	// 파츠는 Owner총의 overlay를 따라간다. 
-	OverlayState = InItem->GetOverlayState();
 }
 
 void ASOCharacterBase::ChangeFireModeAction_Implementation(bool bValue)

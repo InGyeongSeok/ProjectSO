@@ -111,7 +111,7 @@ protected:
 	void OnRep_bReloading();
 	
 public:
-	virtual FSOWeaponStat* CalculateWeaponStat(FSOEquippedPartsInfo InPartsInfo, uint8 WeaponID);
+	virtual FSOWeaponStat CalculateWeaponStat(FSOEquippedPartsInfo InPartsInfo, uint8 WeaponID);
 	
 public:
 	uint8 GetAvailableFireMode() const {return WeaponStat.FireMode;}
@@ -153,11 +153,26 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
 	TObjectPtr<class UCameraComponent> ScopeCamera;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	TObjectPtr<UStaticMeshComponent> Scope;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	TObjectPtr<UStaticMeshComponent> Magazine;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	TObjectPtr<UStaticMeshComponent> MuzzleAttachment;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	TObjectPtr<UStaticMeshComponent> Grip;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	TObjectPtr<UStaticMeshComponent> Lens;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
 	TObjectPtr<USceneCaptureComponent2D> CaptureCamera;
+
+	UPROPERTY()
+	TArray<UStaticMeshComponent*> PartsMeshes;
 /*protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Parts")
 	TObjectPtr<class UStaticMeshComponent> Scope;
@@ -248,6 +263,10 @@ public:
 	void SetModifierStat(uint8 InPartsID, ESOGunPartsType PartsType);
 	void SetModifierStat(ESOGunPartsName InPartsName, ESOGunPartsType PartsType);
 	void SetModifierStat(FName InPartsName, ESOGunPartsType PartsType);
+	void UpdatePartsComponent(FSOEquippedPartsInfo InPartsInfo, FName InWeaponName);
+
+	// 파츠 해제
+	// void DetachParts();
 	// Ammo
 protected:
 	UPROPERTY()

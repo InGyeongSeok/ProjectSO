@@ -39,9 +39,9 @@ public:
 	FSOWeaponData* GetWeaponData(const uint8 InID);
 	FSOWeaponDamageData* GetWeaponDamageData(const uint8 InID);
 	FSOSpawnableItemClasses* GetSpawnableItemData(const int32 InIndex);
-	FSOGunPartsBaseData* GetPartsData(const uint8 InID);
-	FSOGunPartsBaseData* GetPartsData(const ESOGunPartsName InPartsName);
-	FSOGunPartsBaseData* GetPartsData(const FName InPartsName);
+	FSOPartsData* GetPartsData(const uint8 InID);
+	FSOPartsData* GetPartsData(const ESOGunPartsName InPartsName);
+	FSOPartsData* GetPartsData(const FName InPartsName);
 	
 	FSOPartsStat* GetPartsStat(const uint8 InID, ESOGunPartsType PartsType);
 	FSOPartsStat* GetPartsStat(const ESOGunPartsName InPartsName, ESOGunPartsType PartsType);

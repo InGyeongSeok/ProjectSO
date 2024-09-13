@@ -9,12 +9,12 @@
 enum class ESOGunPartsType;
 
 USTRUCT(BlueprintType)
-struct FSOGunPartsBaseData : public FTableRowBase
+struct FSOPartsData : public FTableRowBase
 {
 	GENERATED_BODY()
 	
 public:
-	FSOGunPartsBaseData& operator=(const FSOGunPartsBaseData& InOtherData)
+	FSOPartsData& operator=(const FSOPartsData& InOtherData)
 	{
 		if(this != &InOtherData)
 		{

@@ -299,32 +299,12 @@ UNiagaraSystem* USOGameSubsystem::GetSurfaceEffect(const TArray<FName>& ActorTag
 	return nullptr;
 }
 
-FSOWeaponStat* USOGameSubsystem::CalculateWeaponStat(FSOEquippedPartsInfo InPartsInfo, uint8 WeaponID)
-{
-	// 모든 stat적용식
-	FSOWeaponStat* WeaponBaseStat = GetWeaponStatData(WeaponID);
-	// FSOWeaponStat* WeaponBaseStat = GetWeaponStatData(WeaponID);
-
-	/*// 파츠 데이터 테이블 순회돌기
-	for(uint8 idx : InPartsInfo.PartsIDArray)
-	{
-		FString RowName = FString::Printf(TEXT("%d"), idx);
-		// 파츠 스탯 뽑기
-		FSOPartsStat* PartsStatRow = PartsStatTables[idx]->FindRow<FSOPartsStat>(FName(*RowName), "");
-		
-		WeaponBaseStat->AimedRecoilPitch = WeaponBaseStat->AimedRecoilPitch * (100-PartsStatRow->PitchRecoilReduction) * 0.01f;
-		WeaponBaseStat->AimedRecoilYaw = WeaponBaseStat->AimedRecoilYaw * (100-PartsStatRow->YawRecoilReduction) * 0.01f; 		
-	}*/
-	
-	return WeaponBaseStat;
-}
-
 UDataTable* USOGameSubsystem::GetPartsStatTable(int32 idx)
 {
 	return PartsStatTables[idx];
 }
 
-FSOGunPartsBaseData* USOGameSubsystem::GetPartsData(const uint8 InID)
+FSOPartsData* USOGameSubsystem::GetPartsData(const uint8 InID)
 {
 	if (!PartsDataTable)
 	{
@@ -333,7 +313,7 @@ FSOGunPartsBaseData* USOGameSubsystem::GetPartsData(const uint8 InID)
 	}
 	FString RowName = FString::Printf(TEXT("%d"), InID);
 
-	FSOGunPartsBaseData* PartsDataRow = PartsDataTable->FindRow<FSOGunPartsBaseData>(FName(*RowName), "");
+	FSOPartsData* PartsDataRow = PartsDataTable->FindRow<FSOPartsData>(FName(*RowName), "");
 	if (PartsDataRow)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Found PartsDataTable for ID: %d"), InID);
@@ -345,7 +325,7 @@ FSOGunPartsBaseData* USOGameSubsystem::GetPartsData(const uint8 InID)
 	return PartsDataRow;
 }
 
-FSOGunPartsBaseData* USOGameSubsystem::GetPartsData(const ESOGunPartsName InPartsName)
+FSOPartsData* USOGameSubsystem::GetPartsData(const ESOGunPartsName InPartsName)
 {
 	if (!PartsDataTable)
 	{
@@ -359,7 +339,7 @@ FSOGunPartsBaseData* USOGameSubsystem::GetPartsData(const ESOGunPartsName InPart
 	
 	FString RowName = FString::Printf(TEXT("%s"), *CleanedEnumAsString);
 
-	FSOGunPartsBaseData* PartsDataRow = PartsDataTable->FindRow<FSOGunPartsBaseData>(FName(*RowName), "");
+	FSOPartsData* PartsDataRow = PartsDataTable->FindRow<FSOPartsData>(FName(*RowName), "");
 	if (PartsDataRow)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Found PartsDataTable for PartsName: %s"), *CleanedEnumAsString);
@@ -371,7 +351,7 @@ FSOGunPartsBaseData* USOGameSubsystem::GetPartsData(const ESOGunPartsName InPart
 	return PartsDataRow;
 }
 
-FSOGunPartsBaseData* USOGameSubsystem::GetPartsData(const FName InPartsName)
+FSOPartsData* USOGameSubsystem::GetPartsData(const FName InPartsName)
 {
 	if (!PartsDataTable)
 	{
@@ -379,7 +359,7 @@ FSOGunPartsBaseData* USOGameSubsystem::GetPartsData(const FName InPartsName)
 		return nullptr;
 	}
 
-	FSOGunPartsBaseData* PartsDataRow = PartsDataTable->FindRow<FSOGunPartsBaseData>(InPartsName, "");
+	FSOPartsData* PartsDataRow = PartsDataTable->FindRow<FSOPartsData>(InPartsName, "");
 	if (PartsDataRow)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Found PartsDataTable for Name: %s"), *InPartsName.ToString());

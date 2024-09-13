@@ -111,15 +111,16 @@ void ASOPartsBase::Equip()
 	// PartsStat : 종류별로 스텟 테이블
 	// Weapon->SetModifierStat(PartsStat.ID, PartsData.PartsType);
 	Weapon->SetModifierStat(PartsName, PartsData.PartsType);
-	
-	// Get PartsSocket Name by PartType from weapon
+
+	Destroy();
+	/*// Get PartsSocket Name by PartType from weapon
 	FName PartsSocket = Weapon->GetPartsSocket(PartsData.PartsType);
 	this->AttachToComponent(Weapon->GetWeaponMesh(), AttachmentRules, PartsSocket);
 	
 	// Apply Offset by weapon
 	SetActorRelativeTransform(PartsData.OffsetMapping[Weapon->GetWeaponStat()->WeaponName]);
 	PartsMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	CollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);*/
 }
 
 void ASOPartsBase::Interact(ASOCharacterBase* PlayerCharacter)
@@ -151,7 +152,7 @@ void ASOPartsBase::SetPartsData(const uint8 InID)
 	USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();
 
 	// 서브시스템에서 원하는 ID의 WeaponStatData를 가져오기.
-	FSOGunPartsBaseData* SelectedPartsData = SOGameSubsystem->GetPartsData(InID);
+	FSOPartsData* SelectedPartsData = SOGameSubsystem->GetPartsData(InID);
 	if (SelectedPartsData)
 	{
 		PartsData = *SelectedPartsData;
@@ -162,7 +163,7 @@ void ASOPartsBase::SetPartsData(const uint8 InID)
 void ASOPartsBase::SetPartsData(const ESOGunPartsName InPartsName)
 {
 	USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();
-	FSOGunPartsBaseData* SelectedPartsData = SOGameSubsystem->GetPartsData(InPartsName);
+	FSOPartsData* SelectedPartsData = SOGameSubsystem->GetPartsData(InPartsName);
 	if (SelectedPartsData)
 	{
 		PartsData = *SelectedPartsData;
@@ -173,7 +174,7 @@ void ASOPartsBase::SetPartsData(const ESOGunPartsName InPartsName)
 void ASOPartsBase::SetPartsData(const FName InPartsName)
 {
 	USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();
-	FSOGunPartsBaseData* SelectedPartsData = SOGameSubsystem->GetPartsData(InPartsName);
+	FSOPartsData* SelectedPartsData = SOGameSubsystem->GetPartsData(InPartsName);
 	if (SelectedPartsData)
 	{
 		PartsData = *SelectedPartsData;

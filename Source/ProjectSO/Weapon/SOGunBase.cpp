@@ -51,14 +51,36 @@ ASOGunBase::ASOGunBase()
 	ScopeCamera->SetupAttachment(WeaponMesh);	
 	ScopeCamera->bUsePawnControlRotation = true;
 
+	// ===================== Parts =============================
+	Scope = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Scope"));
+	Scope->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Scope->SetVisibility(true, true);
+	Scope->SetupAttachment(WeaponMesh);		
+	
 	CaptureCamera = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("CaptureCamera"));
-	CaptureCamera->SetupAttachment(WeaponMesh);	
+	CaptureCamera->SetVisibility(true, true);
+	CaptureCamera->SetupAttachment(Scope);	
 	
 	Lens = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Lens"));
 	Lens->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	Lens->SetupAttachment(WeaponMesh);
-	Lens->CastShadow = true;
-	Lens->SetVisibility(false);
+	Lens->SetVisibility(true, true);
+	Lens->SetupAttachment(Scope);
+
+	Magazine = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Magazine"));
+	Magazine->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Magazine->SetVisibility(true, true);
+	Magazine->SetupAttachment(WeaponMesh);
+
+	MuzzleAttachment = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MuzzleAttachment"));
+	MuzzleAttachment->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MuzzleAttachment->SetVisibility(true, true);
+	MuzzleAttachment->SetupAttachment(WeaponMesh);
+	
+	
+	Grip = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Grip"));
+	Grip->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Grip->SetVisibility(true, true);
+	Grip->SetupAttachment(WeaponMesh);	
 	
 	ProjectilePoolComponent = CreateDefaultSubobject<USOProjectilePoolComponent>(TEXT("ProjectilePool"));
 
@@ -104,6 +126,11 @@ void ASOGunBase::BeginPlay()
 	AvailableFireModeCount = CalculateAvailableFireModeCount();
 	// SO_LOG(LogSOTemp,Warning, TEXT("AvailableFireMode : %d"), AvailableFireMode)
 	InitCurrentFireMode();
+
+	PartsMeshes.Push(Scope);
+	PartsMeshes.Push(MuzzleAttachment);
+	PartsMeshes.Push(Grip);
+	PartsMeshes.Push(Magazine);
 }
 
 // Called every frame
@@ -688,7 +715,7 @@ void ASOGunBase::SetGunData(const uint8 InID)
 	USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();
 
 	// 서브시스템에서 원하는 ID의 WeaponStatData를 가져오기
-	FSOWeaponStat* SelectedWeaponStat = SOGameSubsystem->GetWeaponStatData(InID);
+	const FSOWeaponStat* SelectedWeaponStat = SOGameSubsystem->GetWeaponStatData(InID);
 	if (SelectedWeaponStat)
 	{
 		WeaponStat = *SelectedWeaponStat;
@@ -836,21 +863,43 @@ void ASOGunBase::SetModifierStat(uint8 InPartsID, ESOGunPartsType PartsType)
 	SetPartsInfo(InPartsID, PartsType);
 
 	// TotalStat에 적용
-	WeaponStat = *CalculateWeaponStat(EquippedPartsInfo, WeaponStat.ID);
+	WeaponStat = CalculateWeaponStat(EquippedPartsInfo, WeaponStat.ID);
 }
 
 void ASOGunBase::SetModifierStat(ESOGunPartsName InPartsName, ESOGunPartsType PartsType)
 {
 	// EquippedPartsInfo.PartsIDArray[static_cast<int32>(PartsType)] = InPartsName;
 
-	WeaponStat = *CalculateWeaponStat(EquippedPartsInfo, WeaponStat.ID);
+	WeaponStat = CalculateWeaponStat(EquippedPartsInfo, WeaponStat.ID);
 }
 
 void ASOGunBase::SetModifierStat(FName InPartsName, ESOGunPartsType PartsType)
 {
 	EquippedPartsInfo.PartsIDArray[static_cast<int32>(PartsType)] = InPartsName;
 
-	WeaponStat = *CalculateWeaponStat(EquippedPartsInfo, WeaponStat.ID);
+	WeaponStat = CalculateWeaponStat(EquippedPartsInfo, WeaponStat.ID);
+	UpdatePartsComponent(EquippedPartsInfo, WeaponStat.WeaponName);
+}
+
+void ASOGunBase::UpdatePartsComponent(FSOEquippedPartsInfo InPartsInfo, FName InWeaponName)
+{
+	// 컴포넌트 갱신
+	// 위치 조정, visibility 변경
+	// PartsData에서 가져오기
+	USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();
+	// PartsIDArray은 scope, muzzle, Grip, Magazine순서의 FName 배열
+	// PartsIDArray[0] 은 scope의 FName
+	for(int Idx = 0; Idx < InPartsInfo.PartsIDArray.Num(); Idx++)
+	{
+		// 이름으로 PartsDataRow 찾기
+		if(InPartsInfo.PartsIDArray[Idx] == FName("None")) continue;
+		FSOPartsData* PartsDataRow = SOGameSubsystem->GetPartsData(InPartsInfo.PartsIDArray[Idx]);
+		PartsMeshes[Idx]->SetStaticMesh(PartsDataRow->PartsMesh);
+
+		// 무기 이름에 해당하는 위치 정보에 파츠 배치
+		// PartsMeshes[Idx]->SetRelativeTransform(PartsDataRow->OffsetMapping[InWeaponName]);
+	}
+	
 }
 
 //이펙트 동기화 
@@ -884,11 +933,12 @@ void ASOGunBase::OnRep_bReloading()
 	}	
 }
 
-FSOWeaponStat* ASOGunBase::CalculateWeaponStat(FSOEquippedPartsInfo InPartsInfo, uint8 WeaponID)
+FSOWeaponStat ASOGunBase::CalculateWeaponStat(FSOEquippedPartsInfo InPartsInfo, uint8 WeaponID)
 {
 	USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();
+	
 	// 모든 stat적용식
-	FSOWeaponStat* WeaponBaseStat = SOGameSubsystem->GetWeaponStatData(WeaponID);
+	FSOWeaponStat WeaponBaseStat = *SOGameSubsystem->GetWeaponStatData(WeaponID);
 
 	float AccumulatedPitchRecoilReduction = 0;
 	float AccumulatedYawRecoilReduction = 0;
@@ -897,7 +947,7 @@ FSOWeaponStat* ASOGunBase::CalculateWeaponStat(FSOEquippedPartsInfo InPartsInfo,
 	float AccumulatedHideMuzzleFlash = 0;
 	float AccumulatedLensMinFOV = 0;
 	float AccumulatedLensMaxFOV = 0;
-	uint8 AccumulatedCanLensAim = false;
+	uint8 AccumulatedCanLensAim = 0;
 	
 	for(int TypeIdx = 0; TypeIdx < InPartsInfo.PartsIDArray.Num(); TypeIdx++)
 	{		
@@ -915,10 +965,10 @@ FSOWeaponStat* ASOGunBase::CalculateWeaponStat(FSOEquippedPartsInfo InPartsInfo,
 		AccumulatedAimingRate += PartsStatRow->AimingRate;		
 		
 		// 렌즈 여부
-		AccumulatedCanLensAim &= PartsStatRow->bCanLensAim;
+		AccumulatedCanLensAim += PartsStatRow->bCanLensAim;
 
 		// 조절 가능 여부는 Min, Max에 의해 결정
-		// 범위가 있으면 조절 가능 		
+		// 범위가 있으면 조절 가능
 		// 렌즈가 있다면 씬 캡쳐 FOV 설정
 		AccumulatedLensMinFOV += PartsStatRow->MinFOV;
 		AccumulatedLensMaxFOV += PartsStatRow->MaxFOV;
@@ -927,7 +977,7 @@ FSOWeaponStat* ASOGunBase::CalculateWeaponStat(FSOEquippedPartsInfo InPartsInfo,
 		AccumulatedReloadRate += PartsStatRow->ReloadRate;
 
 		// 적어도 하나가 true이면 true
-		WeaponBaseStat->bLargeClip &= PartsStatRow->bLargeClip;	
+		WeaponBaseStat.bLargeClip += PartsStatRow->bLargeClip;	
 	}
 	// 파츠
 	// 0 2 0 0 0
@@ -935,55 +985,55 @@ FSOWeaponStat* ASOGunBase::CalculateWeaponStat(FSOEquippedPartsInfo InPartsInfo,
 	// idx = 파츠 타입에 해당 번호
 	
 	// 총구 효과 감쇠
-	WeaponBaseStat->MuzzleFlashScale = WeaponBaseStat->MuzzleFlashScale * (100 - AccumulatedHideMuzzleFlash) * 0.01f;
+	WeaponBaseStat.MuzzleFlashScale = WeaponBaseStat.MuzzleFlashScale * (100 - AccumulatedHideMuzzleFlash) * 0.01f;
 	
 	// 반동
-	WeaponBaseStat->AimedRecoilPitch = WeaponBaseStat->AimedRecoilPitch * (100 - AccumulatedPitchRecoilReduction) * 0.01f;
-	WeaponBaseStat->AimedRecoilYaw = WeaponBaseStat->AimedRecoilYaw * (100 - AccumulatedYawRecoilReduction) * 0.01f;
+	WeaponBaseStat.AimedRecoilPitch = WeaponBaseStat.AimedRecoilPitch * (100 - AccumulatedPitchRecoilReduction) * 0.01f;
+	WeaponBaseStat.AimedRecoilYaw = WeaponBaseStat.AimedRecoilYaw * (100 - AccumulatedYawRecoilReduction) * 0.01f;
 
 	// 조준 속도
-	WeaponBaseStat->AimingTime = WeaponBaseStat->AimingTime * (100 - AccumulatedAimingRate) * 0.01f;
+	WeaponBaseStat.AimingTime = WeaponBaseStat.AimingTime * (100 - AccumulatedAimingRate) * 0.01f;
 	
 	// 재장전 속도
-	WeaponBaseStat->ReloadInterval = WeaponBaseStat->ReloadInterval * (100 - AccumulatedReloadRate) * 0.01f;
+	WeaponBaseStat.ReloadInterval = WeaponBaseStat.ReloadInterval * (100 - AccumulatedReloadRate) * 0.01f;
 
 	// 렌즈 활성화 여부
-	WeaponBaseStat->bCanLensAim = AccumulatedCanLensAim;
+	WeaponBaseStat.bCanLensAim = AccumulatedCanLensAim;
 	
 
 	// FOV
-	if(WeaponBaseStat->bCanLensAim)
+	if(WeaponBaseStat.bCanLensAim)
 	{
-		WeaponBaseStat->MinFOV = AccumulatedLensMinFOV;
+		WeaponBaseStat.MinFOV = AccumulatedLensMinFOV;
 		
 		if(AccumulatedLensMaxFOV < AccumulatedLensMinFOV)
 		{
-			WeaponBaseStat->MaxFOV = AccumulatedLensMinFOV;
-			WeaponBaseStat->bCanZoomInOut = false;
+			WeaponBaseStat.MaxFOV = AccumulatedLensMinFOV;
+			WeaponBaseStat.bCanZoomInOut = false;
 		}
 		else
 		{
-			WeaponBaseStat->MaxFOV = AccumulatedLensMaxFOV;
-			WeaponBaseStat->bCanZoomInOut = true;
+			WeaponBaseStat.MaxFOV = AccumulatedLensMaxFOV;
+			WeaponBaseStat.bCanZoomInOut = true;
 		}
 		
 		// TODO 만약 이 컴포넌트가 없다면 이 함수는 깨질텐데 괜찮은걸까?
 		if(CaptureCamera)
 		{
-			CaptureCamera->FOVAngle = WeaponBaseStat->MinFOV;
+			CaptureCamera->FOVAngle = WeaponBaseStat.MinFOV;
 		}
 	}
-	Lens->SetVisibility(WeaponBaseStat->bCanLensAim);
+	// Lens.SetVisibility(WeaponBaseStat.bCanLensAim);
 	
 
 	// 대탄 여부
-	if(WeaponBaseStat->bLargeClip)
+	if(WeaponBaseStat.bLargeClip)
 	{
-		WeaponBaseStat->ClipSize = WeaponBaseStat->LargeClipSize;			
+		WeaponBaseStat.ClipSize = WeaponBaseStat.LargeClipSize;			
 	}
 	else
 	{
-		WeaponBaseStat->ClipSize = WeaponBaseStat->NormalClipSize;
+		WeaponBaseStat.ClipSize = WeaponBaseStat.NormalClipSize;
 	}
 	
 	return WeaponBaseStat;
