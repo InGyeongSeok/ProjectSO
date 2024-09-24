@@ -126,7 +126,6 @@ protected:
 	void DebugOverlayMenuCycleAction(const FInputActionValue& Value);
 
 
-
 public:
 	/** Main character reference */
 	UPROPERTY(BlueprintReadOnly, Category = "ProjectSO")

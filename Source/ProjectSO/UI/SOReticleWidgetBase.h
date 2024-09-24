@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SOUserWidget.h"
 #include "Blueprint/UserWidget.h"
 #include "SOReticleWidgetBase.generated.h"
 
@@ -24,7 +25,7 @@ public:
  * 
  */
 UCLASS()
-class PROJECTSO_API USOReticleWidgetBase : public UUserWidget
+class PROJECTSO_API USOReticleWidgetBase : public USOUserWidget
 {
 	GENERATED_BODY()
 

@@ -4,13 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "Character/ALSCharacter.h"
+#include "ProjectSO/Interface/SOCharacterWidgetInterface.h"
 #include "ProjectSO/Weapon/SOGunBase.h"
 #include "ProjectSO/Interface/SOEquippableInterface.h"
 #include "ProjectSO/Interface/SOInteractableInterface.h"
 #include "SOCharacterBase.generated.h"
 
+class ASOHUD;
 class USOInventoryComponent;
-class USOHealthComponent;
+class USOStatComponent;
 /**
  * 
  */
@@ -35,7 +37,7 @@ struct FInteractionData
 
 
 UCLASS()
-class PROJECTSO_API ASOCharacterBase : public AALSCharacter
+class PROJECTSO_API ASOCharacterBase : public AALSCharacter, public ISOCharacterWidgetInterface
 {
 	GENERATED_BODY()
 
@@ -79,7 +81,7 @@ public:
 	void MulticastRPCEquipItem(ASOItemActor* Weapon);
 
 public:
-	FORCEINLINE USOHealthComponent* GetHealth() const { return HealthComponent; }
+	FORCEINLINE USOStatComponent* GetHealth() const { return StatComponent; }
 	FORCEINLINE USOInventoryComponent* GetInventory() const { return InventoryComponent; }
 	
 	// Health
@@ -92,7 +94,9 @@ protected:
 protected:
 	UFUNCTION()
 	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
-
+	
+	UFUNCTION()
+	virtual void SetUpHUD(ASOHUD* InHUD) override;
 public:
 	//Apply Recoil 
 	void ApplyRecoil(const float InYawRecoil, const float InPitchRecil);
@@ -103,7 +107,7 @@ protected:
 
 protected:
 	UPROPERTY(EditAnywhere, Replicated, Category = "SO|Health")
-	TObjectPtr<USOHealthComponent> HealthComponent;
+	TObjectPtr<USOStatComponent> StatComponent;
 
 	UPROPERTY(EditAnywhere, Replicated, Category = "SO|Inventory")
 	TObjectPtr<USOInventoryComponent> InventoryComponent;

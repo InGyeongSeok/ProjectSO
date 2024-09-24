@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "SOQuickBar.generated.h"
+#include "SOUserWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROJECTSO_API USOQuickBar : public UUserWidget
+class PROJECTSO_API USOUserWidget : public UUserWidget
 {
 	GENERATED_BODY()
 	

@@ -2,21 +2,23 @@
 
 
 #include "SOCharacterBase.h"
+#include "SOCharacterBase.h"
 
 #include "Character/ALSCharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
 #include "ProjectSO/ProjectSO.h"
-#include "ProjectSO/Component/SOHealthComponent.h"
+#include "ProjectSO/Component/SOStatComponent.h"
 #include "ProjectSO/Component/SOInventoryComponent.h"
 #include "ProjectSO/Parts/SOPartsBase.h"
+#include "ProjectSO/UI/SOHUD.h"
 #include "ProjectSO/Weapon/SOGunBase.h"
 #include "ProjectSO/Weapon/SOMinigun.h"
 
 ASOCharacterBase::ASOCharacterBase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	HealthComponent = CreateDefaultSubobject<USOHealthComponent>(TEXT("HealthComponent"));
+	StatComponent = CreateDefaultSubobject<USOStatComponent>(TEXT("StatComponent"));
 	InventoryComponent = CreateDefaultSubobject<USOInventoryComponent>(TEXT("InventoryComponent"));
 	CharacterMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMeshComponent"));
 	CharacterMesh->SetupAttachment(GetMesh());
@@ -147,15 +149,16 @@ void ASOCharacterBase::UpdateCharacterMinigunMovement()
 
 void ASOCharacterBase::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController, AActor* DamageCauser)
 {
-	// 이 부분 전부 HealthComponent에서 해도 될 듯.
-	float DamageToHealth = Damage;
-	float Health = HealthComponent->GetHealth();
-	float MaxHealth = HealthComponent->GetMaxHealth();
-	Health = FMath::Clamp(Health - DamageToHealth, 0.f, MaxHealth);
-	HealthComponent->SetHealth(Health);
+	StatComponent->ApplyDamage(Damage);
+}
 
-	SO_LOG(LogTemp, Warning, TEXT("Health %f"), Health);
-	// 죽음 처리 
+void ASOCharacterBase::SetUpHUD(ASOHUD* InHUD)
+{
+	if(IsValid(InHUD))
+	{
+		StatComponent->OnHPChanged.AddUObject(InHUD,&ASOHUD::UpdateHpBarWidget);
+		InHUD->UpdateHpBarWidget(100.0f,100.0f);
+	}
 }
 
 void ASOCharacterBase::MulticastRPCEquipItem_Implementation(ASOItemActor* InItem)

@@ -3,3 +3,12 @@
 
 #include "SOHUDLayout.h"
 
+USOHUDLayout::USOHUDLayout(const FObjectInitializer& ObjectInitializer)
+{
+	
+}
+
+void USOHUDLayout::NativeConstruct()
+{
+	Super::NativeConstruct();
+}
