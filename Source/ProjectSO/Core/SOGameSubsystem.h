@@ -92,5 +92,8 @@ protected:
 	
 	UPROPERTY()
 	uint32 TotalSpawnableItem;
-
+	//
+protected:
+	UPROPERTY()
+	TObjectPtr<class USOProjectilePoolComponent> ProjectilePoolComponentTest; 
 };

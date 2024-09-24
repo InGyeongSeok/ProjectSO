@@ -8,11 +8,8 @@
 USOProjectilePoolComponent::USOProjectilePoolComponent()
 {
 	//Todo 숫자
-	// InitialPoolSize = 10;
 	ExpandSize = 1;
 }
-
-
 // Called when the game starts
 void USOProjectilePoolComponent::BeginPlay()
 {
@@ -29,8 +26,6 @@ void USOProjectilePoolComponent::Reserve(int32 Count)
 		}
 	}
 }
-
-
 void USOProjectilePoolComponent::ReturnToPool(ASOProjectileBase* Projectile)
 {
 	Pool.Push(Projectile);
@@ -46,14 +41,12 @@ ASOProjectileBase* USOProjectilePoolComponent::GetProjectile()
 	return GetNewOrRecycle();
 }
 
-
 ASOProjectileBase* USOProjectilePoolComponent::CreateProjectile()
 {
 	if (AmmoClass)
 	{
 		FTransform SpawnTransform(FRotator().ZeroRotator, FVector().ZeroVector);
-		ASOProjectileBase* SpawnedProjectile = GetWorld()->SpawnActorDeferred<ASOProjectileBase>(
-			AmmoClass, SpawnTransform);
+		ASOProjectileBase* SpawnedProjectile = GetWorld()->SpawnActorDeferred<ASOProjectileBase>(AmmoClass, SpawnTransform);
 		if (SpawnedProjectile)
 		{
 			SpawnedProjectile->SetProjectileActive(false);
@@ -64,7 +57,6 @@ ASOProjectileBase* USOProjectilePoolComponent::CreateProjectile()
 	}
 	return nullptr; 
 }
-
 
 ASOProjectileBase* USOProjectilePoolComponent::GetNewOrRecycle()
 {
