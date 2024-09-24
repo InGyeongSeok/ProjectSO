@@ -55,8 +55,6 @@ void ASOCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 
 void ASOCharacterBase::EquipItem(ASOItemActor* InEquipment)
 {	
-	// ASOGunBase* Weapon = Cast<ASOGunBase>(InEquipment);
-	
 	if(InEquipment)
 	{
 		MulticastRPCEquipItem(InEquipment);		

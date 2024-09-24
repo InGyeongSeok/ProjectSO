@@ -18,7 +18,6 @@ public:
 	// Sets default values for this component's properties
 	USOProjectilePoolComponent();
 
-
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -49,8 +48,6 @@ public:
 protected:
 	TSubclassOf<ASOProjectileBase> AmmoClass;
 	
-	// UPROPERTY(EditDefaultsOnly)
-	// int32 InitialPoolSize;
 	
 	UPROPERTY()
 	int32 ExpandSize;

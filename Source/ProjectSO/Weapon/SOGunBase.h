@@ -88,7 +88,7 @@ public:
 	// Data Settings
 protected:
 	//Subsystem
-	USOGameSubsystem* GetSOGameSubsystem();
+	void GetSOGameSubsystem();
 	
 	virtual void SetGunData(const uint8 InID);
 
@@ -240,12 +240,6 @@ protected:
 	UPROPERTY(EditInstanceOnly)
 	int32 ID;
 	
-	// WeaponBaseStat
-	// WeaponModifierStat
-	// WeaponTotalStat
-
-	// WeaponTotalStat = WeaponBaseStat + WeaponModifierStat;
-	
 	UPROPERTY(VisibleAnywhere)
 	FSOWeaponStat WeaponStat;
 	
@@ -254,6 +248,13 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	FSOEquippedPartsInfo EquippedPartsInfo;
+
+	
+protected:
+	//Subsystem
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<USOGameSubsystem> SOGameSubsystem;
+	
 	
 public:
 	FSOWeaponStat* GetWeaponStat() { return &WeaponStat; }

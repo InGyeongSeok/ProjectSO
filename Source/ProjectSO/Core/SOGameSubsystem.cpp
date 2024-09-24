@@ -7,6 +7,7 @@
 #include "ProjectSO/Library/SOGunPartsStructLibrary.h"
 #include "ProjectSO/Library/SOWeaponDamageDataAsset.h"
 #include "ProjectSO/Library/SOWeaponStructLibrary.h"
+#include "ProjectSO/Weapon/Projectile/SOProjectilePoolComponent.h"
 
 
 USOGameSubsystem::USOGameSubsystem()
@@ -111,7 +112,9 @@ TEXT("/Script/ProjectSO.SOProjectileHitEffectDataAsset'/Game/StellarObsidian/Gam
 	if (StockStatRef.Succeeded())
 	{
 		PartsStatTables.Push(StockStatRef.Object);		
-	}	
+	}
+
+	ProjectilePoolComponentTest = CreateDefaultSubobject<USOProjectilePoolComponent>(TEXT("ProjectilePool"));
 }
 
 void USOGameSubsystem::Initialize(FSubsystemCollectionBase& Collection)

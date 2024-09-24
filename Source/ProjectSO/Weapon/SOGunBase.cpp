@@ -8,11 +8,9 @@
 #include "Net/UnrealNetwork.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Components/CapsuleComponent.h"
-
 #include "SOProjectileBase.h"
 #include "Camera/CameraComponent.h"
 #include "Components/SceneCaptureComponent2D.h"
-#include "EntitySystem/MovieSceneEntitySystemRunner.h"
 #include "ProjectSO/Character/SOCharacterBase.h"
 #include "Projectile/SOProjectilePoolComponent.h"
 #include "ProjectSO/ProjectSO.h"
@@ -107,12 +105,14 @@ void ASOGunBase::BeginPlay()
 	Super::BeginPlay();
 	//UE_LOG(LogTemp, Log, TEXT("ASOGunBase : BeginPlay"));
 	//Gun Data Setting
-	//삭제 필요 ID 
+	//삭제 필요 ID
+	GetSOGameSubsystem();
+
 	SetGunData(ID);
 	WeaponStat.ClipSize = WeaponStat.NormalClipSize; 
 	CurrentAmmoInClip = WeaponStat.ClipSize;
 	//Object Pool
-	if (HasAuthority())
+	if (HasAuthority() )
 	{
 		ProjectilePoolComponent->Reserve();
 	}
@@ -131,6 +131,8 @@ void ASOGunBase::BeginPlay()
 	PartsMeshes.Push(MuzzleAttachment);
 	PartsMeshes.Push(Grip);
 	PartsMeshes.Push(Magazine);
+
+	//GameSubsystem 가져오기
 }
 
 // Called every frame
@@ -388,7 +390,7 @@ void ASOGunBase::CreateProjectile(const FTransform& MuzzleTransform, const FVect
 	//Projectile = GetWorld()->SpawnActor<ASOProjectileBase>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
 	// if(Projectile) Projectile->SetOwner(OwningCharacter);		
 	// UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(__FUNCTION__))
-
+	
 	//검사 로직 추가
 	//서버에서 호출 
 	ASOProjectileBase* Projectile = ProjectilePoolComponent->GetProjectile();
@@ -536,8 +538,6 @@ void ASOGunBase::Aim(bool bPressed)
 	if(bPressed)
 	{
 		PressedTime = GetWorld()->GetTimeSeconds();
-		// 꾹 누르고 있는 경우엔 그냥 조준 모션만 취하기
-		// 확대 조준 상태에서 다시 누르면 해제		
 	}
 	else
 	{
@@ -680,13 +680,17 @@ FName ASOGunBase::GetPartsSocket(ESOGunPartsType InPartsType)
 	return GetWeaponData()->PartsSocketMap[InPartsType];
 }
 
-USOGameSubsystem* ASOGunBase::GetSOGameSubsystem()
+void ASOGunBase::GetSOGameSubsystem()
 {
+	if(SOGameSubsystem)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SOGameSubsystem is available."))
+		return;
+	}
 	UWorld* World = GetWorld();
 	if (!World)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("World is not available."))
-		return nullptr;
 	}
 
 	// 게임 인스턴스 가져오기.
@@ -694,17 +698,15 @@ USOGameSubsystem* ASOGunBase::GetSOGameSubsystem()
 	if (!GameInstance)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("GameInstance is not available."))
-		return nullptr;
 	}
 
 	// 게임 인스턴스에서 서브시스템을 가져오기.
-	USOGameSubsystem* SOGameSubsystem = GameInstance->GetSubsystem<USOGameSubsystem>();
+	USOGameSubsystem* GameSubsystem = GameInstance->GetSubsystem<USOGameSubsystem>();
 	if (!SOGameSubsystem)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("SOGameSubsystem is not available."))
-		return nullptr;
 	}
-	return SOGameSubsystem;
+	SOGameSubsystem = GameSubsystem;
 }
 
 void ASOGunBase::SetGunData(const uint8 InID)
@@ -712,8 +714,13 @@ void ASOGunBase::SetGunData(const uint8 InID)
 	UE_LOG(LogTemp, Log, TEXT("ASOGunBase : SetGunData"))
 	
 	// 게임 인스턴스에서 서브시스템을 가져오기
-	USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();
+	//USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();
 
+	if(!IsValid(SOGameSubsystem))
+	{
+		UE_LOG(LogTemp,Log,TEXT("SOGameSubsystem is nullptr"));
+	}
+	
 	// 서브시스템에서 원하는 ID의 WeaponStatData를 가져오기
 	const FSOWeaponStat* SelectedWeaponStat = SOGameSubsystem->GetWeaponStatData(InID);
 	if (SelectedWeaponStat)
@@ -800,8 +807,6 @@ ESOFireMode ASOGunBase::GetNextValidFireMode()
 	StopFire();
 
 	// 가능한 모드인가?
-	// true = 불가능한 모드 = 다음 모드 탐색
-	// false = 가능 = 탈출 후 반환
 	while ((NextMode & WeaponStat.FireMode) == 0)
 	{
 		// 다음 모드
@@ -844,7 +849,6 @@ void ASOGunBase::SetPartsInfo(uint8 InPartsID, ESOGunPartsType PartsType)
 
 void ASOGunBase::SetModifierStat(uint8 InPartsID, ESOGunPartsType PartsType)
 {
-	USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();
 
 	// 장착 가능한지 여부를 미리 따져야 함
 	// 보낸 파츠의 데이터를 가져와서 따지기
@@ -886,7 +890,10 @@ void ASOGunBase::UpdatePartsComponent(FSOEquippedPartsInfo InPartsInfo, FName In
 	// 컴포넌트 갱신
 	// 위치 조정, visibility 변경
 	// PartsData에서 가져오기
-	USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();
+	if(!IsValid(SOGameSubsystem))
+	{
+		UE_LOG(LogTemp,Log,TEXT("SOGameSubsystem is nullptr"));
+	}
 	// PartsIDArray은 scope, muzzle, Grip, Magazine순서의 FName 배열
 	// PartsIDArray[0] 은 scope의 FName
 	for(int Idx = 0; Idx < InPartsInfo.PartsIDArray.Num(); Idx++)
@@ -935,7 +942,10 @@ void ASOGunBase::OnRep_bReloading()
 
 FSOWeaponStat ASOGunBase::CalculateWeaponStat(FSOEquippedPartsInfo InPartsInfo, uint8 WeaponID)
 {
-	USOGameSubsystem* SOGameSubsystem = GetSOGameSubsystem();
+	if(!IsValid(SOGameSubsystem))
+	{
+		UE_LOG(LogTemp,Log,TEXT("SOGameSubsystem is nullptr"));
+	}
 	
 	// 모든 stat적용식
 	FSOWeaponStat WeaponBaseStat = *SOGameSubsystem->GetWeaponStatData(WeaponID);
