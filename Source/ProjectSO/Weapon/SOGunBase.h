@@ -111,10 +111,12 @@ protected:
 	void OnRep_bReloading();
 	
 public:
-	virtual FSOWeaponStat CalculateWeaponStat(FSOEquippedPartsInfo InPartsInfo, uint8 WeaponID);
+	virtual FSOWeaponStat CalculateWeaponStat(FSOEquippedPartsInfo InPartsInfo, uint8 WeaponID);	
+	virtual void UpdateStatAug(FName InPartsName, ESOGunPartsType PartsType);
+	
 	
 public:
-	uint8 GetAvailableFireMode() const {return WeaponStat.FireMode;}
+	uint8 GetAvailableFireMode() const {return CurrentWeaponStat.FireMode;}
 	int32 GetAvailableFireModeCount() const {return AvailableFireModeCount;}
 	int32 CalculateAvailableFireModeCount();
 	
@@ -235,13 +237,15 @@ protected:
 	
 	// Struct Stat & Data
 protected:
-
 	//삭제 예정 
 	UPROPERTY(EditInstanceOnly)
 	int32 ID;
 	
-	UPROPERTY(VisibleAnywhere)
-	FSOWeaponStat WeaponStat;
+	UPROPERTY(VisibleAnywhere, Replicated)
+	FSOWeaponStat CurrentWeaponStat;
+
+	UPROPERTY(VisibleAnywhere, Replicated)
+	FSOWeaponStatAug WeaponStatAug;
 	
 	UPROPERTY(VisibleAnywhere)
 	FSOWeaponData WeaponData;
@@ -257,17 +261,21 @@ protected:
 	
 	
 public:
-	FSOWeaponStat* GetWeaponStat() { return &WeaponStat; }
+	// 복사 비용 X, 원본 수정 X
+	// 최종 스탯 반환
+	const FSOWeaponStat& GetWeaponStat(){ return CurrentWeaponStat;}
+	// const FSOWeaponStat& UpdateCurrentWeaponStat();
+	void UpdateCurrentWeaponStat();
+	FSOWeaponStat GetWeaponBaseStat(); 
 	FSOWeaponData* GetWeaponData() { return &WeaponData; }
 	USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh;}
-	void SetPartsInfo(uint8 InPartsID, ESOGunPartsType PartsType);
-	void SetModifierStat(uint8 InPartsID, ESOGunPartsType PartsType);
-	void SetModifierStat(ESOGunPartsName InPartsName, ESOGunPartsType PartsType);
-	void SetModifierStat(FName InPartsName, ESOGunPartsType PartsType);
-	void UpdatePartsComponent(FSOEquippedPartsInfo InPartsInfo, FName InWeaponName);
+	void UpdatePartsInfo(FName InPartsName, ESOGunPartsType PartsType);
+	void EquipParts(FName InPartsName, ESOGunPartsType PartsType);
+	void UpdatePartsComponent(FSOEquippedPartsInfo InPartsInfo);
 
 	// 파츠 해제
-	// void DetachParts();
+	void DetachParts();
+	
 	// Ammo
 protected:
 	UPROPERTY()

@@ -75,7 +75,7 @@ void ASOMinigun::FireProjectile()
 	OwnerController->GetPlayerViewPoint(TraceStartLocation, TraceStartRotation);
 
 	// 수정 필요 
-	FVector TraceEnd = TraceStartLocation + TraceStartRotation.Vector() * WeaponStat.MaxRange * 100;
+	FVector TraceEnd = TraceStartLocation + TraceStartRotation.Vector() * CurrentWeaponStat.MaxRange * 100;
 
 	FTransform MuzzleSocketTransform = GetSocketTransformByName(WeaponData.MuzzleSocketName, CanoMesh);
 	FTransform AmmoEjectSocketTransform = GetSocketTransformByName(AmmoEjectSocketName, WeaponMesh);

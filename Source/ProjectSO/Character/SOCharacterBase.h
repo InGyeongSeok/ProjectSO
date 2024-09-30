@@ -97,6 +97,7 @@ protected:
 	
 	UFUNCTION()
 	virtual void SetUpHUD(ASOHUD* InHUD) override;
+	virtual void SetUpUserWidget(USOUserWidget* InWidget) override;
 public:
 	//Apply Recoil 
 	void ApplyRecoil(const float InYawRecoil, const float InPitchRecil);

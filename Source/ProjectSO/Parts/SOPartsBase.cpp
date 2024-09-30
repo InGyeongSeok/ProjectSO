@@ -109,18 +109,9 @@ void ASOPartsBase::Equip()
 	// 속성 반영
 	// PartsData : 다같이 있는 Data 테이블
 	// PartsStat : 종류별로 스텟 테이블
-	// Weapon->SetModifierStat(PartsStat.ID, PartsData.PartsType);
-	Weapon->SetModifierStat(PartsName, PartsData.PartsType);
+	Weapon->EquipParts(PartsName, PartsData.PartsType);
 
 	Destroy();
-	/*// Get PartsSocket Name by PartType from weapon
-	FName PartsSocket = Weapon->GetPartsSocket(PartsData.PartsType);
-	this->AttachToComponent(Weapon->GetWeaponMesh(), AttachmentRules, PartsSocket);
-	
-	// Apply Offset by weapon
-	SetActorRelativeTransform(PartsData.OffsetMapping[Weapon->GetWeaponStat()->WeaponName]);
-	PartsMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	CollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);*/
 }
 
 void ASOPartsBase::Interact(ASOCharacterBase* PlayerCharacter)

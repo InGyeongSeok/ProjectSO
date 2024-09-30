@@ -23,5 +23,5 @@ class PROJECTSO_API ISOCharacterWidgetInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	virtual void SetUpHUD(class ASOHUD* InHUD) = 0;
-	// virtual void SetUpUserWidget(class ASOUserWidget* InWidget) = 0;
+	virtual void SetUpUserWidget(class USOUserWidget* InWidget) = 0;
 };

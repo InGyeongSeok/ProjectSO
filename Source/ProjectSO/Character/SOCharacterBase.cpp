@@ -12,6 +12,7 @@
 #include "ProjectSO/Component/SOInventoryComponent.h"
 #include "ProjectSO/Parts/SOPartsBase.h"
 #include "ProjectSO/UI/SOHUD.h"
+#include "ProjectSO/UI/SOUserWidget.h"
 #include "ProjectSO/Weapon/SOGunBase.h"
 #include "ProjectSO/Weapon/SOMinigun.h"
 
@@ -125,7 +126,7 @@ void ASOCharacterBase::BeginInteract(bool bValue)
 void ASOCharacterBase::ZoomInOutAction(float value)
 {
 	// SceneCapture의 FOV 조절
-	if(CurrentWeapon && CurrentWeapon->GetWeaponStat()->bCanZoomInOut)
+	if(CurrentWeapon && CurrentWeapon->GetWeaponStat().bCanZoomInOut)
 	{
 		CurrentWeapon->ScopeAimZoomInOut(value);
 	}
@@ -156,6 +157,16 @@ void ASOCharacterBase::SetUpHUD(ASOHUD* InHUD)
 	{
 		StatComponent->OnHPChanged.AddUObject(InHUD,&ASOHUD::UpdateHpBarWidget);
 		InHUD->UpdateHpBarWidget(100.0f,100.0f);
+	}
+}
+
+// 함수 바인딩
+void ASOCharacterBase::SetUpUserWidget(USOUserWidget* InWidget)
+{
+	if(IsValid(InWidget))
+	{
+		// StatComponent->OnHPChanged.AddUObject(InWidget, &USOUserWidget::UpdateHpBarWidget);
+		// InWidget->UpdateHpBarWidget(100.0f,100.0f);
 	}
 }
 

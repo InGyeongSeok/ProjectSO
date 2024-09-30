@@ -109,8 +109,8 @@ void ASOGunBase::BeginPlay()
 	GetSOGameSubsystem();
 
 	SetGunData(ID);
-	WeaponStat.ClipSize = WeaponStat.NormalClipSize; 
-	CurrentAmmoInClip = WeaponStat.ClipSize;
+	CurrentWeaponStat.ClipSize = CurrentWeaponStat.NormalClipSize; 
+	CurrentAmmoInClip = CurrentWeaponStat.ClipSize;
 	//Object Pool
 	if (HasAuthority() )
 	{
@@ -153,6 +153,7 @@ void ASOGunBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 	DOREPLIFETIME(ASOGunBase, bTrigger);
 	DOREPLIFETIME(ASOGunBase, CurrentAmmo);
 	DOREPLIFETIME(ASOGunBase, CurrentAmmoInClip);
+	DOREPLIFETIME(ASOGunBase, CurrentWeaponStat);	
 	//DOREPLIFETIME(ASOGunBase, FireEffect);
 	DOREPLIFETIME(ASOGunBase, FireStartTime);
 }
@@ -237,7 +238,7 @@ void ASOGunBase::FireAuto()
 	GetWorld()->GetTimerManager().ClearTimer(FireTimerHandle);
 
 	FireProjectile();
-	GetWorld()->GetTimerManager().SetTimer(FireTimerHandle, this, &ASOGunBase::FireProjectile, WeaponStat.FireInterval,
+	GetWorld()->GetTimerManager().SetTimer(FireTimerHandle, this, &ASOGunBase::FireProjectile, CurrentWeaponStat.FireInterval,
 	                                       true);
 }
 
@@ -263,7 +264,7 @@ void ASOGunBase::FireContinuously(int32 InCurRepeatCount, int32 InMaxRepeatCount
 		{
 			FireContinuously(InCurRepeatCount + 1, InMaxRepeatCount);
 		},
-		WeaponStat.FireInterval, false);
+		CurrentWeaponStat.FireInterval, false);
 }
 
 void ASOGunBase::FireSingle()
@@ -305,7 +306,7 @@ void ASOGunBase::FireProjectile() //클라이언트 들어오는 함수
 	OwnerController->GetPlayerViewPoint(TraceStartLocation, TraceStartRotation);
 
 	// 수정 필요 
-	FVector TraceEnd = TraceStartLocation + TraceStartRotation.Vector() * WeaponStat.MaxRange * 100;
+	FVector TraceEnd = TraceStartLocation + TraceStartRotation.Vector() * CurrentWeaponStat.MaxRange * 100;
 	// bool bScreenLaserSuccess = GetWorld()->LineTraceSingleByChannel(ScreenLaserHit, TraceStartLocation, TraceEnd, ECC_Projectile, Params);
 
 	// 허공이면 TraceEnd, 아니면 Hit.Location
@@ -400,7 +401,7 @@ void ASOGunBase::CreateProjectile(const FTransform& MuzzleTransform, const FVect
 		ProjectileData.Location = SpawnLocation;
 		ProjectileData.Rotation = SpawnRotation;
 		ProjectileData.FiringPawn = OwningCharacter;
-		ProjectileData.Damage = WeaponStat.Damage;
+		ProjectileData.Damage = CurrentWeaponStat.Damage;
 		ProjectileData.WeaponType = WeaponData.WeaponType;
 		ProjectileData.DistanceDamageFalloff = WeaponData.DistanceDamageFalloff;
 		Projectile->InitializeProjectile(ProjectileData);
@@ -421,7 +422,7 @@ void ASOGunBase::PlayMuzzleEffect(const FVector& MuzzleLocation, FRotator& Muzzl
 			WeaponData.MuzzleFlashEffect,
 			MuzzleLocation,
 			MuzzleRotation,
-			FVector(WeaponStat.MuzzleFlashScale)
+			FVector(CurrentWeaponStat.MuzzleFlashScale)
 		);
 	}
 }
@@ -476,7 +477,7 @@ float ASOGunBase::PlayAnimMontage(UAnimMontage* AnimMontage, USkeletalMeshCompon
 
 void ASOGunBase::Recoil()
 {
-	OwningCharacter->ApplyRecoil(WeaponStat.AimedRecoilYaw,WeaponStat.AimedRecoilPitch);
+	OwningCharacter->ApplyRecoil(CurrentWeaponStat.AimedRecoilYaw,CurrentWeaponStat.AimedRecoilPitch);
 }
 
 void ASOGunBase::Reload()
@@ -492,7 +493,7 @@ void ASOGunBase::Reload()
 	}
 
 	// 탄창에 총알 가득
-	if(CurrentAmmoInClip == WeaponStat.ClipSize)
+	if(CurrentAmmoInClip == CurrentWeaponStat.ClipSize)
 	{
 		SO_LOG(LogSOTemp,Log,TEXT("Full Ammo"));
 		return;
@@ -513,10 +514,10 @@ void ASOGunBase::Reload()
 	if(CurrentAmmo > 0)
 	{
 		int32 NeededAmmo;
-		NeededAmmo = WeaponStat.ClipSize - CurrentAmmoInClip;
+		NeededAmmo = CurrentWeaponStat.ClipSize - CurrentAmmoInClip;
 		if(CurrentAmmo > NeededAmmo)
 		{
-			CurrentAmmoInClip = WeaponStat.ClipSize;
+			CurrentAmmoInClip = CurrentWeaponStat.ClipSize;
 			CurrentAmmo -= NeededAmmo;
 		}
 		else
@@ -530,7 +531,7 @@ void ASOGunBase::Reload()
 	GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, [this]()
 	{
 		bReloading = false;		
-	}, WeaponStat.ReloadInterval, false);
+	}, CurrentWeaponStat.ReloadInterval, false);
 }
 
 void ASOGunBase::Aim(bool bPressed)
@@ -544,13 +545,13 @@ void ASOGunBase::Aim(bool bPressed)
 		if(bScopeAim)
 		{
 			bScopeAim = false;
-			if(WeaponStat.bCanLensAim)
+			if(CurrentWeaponStat.bCanLensAim)
 			{
 				Lens->SetVisibility(false);				
 			}
 			if(ASOPlayerController* PlayerController = CastChecked<ASOPlayerController>(OwningCharacter->GetController()))
 			{
-				PlayerController->SetViewTargetWithBlend(OwningCharacter,WeaponStat.AimingTime);	
+				PlayerController->SetViewTargetWithBlend(OwningCharacter,CurrentWeaponStat.AimingTime);	
 			}
 			return;
 		}
@@ -560,13 +561,13 @@ void ASOGunBase::Aim(bool bPressed)
 		{
 			bScopeAim = true;
 			// Short click action
-			if(WeaponStat.bCanLensAim)
+			if(CurrentWeaponStat.bCanLensAim)
 			{
 				Lens->SetVisibility(true);
 			}
 			if(ASOPlayerController* PlayerController = CastChecked<ASOPlayerController>(OwningCharacter->GetController()))
 			{
-				PlayerController->SetViewTargetWithBlend(this,WeaponStat.AimingTime);	
+				PlayerController->SetViewTargetWithBlend(this,CurrentWeaponStat.AimingTime);	
 			}
 		}
 	}
@@ -582,7 +583,7 @@ void ASOGunBase::ScopeAimZoomInOut(float value)
 	FOV += value;
 	
 	// 더한 값이 범위를 초과하면 return
-	if(FOV < WeaponStat.MinFOV || FOV > WeaponStat.MaxFOV) return;
+	if(FOV < CurrentWeaponStat.MinFOV || FOV > CurrentWeaponStat.MaxFOV) return;
 
 	// 반영
 	CaptureCamera->FOVAngle = FOV;	
@@ -725,7 +726,7 @@ void ASOGunBase::SetGunData(const uint8 InID)
 	const FSOWeaponStat* SelectedWeaponStat = SOGameSubsystem->GetWeaponStatData(InID);
 	if (SelectedWeaponStat)
 	{
-		WeaponStat = *SelectedWeaponStat;
+		CurrentWeaponStat = *SelectedWeaponStat;
 	}
 
 	FSOWeaponData* SelectedWeaponData = SOGameSubsystem->GetWeaponData(InID);
@@ -774,7 +775,7 @@ void ASOGunBase::ServerRPCOnReload_Implementation()
 
 int32 ASOGunBase::CalculateAvailableFireModeCount()
 {
-	uint8 Mode = WeaponStat.FireMode;
+	uint8 Mode = CurrentWeaponStat.FireMode;
 	int32 Count = 0;
 	while (Mode)
 	{
@@ -790,7 +791,7 @@ void ASOGunBase::InitCurrentFireMode()
 	for (uint8 i = 1; i <= static_cast<uint8>(ESOFireMode::Max); i <<= 1)
 	{
 		// 작은 수부터 시작해서 낮은 비트 시 break;
-		if (WeaponStat.FireMode & i)
+		if (CurrentWeaponStat.FireMode & i)
 		{
 			CurrentFireMode = static_cast<ESOFireMode>(i);
 			break;
@@ -807,7 +808,7 @@ ESOFireMode ASOGunBase::GetNextValidFireMode()
 	StopFire();
 
 	// 가능한 모드인가?
-	while ((NextMode & WeaponStat.FireMode) == 0)
+	while ((NextMode & CurrentWeaponStat.FireMode) == 0)
 	{
 		// 다음 모드
 		NextMode <<= 1;
@@ -835,57 +836,85 @@ FTransform ASOGunBase::GetSocketTransformByName(FName InSocketName, const USkele
 	return SocketTransform;
 }
 
-void ASOGunBase::SetPartsInfo(uint8 InPartsID, ESOGunPartsType PartsType)
+void ASOGunBase::UpdateCurrentWeaponStat()
 {
-	// EquippedPartsInfo.PartsIDArray[static_cast<int32>(PartsType)] = InPartsID;
-	/*SO_LOG(LogSOGun, Log, TEXT("PartsType : %d"), static_cast<int32>(PartsType))
-	SO_LOG(LogSOGun, Log, TEXT("InPartsID : %d"), InPartsID)
-	
-	for(auto i : EquippedPartsInfo.PartsIDArray)
+	// 멤버변수 CurrentWeaponStat + WeaponStatAug 과정
+	if(!IsValid(SOGameSubsystem))
 	{
-		SO_LOG(LogSOGun, Log, TEXT("PartsIDArray : %d"),i)
-	}*/	
-}
-
-void ASOGunBase::SetModifierStat(uint8 InPartsID, ESOGunPartsType PartsType)
-{
-
-	// 장착 가능한지 여부를 미리 따져야 함
-	// 보낸 파츠의 데이터를 가져와서 따지기
-	// 애초에 여기서 하면 안되긴 함
-	// FString RowName = FString::Printf(TEXT("%d"), InPartsID);
-	/*FSOPartsStat* PartsStatRow = SOGameSubsystem->GetPartsStatTable(InPartsID)->FindRow<FSOPartsStat>(FName(*RowName), "");
+		UE_LOG(LogTemp,Log,TEXT("SOGameSubsystem is nullptr"));
+	}	
 	
-	// 총기 탄약과 탄창 탄약 타입 비교. 같아야 장착 가능
-	if(PartsStatRow->AmmoType != ESOAmmoType::None && WeaponStat.AmmoType != PartsStatRow->AmmoType)
+	// 총구 효과 감쇠
+	CurrentWeaponStat.MuzzleFlashScale = CurrentWeaponStat.MuzzleFlashScale * (100 - WeaponStatAug.AccumulatedHideMuzzleFlash) * 0.01f;
+	
+	// 반동
+	CurrentWeaponStat.AimedRecoilPitch = CurrentWeaponStat.AimedRecoilPitch * (100 - WeaponStatAug.AccumulatedPitchRecoilReduction) * 0.01f;
+	CurrentWeaponStat.AimedRecoilYaw = CurrentWeaponStat.AimedRecoilYaw * (100 - WeaponStatAug.AccumulatedYawRecoilReduction) * 0.01f;
+
+	// 조준 속도
+	CurrentWeaponStat.AimingTime = CurrentWeaponStat.AimingTime * (100 - WeaponStatAug.AccumulatedAimingRate) * 0.01f;
+	
+	// 재장전 속도
+	CurrentWeaponStat.ReloadInterval = CurrentWeaponStat.ReloadInterval * (100 - WeaponStatAug.AccumulatedReloadRate) * 0.01f;
+
+	// 렌즈 활성화 여부
+	CurrentWeaponStat.bCanLensAim = WeaponStatAug.AccumulatedCanLensAim;
+	
+
+	// FOV
+	if(CurrentWeaponStat.bCanLensAim)
 	{
-		SO_LOG(LogSOGun, Log, TEXT("Incorrect AmmoType"))
-		return;
-	}*/
-	
-	// 파츠 ID를 갱신
-	SetPartsInfo(InPartsID, PartsType);
+		CurrentWeaponStat.MinFOV = WeaponStatAug.AccumulatedLensMinFOV;
+		
+		if(WeaponStatAug.AccumulatedLensMaxFOV < WeaponStatAug.AccumulatedLensMinFOV)
+		{
+			CurrentWeaponStat.MaxFOV = WeaponStatAug.AccumulatedLensMinFOV;
+			CurrentWeaponStat.bCanZoomInOut = false;
+		}
+		else
+		{
+			CurrentWeaponStat.MaxFOV = WeaponStatAug.AccumulatedLensMaxFOV;
+			CurrentWeaponStat.bCanZoomInOut = true;
+		}
+		
+		// TODO 만약 이 컴포넌트가 없다면 이 함수는 깨질텐데 괜찮은걸까?
+		if(CaptureCamera)
+		{
+			CaptureCamera->FOVAngle = CurrentWeaponStat.MinFOV;
+		}
+	}
 
-	// TotalStat에 적용
-	WeaponStat = CalculateWeaponStat(EquippedPartsInfo, WeaponStat.ID);
+	// 대탄 여부
+	if(CurrentWeaponStat.bLargeClip)
+	{
+		CurrentWeaponStat.ClipSize = CurrentWeaponStat.LargeClipSize;			
+	}
+	else
+	{
+		CurrentWeaponStat.ClipSize = CurrentWeaponStat.NormalClipSize;
+	}
 }
 
-void ASOGunBase::SetModifierStat(ESOGunPartsName InPartsName, ESOGunPartsType PartsType)
+FSOWeaponStat ASOGunBase::GetWeaponBaseStat()
 {
-	// EquippedPartsInfo.PartsIDArray[static_cast<int32>(PartsType)] = InPartsName;
-
-	WeaponStat = CalculateWeaponStat(EquippedPartsInfo, WeaponStat.ID);
+	FSOWeaponStat WeaponBaseStat = *SOGameSubsystem->GetWeaponStatData(ID);
+	return WeaponBaseStat; 
 }
 
-void ASOGunBase::SetModifierStat(FName InPartsName, ESOGunPartsType PartsType)
+void ASOGunBase::UpdatePartsInfo(FName InPartsName, ESOGunPartsType PartsType)
 {
 	EquippedPartsInfo.PartsIDArray[static_cast<int32>(PartsType)] = InPartsName;
-
-	WeaponStat = CalculateWeaponStat(EquippedPartsInfo, WeaponStat.ID);
-	UpdatePartsComponent(EquippedPartsInfo, WeaponStat.WeaponName);
 }
 
-void ASOGunBase::UpdatePartsComponent(FSOEquippedPartsInfo InPartsInfo, FName InWeaponName)
+void ASOGunBase::EquipParts(FName InPartsName, ESOGunPartsType PartsType)
+{
+	UpdatePartsInfo(InPartsName, PartsType);	
+	UpdateStatAug(InPartsName, PartsType);	
+	UpdateCurrentWeaponStat();
+	UpdatePartsComponent(EquippedPartsInfo);	
+}
+
+void ASOGunBase::UpdatePartsComponent(FSOEquippedPartsInfo InPartsInfo)
 {
 	// 컴포넌트 갱신
 	// 위치 조정, visibility 변경
@@ -896,48 +925,39 @@ void ASOGunBase::UpdatePartsComponent(FSOEquippedPartsInfo InPartsInfo, FName In
 	}
 	// PartsIDArray은 scope, muzzle, Grip, Magazine순서의 FName 배열
 	// PartsIDArray[0] 은 scope의 FName
-	for(int Idx = 0; Idx < InPartsInfo.PartsIDArray.Num(); Idx++)
+	for(int32 Idx = 0; Idx < InPartsInfo.PartsIDArray.Num(); Idx++)
 	{
 		// 이름으로 PartsDataRow 찾기
 		if(InPartsInfo.PartsIDArray[Idx] == FName("None")) continue;
 		FSOPartsData* PartsDataRow = SOGameSubsystem->GetPartsData(InPartsInfo.PartsIDArray[Idx]);
 		PartsMeshes[Idx]->SetStaticMesh(PartsDataRow->PartsMesh);
-
-		// 무기 이름에 해당하는 위치 정보에 파츠 배치
-		// PartsMeshes[Idx]->SetRelativeTransform(PartsDataRow->OffsetMapping[InWeaponName]);
-	}
-	
-}
-
-//이펙트 동기화 
-void ASOGunBase::OnRep_FireStartTime()
-{
-	// 클라 && 서버 X => 클라 본인 제외
-	if(OwningCharacter->IsLocallyControlled() && !OwningCharacter->HasAuthority()) return;
-	FTransform FireEffectSocketTransform = GetSocketTransformByName(WeaponData.FireEffectSocketName, WeaponMesh);
-	FTransform AmmoEjectSocketTransform = GetSocketTransformByName(AmmoEjectSocketName, WeaponMesh);
-	
-	FRotator FireEffectRotation = FireEffectSocketTransform.GetRotation().Rotator();
-	FRotator EjectRotation = AmmoEjectSocketTransform.GetRotation().Rotator();
-	PlayMuzzleEffect(FireEffectSocketTransform.GetLocation(), FireEffectRotation);
-	PlayEjectAmmoEffect(AmmoEjectSocketTransform.GetLocation(), EjectRotation);
-}
-
-void ASOGunBase::OnRep_bReloading()
-{
-	if(OwningCharacter->IsLocallyControlled() && !OwningCharacter->HasAuthority()) return;
-	if(bReloading)
-	{
-		if(WeaponData.ReloadWeaponMontage)
-		{
-			PlayAnimMontage(WeaponData.ReloadWeaponMontage, WeaponMesh);
-		}
-
-		if(WeaponData.ReloadMontage)
-		{
-			PlayAnimMontage(WeaponData.ReloadMontage, OwningCharacter->GetMesh());
-		}
 	}	
+}
+
+void ASOGunBase::UpdateStatAug(FName InPartsName, ESOGunPartsType PartsType)
+{
+	FSOPartsStat* PartsStatRow = SOGameSubsystem->GetPartsStatTable(static_cast<int32>(PartsType))->FindRow<FSOPartsStat>(InPartsName, "");
+	// 총구 효과 감쇠
+	WeaponStatAug.AccumulatedHideMuzzleFlash += PartsStatRow->HideMuzzleFlash;
+		
+	// 반동 누적합
+	WeaponStatAug.AccumulatedPitchRecoilReduction += PartsStatRow->PitchRecoilReduction;
+	WeaponStatAug.AccumulatedYawRecoilReduction += PartsStatRow->YawRecoilReduction;		
+		
+	// 조준 속도
+	WeaponStatAug.AccumulatedAimingRate += PartsStatRow->AimingRate;		
+		
+	// 렌즈 여부
+	WeaponStatAug.AccumulatedCanLensAim += PartsStatRow->bCanLensAim;
+
+	// 조절 가능 여부는 Min, Max에 의해 결정
+	// 범위가 있으면 조절 가능
+	// 렌즈가 있다면 씬 캡쳐 FOV 설정
+	WeaponStatAug.AccumulatedLensMinFOV += PartsStatRow->MinFOV;
+	WeaponStatAug.AccumulatedLensMaxFOV += PartsStatRow->MaxFOV;
+		
+	// 해당 파츠 속성만 적용
+	WeaponStatAug.AccumulatedReloadRate += PartsStatRow->ReloadRate;	
 }
 
 FSOWeaponStat ASOGunBase::CalculateWeaponStat(FSOEquippedPartsInfo InPartsInfo, uint8 WeaponID)
@@ -949,7 +969,7 @@ FSOWeaponStat ASOGunBase::CalculateWeaponStat(FSOEquippedPartsInfo InPartsInfo, 
 	
 	// 모든 stat적용식
 	FSOWeaponStat WeaponBaseStat = *SOGameSubsystem->GetWeaponStatData(WeaponID);
-
+	
 	float AccumulatedPitchRecoilReduction = 0;
 	float AccumulatedYawRecoilReduction = 0;
 	float AccumulatedAimingRate = 0;
@@ -958,7 +978,8 @@ FSOWeaponStat ASOGunBase::CalculateWeaponStat(FSOEquippedPartsInfo InPartsInfo, 
 	float AccumulatedLensMinFOV = 0;
 	float AccumulatedLensMaxFOV = 0;
 	uint8 AccumulatedCanLensAim = 0;
-	
+
+	// 방금 장착한 파츠만 갱신
 	for(int TypeIdx = 0; TypeIdx < InPartsInfo.PartsIDArray.Num(); TypeIdx++)
 	{		
 		FSOPartsStat* PartsStatRow = SOGameSubsystem->GetPartsStatTable(TypeIdx)->FindRow<FSOPartsStat>(InPartsInfo.PartsIDArray[TypeIdx], "");
@@ -1033,8 +1054,6 @@ FSOWeaponStat ASOGunBase::CalculateWeaponStat(FSOEquippedPartsInfo InPartsInfo, 
 			CaptureCamera->FOVAngle = WeaponBaseStat.MinFOV;
 		}
 	}
-	// Lens.SetVisibility(WeaponBaseStat.bCanLensAim);
-	
 
 	// 대탄 여부
 	if(WeaponBaseStat.bLargeClip)
@@ -1047,4 +1066,35 @@ FSOWeaponStat ASOGunBase::CalculateWeaponStat(FSOEquippedPartsInfo InPartsInfo, 
 	}
 	
 	return WeaponBaseStat;
+}
+
+//이펙트 동기화 
+void ASOGunBase::OnRep_FireStartTime()
+{
+	// 클라 && 서버 X => 클라 본인 제외
+	if(OwningCharacter->IsLocallyControlled() && !OwningCharacter->HasAuthority()) return;
+	FTransform FireEffectSocketTransform = GetSocketTransformByName(WeaponData.FireEffectSocketName, WeaponMesh);
+	FTransform AmmoEjectSocketTransform = GetSocketTransformByName(AmmoEjectSocketName, WeaponMesh);
+	
+	FRotator FireEffectRotation = FireEffectSocketTransform.GetRotation().Rotator();
+	FRotator EjectRotation = AmmoEjectSocketTransform.GetRotation().Rotator();
+	PlayMuzzleEffect(FireEffectSocketTransform.GetLocation(), FireEffectRotation);
+	PlayEjectAmmoEffect(AmmoEjectSocketTransform.GetLocation(), EjectRotation);
+}
+
+void ASOGunBase::OnRep_bReloading()
+{
+	if(OwningCharacter->IsLocallyControlled() && !OwningCharacter->HasAuthority()) return;
+	if(bReloading)
+	{
+		if(WeaponData.ReloadWeaponMontage)
+		{
+			PlayAnimMontage(WeaponData.ReloadWeaponMontage, WeaponMesh);
+		}
+
+		if(WeaponData.ReloadMontage)
+		{
+			PlayAnimMontage(WeaponData.ReloadMontage, OwningCharacter->GetMesh());
+		}
+	}	
 }

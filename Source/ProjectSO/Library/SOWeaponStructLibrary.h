@@ -135,7 +135,6 @@ public:
 	float MuzzleFlashScale;	
 };
 
-
 USTRUCT(BlueprintType)
 struct FSOWeaponData : public FTableRowBase
 {
@@ -219,8 +218,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Socket|Parts")
 	TMap<ESOGunPartsType, FName> PartsSocketMap;	
 };
-
-
 
 USTRUCT(BlueprintType)
 struct FSOWeaponDamageData : public FTableRowBase
@@ -312,7 +309,6 @@ public:
 	
 };
 
-
 USTRUCT(BlueprintType)
 struct FSOWeaponClassAreaDamageData : public FTableRowBase
 {
@@ -336,7 +332,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponDamageDataAsset)
 	TObjectPtr<class USOWeaponDamageDataAsset> WeaponBoneDamageDataAsset;
 };
-
 
 USTRUCT(BlueprintType)
 struct FSOHitAreaDamageData : public FTableRowBase
@@ -430,4 +425,51 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	uint8 StockID;*/	
+};
+
+USTRUCT(BlueprintType)
+struct FSOWeaponStatAug
+{
+	GENERATED_BODY()
+	
+public:
+	FSOWeaponStatAug& operator=(const FSOWeaponStatAug& InWeaponStatModifier)
+	{
+		if(this!= &InWeaponStatModifier)
+		{
+			AccumulatedPitchRecoilReduction = InWeaponStatModifier.AccumulatedPitchRecoilReduction;
+			AccumulatedYawRecoilReduction = InWeaponStatModifier.AccumulatedYawRecoilReduction;
+			AccumulatedAimingRate = InWeaponStatModifier.AccumulatedAimingRate;
+			AccumulatedReloadRate = InWeaponStatModifier.AccumulatedReloadRate;
+			AccumulatedHideMuzzleFlash = InWeaponStatModifier.AccumulatedHideMuzzleFlash;
+			AccumulatedLensMinFOV = InWeaponStatModifier.AccumulatedLensMinFOV;
+			AccumulatedLensMaxFOV = InWeaponStatModifier.AccumulatedLensMaxFOV;
+			AccumulatedCanLensAim = InWeaponStatModifier.AccumulatedCanLensAim;
+		}
+		return *this;
+	}
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float AccumulatedPitchRecoilReduction;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)	
+	float AccumulatedYawRecoilReduction;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float AccumulatedAimingRate;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float AccumulatedReloadRate;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float AccumulatedHideMuzzleFlash;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float AccumulatedLensMinFOV;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float AccumulatedLensMaxFOV;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	uint8 AccumulatedCanLensAim;
 };

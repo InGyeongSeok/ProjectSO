@@ -59,7 +59,7 @@ void ASOShotGun::FireProjectile()
 	TraceEndArray.Empty();
 	for(int i =0; i< ShrapnelCount; ++i)
 	{
-		FVector TraceEnd = TraceStartLocation + TraceStartRotation.Vector() *  WeaponStat.MaxRange * 100 +  SpreadTraceEnd();
+		FVector TraceEnd = TraceStartLocation + TraceStartRotation.Vector() *  CurrentWeaponStat.MaxRange * 100 +  SpreadTraceEnd();
 		TraceEndArray.Add(TraceEnd);
 		DrawDebugLine(GetWorld(), MuzzleSocketTransform.GetLocation(), TraceEnd, FColor::Red,false, 5, 0, 2);
 	}
