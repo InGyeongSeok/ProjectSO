@@ -15,8 +15,8 @@ void ASOHUD::BeginPlay()
 
 	// Binding Delegate
 	// 캐릭터에서 StatComponent의 델리게이트에 함수 바인딩 설정
-	ISOCharacterWidgetInterface* CharacterHUD = Cast<ISOCharacterWidgetInterface>(PlayerOwner->GetPawn());		
-	CharacterHUD->SetUpHUD(this);
+	// ISOCharacterWidgetInterface* CharacterHUD = Cast<ISOCharacterWidgetInterface>(PlayerOwner->GetPawn());		
+	// CharacterHUD->SetUpHUD(this);
 }
 
 void ASOHUD::DrawHUD()
@@ -38,6 +38,7 @@ void ASOHUD::AddHUDLayout(APlayerController* PC)
 	}
 }
 
+/*
 void ASOHUD::UpdateHpBarWidget(float CurrentHp, float MaxHp)
 {
 	const float NewPercent = FMath::Clamp((CurrentHp/MaxHp),0.0f, 1.0f);
@@ -46,3 +47,4 @@ void ASOHUD::UpdateHpBarWidget(float CurrentHp, float MaxHp)
 		HpBarWidget->UpdateHpBar(NewPercent);		
 	}
 }
+*/

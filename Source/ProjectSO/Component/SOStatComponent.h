@@ -16,28 +16,36 @@ UCLASS()
 class PROJECTSO_API USOStatComponent : public UActorComponent
 {
 	GENERATED_BODY()
+	
 public:
 	USOStatComponent(const FObjectInitializer& ObjectInitializer);
 
-	UFUNCTION(Category = "SO|Hp")
-	float GetCurrentHp() const;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+protected:
 	UFUNCTION(Category = "SO|Hp")
 	void SetCurrentHp(float InHealth);
+	
+public:
+	UFUNCTION(Category = "SO|Hp")
+	float GetCurrentHp() const;	
 
 	UFUNCTION(Category = "SO|Hp")
 	float GetMaxHP() const;
 
-	float ApplyDamage(float InDamage);	
+	float ApplyDamage(float InDamage);
+	
+	UFUNCTION()
+	void OnRep_CurrentHp();
 
 	FOnHpChangedDelegate OnHPChanged;
 	FOnHpZeroDelegate OnHpZero;
 	
 protected:
-	UPROPERTY()
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentHp, Transient, VisibleInstanceOnly, Category = Stat)
 	float CurrentHp;
 
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Stat)
 	float MaxHP;
 };
 

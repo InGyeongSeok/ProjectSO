@@ -36,9 +36,11 @@ void ASOPlayerController::OnPossess(APawn* NewPawn)
 	HUD = HUD == nullptr ? Cast<ASOHUD>(GetHUD()) : HUD.Get();
 	if(HUD)
 	{
-		HUD->AddHUDLayout(this);
-	}
-	
+		if(IsLocalController())
+		{
+			HUD->AddHUDLayout(this);
+		}
+	}	
 }
 
 void ASOPlayerController::OnRep_Pawn()
@@ -54,6 +56,15 @@ void ASOPlayerController::OnRep_Pawn()
 	if (DebugComp)
 	{
 		DebugComp->OnPlayerControllerInitialized(this);
+	}
+	
+	HUD = HUD == nullptr ? Cast<ASOHUD>(GetHUD()) : HUD.Get();
+	if(HUD)
+	{
+		if(IsLocalController())
+		{
+			HUD->AddHUDLayout(this);
+		}
 	}
 }
 

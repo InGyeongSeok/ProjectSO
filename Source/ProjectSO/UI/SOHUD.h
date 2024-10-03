@@ -25,18 +25,13 @@ public:
 
 	// 바인딩될 함수들
 public:
-	void UpdateHpBarWidget(float CurrentHp, float MaxHp);
+	// void UpdateHpBarWidget(float CurrentHp, float MaxHp);
 	
 public:
 	UPROPERTY(EditAnywhere, Category = "Widget")
 	TSubclassOf<class UUserWidget> HUDLayoutClass;
-
-	UPROPERTY(EditAnywhere, Category = "Widget")
-	TSubclassOf<class UUserWidget> HpBarWidgetClass;
 	
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr<USOHUDLayout> HUDLayout;
 
-	UPROPERTY()
-	TObjectPtr<USOHpBarWidget> HpBarWidget;
 };

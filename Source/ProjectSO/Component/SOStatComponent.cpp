@@ -2,7 +2,7 @@
 
 
 #include "SOStatComponent.h"
-
+#include "Net/UnrealNetwork.h"
 #include "ProjectSO/ProjectSO.h"
 
 USOStatComponent::USOStatComponent(const FObjectInitializer& ObjectInitializer)
@@ -10,8 +10,17 @@ USOStatComponent::USOStatComponent(const FObjectInitializer& ObjectInitializer)
 {
 	// PrimaryComponentTick.bStartWithTickEnabled = false;
 	PrimaryComponentTick.bCanEverTick = false;
-
+	// MaxHP = 100;
+	// CurrentHp = MaxHP;
+	
 	SetIsReplicatedByDefault(true);
+}
+
+void USOStatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(USOStatComponent, CurrentHp);
 }
 
 float USOStatComponent::GetCurrentHp() const
@@ -48,4 +57,14 @@ float USOStatComponent::ApplyDamage(float InDamage)
 	}
 	
 	return ActualDamage;
+}
+
+void USOStatComponent::OnRep_CurrentHp()
+{
+	SO_SUBLOG(LogSONetwork, Log, TEXT("Begin"))
+	OnHPChanged.Broadcast(CurrentHp, MaxHP);
+	if (CurrentHp <= KINDA_SMALL_NUMBER)
+	{
+		OnHpZero.Broadcast();
+	}
 }

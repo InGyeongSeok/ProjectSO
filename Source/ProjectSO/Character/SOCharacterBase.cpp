@@ -12,6 +12,7 @@
 #include "ProjectSO/Component/SOInventoryComponent.h"
 #include "ProjectSO/Parts/SOPartsBase.h"
 #include "ProjectSO/UI/SOHUD.h"
+#include "ProjectSO/UI/SOHUDLayout.h"
 #include "ProjectSO/UI/SOUserWidget.h"
 #include "ProjectSO/Weapon/SOGunBase.h"
 #include "ProjectSO/Weapon/SOMinigun.h"
@@ -23,6 +24,15 @@ ASOCharacterBase::ASOCharacterBase(const FObjectInitializer& ObjectInitializer)
 	InventoryComponent = CreateDefaultSubobject<USOInventoryComponent>(TEXT("InventoryComponent"));
 	CharacterMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMeshComponent"));
 	CharacterMesh->SetupAttachment(GetMesh());
+}
+
+void ASOCharacterBase::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	if(HasAuthority())
+	{
+		StatComponent->OnHpZero.AddUObject(this, &ASOCharacterBase::SetDead);		
+	}
 }
 
 void ASOCharacterBase::BeginPlay()
@@ -151,22 +161,28 @@ void ASOCharacterBase::ReceiveDamage(AActor* DamagedActor, float Damage, const U
 	StatComponent->ApplyDamage(Damage);
 }
 
+void ASOCharacterBase::SetDead()
+{
+	SO_LOG(LogTemp, Log, TEXT("Begin"))
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+	SetActorEnableCollision(false);	
+}
+
 void ASOCharacterBase::SetUpHUD(ASOHUD* InHUD)
 {
-	if(IsValid(InHUD))
-	{
-		StatComponent->OnHPChanged.AddUObject(InHUD,&ASOHUD::UpdateHpBarWidget);
-		InHUD->UpdateHpBarWidget(100.0f,100.0f);
-	}
+	
 }
 
 // 함수 바인딩
 void ASOCharacterBase::SetUpUserWidget(USOUserWidget* InWidget)
 {
-	if(IsValid(InWidget))
+	// UI의 NativeConstruct에서 호출
+	if(InWidget)
 	{
-		// StatComponent->OnHPChanged.AddUObject(InWidget, &USOUserWidget::UpdateHpBarWidget);
-		// InWidget->UpdateHpBarWidget(100.0f,100.0f);
+		USOHUDLayout* HUDLayout = Cast<USOHUDLayout>(InWidget);
+		
+		StatComponent->OnHPChanged.AddUObject(HUDLayout, &USOHUDLayout::OnUpdateHpBar);
+		HUDLayout->OnUpdateHpBar(StatComponent->GetCurrentHp(),StatComponent->GetMaxHP());
 	}
 }
 

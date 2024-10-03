@@ -44,6 +44,7 @@ class PROJECTSO_API ASOCharacterBase : public AALSCharacter, public ISOCharacter
 public:
 	ASOCharacterBase(const FObjectInitializer& ObjectInitializer);
 
+	virtual void PostInitializeComponents() override;
 protected:
 	virtual void BeginPlay() override;
 	
@@ -95,8 +96,11 @@ protected:
 	UFUNCTION()
 	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
 	
+	virtual void SetDead();
+	
 	UFUNCTION()
 	virtual void SetUpHUD(ASOHUD* InHUD) override;
+	UFUNCTION(BlueprintCallable)
 	virtual void SetUpUserWidget(USOUserWidget* InWidget) override;
 public:
 	//Apply Recoil 
@@ -107,10 +111,10 @@ protected:
 	TObjectPtr<ASOGunBase> CurrentWeapon;
 
 protected:
-	UPROPERTY(EditAnywhere, Replicated, Category = "SO|Health")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "SO|Health")
 	TObjectPtr<USOStatComponent> StatComponent;
 
-	UPROPERTY(EditAnywhere, Replicated, Category = "SO|Inventory")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "SO|Inventory")
 	TObjectPtr<USOInventoryComponent> InventoryComponent;
 
 	

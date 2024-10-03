@@ -20,4 +20,8 @@ public:
 	
 protected:
 	virtual void NativeConstruct() override;
+
+public:
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void OnUpdateHpBar(float CurrentHp, float MaxHp);
 };
